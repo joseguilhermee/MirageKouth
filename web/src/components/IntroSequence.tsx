@@ -18,8 +18,8 @@ function buildLines(questionCount: number): ReactNode[] {
   return [
     "Vamos descobrir, juntos, os seus arquétipos.",
     <>
-      A leitura é baseada nos <em className="italic text-accent">12 arquétipos</em> de Carl
-      Jung.
+      A leitura usa os <em className="italic text-accent">12 arquétipos</em> de Carol
+      Pearson, a partir do conceito criado por Carl Jung.
     </>,
     <>
       Suas respostas seguem <em className="italic text-cipher">criptografadas</em> — ninguém
@@ -50,7 +50,7 @@ type ExampleCard = {
   archetypes: { name: string; dots: number }[];
 };
 
-// 12 arquétipos de Jung, 2 figuras históricas muito famosas para cada um
+// 12 arquétipos de Pearson, 2 figuras históricas muito famosas para cada um
 // (todas de domínio público), com os 3 arquétipos mais fortes de cada
 // uma. Associações são interpretações — não são absolutas (esse é o
 // próprio ponto da tela).

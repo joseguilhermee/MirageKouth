@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import { Header } from "@/components/Header";
 import { ProgressBar } from "@/components/ProgressBar";
 import { TrustBadge } from "@/components/TrustBadge";
+import { MethodologyBadge } from "@/components/MethodologyBadge";
 import { CipherPreview } from "@/components/CipherPreview";
 import { WelcomeStep } from "@/components/WelcomeStep";
 import { InstructionsStep } from "@/components/InstructionsStep";
@@ -222,6 +223,7 @@ export default function Home() {
       </footer>
 
       <TrustBadge />
+      <MethodologyBadge />
     </main>
   );
 }
