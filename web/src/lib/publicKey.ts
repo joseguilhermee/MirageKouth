@@ -1,0 +1,16 @@
+// Chave PUBLICA RSA-4096 do MirageKouth. Só serve para cifrar — não é
+// possível descriptografar nada com ela. Pode ficar exposta no bundle.
+export const MIRAGE_PUBLIC_KEY_PEM = `-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAo7BYTk7d42c6XzhglbKN
+kUWfHfbt0zYPC2KachHxCU/ctEaqol3xDpgzel24rhWpsYUWAAKzI0c2YWl5jrHH
+atTjJaWxtwSweAKg+1dyN6s53x/dC2gUDJxwn0dFbnYmUf+TFQN6TlGq5zD1qMbq
+m1oWlG6Rd6O/T7V+PaG56zwb5iRcRiA56Zqauw8aY8U6Avo36+oFpq3Yq0XHgg8c
+m4HPoVVzSIg8ST8qPV+RYtkBYveryot58ySVYC0B8+Vx1KhotRqLJcgqsaCA4Yyp
+w37h8Ty5zMgrk1l4IKJMmp0moQTb0RF90llPxF/KH9AMxfGo0T7fd4mV806smGUg
+gu5eisywD28EQTBRnIAFGMWGUuguYtyPhA0QilIssweaSP+DTiiab+DbcA1VjGNK
+2dBuC6CT5OEi8x3B8v4DGZQJ807oCQgWmr5V/aPht9XBOPJ3/XY8iG8ja30VJ7cg
+qKCK8SUELeG+SE1M2Ge7RZc1oNJZqrrncqAO0Is/MWhEYufV5bATrRYDvpj25S/C
+G5VSMCeudbQOhEOEUcOe0pJTSwFM5q/rtyziRasjhIlLvZL8k7qyA9+rIrtpA2zN
+gUMfVhLkPqd7eNX7ZorWfALyFGfIFboX728ItR4ep16TfNd3Q6vokqjb1r5pFJHX
+dnBDZ9cqBzlP2PerQj3pd1cCAwEAAQ==
+-----END PUBLIC KEY-----`;
