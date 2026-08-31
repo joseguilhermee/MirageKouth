@@ -16,9 +16,10 @@ import { ResumePrompt } from "@/components/ResumePrompt";
 import { QUESTIONS } from "@/lib/questions";
 import { generateSessionKey } from "@/lib/crypto";
 
-// v2: pergunta 21 questões abertas em vez das 52 antigas de múltipla escolha —
-// progresso salvo no formato antigo (índices/step diferentes) não é compatível.
-const STORAGE_KEY = "mirage-progress-v2";
+// v3: entrou um item novo no meio do roteiro (o portão do Sábio, depois do 14),
+// então todos os índices a partir dali deslocaram. Progresso salvo em v2
+// apontaria respostas para as perguntas erradas — por isso a chave muda.
+const STORAGE_KEY = "mirage-progress-v3";
 const STEP_WELCOME = -2;
 const STEP_INSTRUCTIONS = -1;
 

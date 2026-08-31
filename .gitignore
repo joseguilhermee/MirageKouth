@@ -1,6 +1,12 @@
 # Nunca versionar a chave privada
 decryptor/keys/private_key.pem
 
+# Protocolo do analisador arquetípico — interno, nunca sobe pro GitHub/Vercel
+IA/
+
+# Documento pessoal com avaliação/comentário de terceiro — nunca versionar
+Victor.docx
+
 # Config local do Claude Code (por máquina, não compartilhada)
 .claude/settings.local.json
 

@@ -38,10 +38,10 @@ def load_private_key(path: Path):
     return serialization.load_pem_private_key(path.read_bytes(), password=None)
 
 
-def decrypt_file(input_path: Path, private_key) -> dict:
-    """Retorna {"name": str, "qa": [{"question", "answer"}, ...]}."""
-    raw = input_path.read_text(encoding="utf-8").strip()
-    envelope = json.loads(base64.b64decode(raw))
+def decrypt_text(raw: str, private_key) -> dict:
+    """Retorna {"name": str, "qa": [{"question", "answer"}, ...]} a partir do
+    conteudo cifrado (base64) já em memória, sem depender de um arquivo."""
+    envelope = json.loads(base64.b64decode(raw.strip()))
 
     encrypted_key = base64.b64decode(envelope["encryptedKey"])
     iv = base64.b64decode(envelope["iv"])
@@ -61,6 +61,11 @@ def decrypt_file(input_path: Path, private_key) -> dict:
     if isinstance(plaintext, list):
         return {"name": "", "qa": plaintext}
     return plaintext
+
+
+def decrypt_file(input_path: Path, private_key) -> dict:
+    """Retorna {"name": str, "qa": [{"question", "answer"}, ...]}."""
+    return decrypt_text(input_path.read_text(encoding="utf-8"), private_key)
 
 
 def main() -> None:

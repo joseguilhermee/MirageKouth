@@ -8,9 +8,15 @@ export type Question = {
 export const QUESTIONS: Question[] = [
   {
     text: "O que você faz numa tarde totalmente livre, em que ninguém espera nada de você?",
+    hints: [
+      "E as suas duas ou três últimas tardes livres de verdade — o que você fez em cada uma?",
+    ],
   },
   {
     text: "Qual assunto faz você falar demais sem perceber?",
+    hints: [
+      "Conte a última vez que isso aconteceu: com quem você estava, e por quanto tempo você falou.",
+    ],
   },
   {
     text: "O que te faz rir de verdade? Dá um exemplo recente.",
@@ -25,6 +31,9 @@ export const QUESTIONS: Question[] = [
   },
   {
     text: "Qual elogio te dá mais prazer receber? E qual elogio te deixa indiferente, mesmo sendo um elogio bom?",
+    hints: [
+      "Qual foi o último elogio que te deixou genuinamente satisfeito? Quem disse, e sobre o quê?",
+    ],
   },
   {
     text: "Em que as pessoas costumam te pedir ajuda?",
@@ -64,9 +73,14 @@ export const QUESTIONS: Question[] = [
     text: "Em que você já gastou tempo demais sem que ninguém tivesse pedido e sem que houvesse ganho nenhum à vista? O que te puxava, até onde você foi, e o que sobrou daquilo.",
   },
   {
+    text: "Conte uma vez em que você continuou estudando ou investigando um assunto depois de já ter o que precisava para decidir ou agir. Quanto tempo a mais você gastou, e o que descobriu nesse excedente?",
+    hints: ["O que sobrou daquilo hoje?"],
+  },
+  {
     text: "Conte sobre uma situação em que a maneira como as coisas estavam sendo feitas parecia errada para você — e você não tinha autoridade nenhuma para mudar aquilo. O que você efetivamente fez? Descreva a sequência de ações.",
     hints: [
       "O que mais te incomodava: o resultado, o método, ou quem estava decidindo?",
+      "Depois que você falou ou agiu, quem passou a fazer o quê de diferente?",
       "Foi exceção ou você costuma reagir assim?",
     ],
   },

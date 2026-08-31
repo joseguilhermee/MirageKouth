@@ -3,10 +3,18 @@ cd /d "%~dp0"
 
 where py >nul 2>nul
 if %errorlevel%==0 (
-    py decrypt_gui.py
+    set "PY=py"
 ) else (
-    python decrypt_gui.py
+    set "PY=python"
 )
+
+%PY% -c "import customtkinter" >nul 2>nul
+if not %errorlevel%==0 (
+    echo Instalando dependencias pela primeira vez, aguarde...
+    %PY% -m pip install -r requirements.txt >nul 2>nul
+)
+
+%PY% decrypt_gui.py
 
 if errorlevel 1 (
     echo.
