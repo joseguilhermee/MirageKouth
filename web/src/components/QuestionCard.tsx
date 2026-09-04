@@ -66,15 +66,14 @@ export function QuestionCard({
         </span>
       </div>
 
-      <h1 className="font-display text-2xl sm:text-3xl leading-snug tracking-tight text-glow mb-3 max-w-2xl">
+      <h1 className="font-display text-2xl sm:text-3xl leading-snug tracking-tight text-glow mb-1 max-w-2xl">
         {question.text}
       </h1>
 
       {question.hints && question.hints.length > 0 && (
-        <ul className="mb-8 max-w-xl flex flex-col gap-1.5">
+        <ul className="mb-8 max-w-xl flex flex-col gap-2 border-l-2 border-accent/30 pl-4">
           {question.hints.map((hint, i) => (
-            <li key={i} className="text-sm text-muted leading-relaxed pl-4 relative">
-              <span className="absolute left-0 text-accent/60">·</span>
+            <li key={i} className="text-base text-foreground/70 leading-relaxed">
               {hint}
             </li>
           ))}

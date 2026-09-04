@@ -47,8 +47,14 @@ export function InstructionsStep({
           Uma história pequena e concreta vale mais do que uma descrição geral sobre
           como você é.
         </p>
+        <p className="text-foreground/90 text-base sm:text-lg leading-relaxed">
+          A resposta <em className="italic text-cipher">óbvia</em> costuma ser a certa.
+          Não tente adivinhar o que a gente está medindo — a tentativa é o único jeito
+          de estragar a leitura.
+        </p>
         <p className="text-muted text-base sm:text-lg leading-relaxed">
-          Se não lembrar de um caso, diga isso — também é uma informação útil.
+          &ldquo;Nada&rdquo;, &ldquo;não sei&rdquo; e &ldquo;nunca aconteceu comigo&rdquo;
+          são respostas completas. Se não lembrar de um caso, diga isso.
         </p>
       </div>
 
