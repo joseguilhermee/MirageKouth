@@ -1,5 +1,5 @@
 import { MIRAGE_PUBLIC_KEY_PEM } from "./publicKey";
-import { QUESTIONS } from "./questions";
+import { QUESTIONS, type QuestionDetail } from "./questions";
 
 // Envelope final: RSA-OAEP-4096 (SHA-256) envelopa uma chave AES-256, que
 // cifra o payload real com AES-GCM. Formato compativel com decryptor/decrypt.py.
@@ -92,7 +92,9 @@ export async function encryptForPreview(
  */
 export async function buildEncryptedFile(
   name: string,
-  answers: Record<number, string>
+  answers: Record<number, string>,
+  timings: Record<number, number> = {},
+  details: Record<number, QuestionDetail> = {}
 ): Promise<string> {
   const publicKey = await getPublicKey();
 
@@ -105,10 +107,22 @@ export async function buildEncryptedFile(
   const qa = QUESTIONS.map((question, i) => ({
     question: question.text,
     answer: answers[i] ?? "",
+    // Botões e extra seguem junto da pergunta, com o enunciado, pra leitura
+    // não depender de saber o índice. Sem marcação, a opção vai vazia.
+    choices: (question.choices ?? []).map((choice, c) => ({
+      prompt: choice.prompt,
+      options: choice.options,
+      answer: details[i]?.choices?.[c] ?? "",
+    })),
+    ...(question.extra ? { extra: { prompt: question.extra, answer: details[i]?.extra ?? "" } } : {}),
   }));
 
+  // Segundos por pergunta, na mesma ordem de qa. Metadado: o decryptor mostra
+  // no fim do arquivo com aviso para o interpretador ignorar.
+  const tempoPorPergunta = QUESTIONS.map((_, i) => Math.round((timings[i] ?? 0) / 1000));
+
   const iv = window.crypto.getRandomValues(new Uint8Array(12));
-  const payload = new TextEncoder().encode(JSON.stringify({ name: name.trim(), qa }));
+  const payload = new TextEncoder().encode(JSON.stringify({ name: name.trim(), qa, timings: tempoPorPergunta }));
   const ciphertext = await window.crypto.subtle.encrypt(
     { name: "AES-GCM", iv },
     aesKey,

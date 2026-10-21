@@ -13,13 +13,14 @@ import { QuestionCard } from "@/components/QuestionCard";
 import { FinalScreen } from "@/components/FinalScreen";
 import { IntroSequence } from "@/components/IntroSequence";
 import { ResumePrompt } from "@/components/ResumePrompt";
-import { QUESTIONS } from "@/lib/questions";
+import { QUESTIONS, type QuestionDetail } from "@/lib/questions";
 import { generateSessionKey } from "@/lib/crypto";
 
 // v3: entrou um item novo no meio do roteiro (o portão do Sábio, depois do 14),
 // então todos os índices a partir dali deslocaram. Progresso salvo em v2
 // apontaria respostas para as perguntas erradas — por isso a chave muda.
-const STORAGE_KEY = "mirage-progress-v3";
+// v4: perguntas trocadas por itens com botões e campo extra (ver questions.ts).
+const STORAGE_KEY = "mirage-progress-v4";
 const STEP_WELCOME = -2;
 const STEP_INSTRUCTIONS = -1;
 
@@ -27,6 +28,9 @@ type SavedProgress = {
   name: string;
   answers: Record<number, string>;
   step: number;
+  /** Milissegundos gastos em cada pergunta; opcional pra aceitar progresso salvo antes do contador. */
+  timings?: Record<number, number>;
+  details?: Record<number, QuestionDetail>;
 };
 
 type Stage = "intro" | "resume" | "app";
@@ -42,6 +46,8 @@ export default function Home() {
   const [name, setName] = useState("");
   const [step, setStep] = useState(STEP_WELCOME);
   const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [timings, setTimings] = useState<Record<number, number>>({});
+  const [details, setDetails] = useState<Record<number, QuestionDetail>>({});
   const [sessionKey, setSessionKey] = useState<CryptoKey | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [stage, setStage] = useState<Stage>("intro");
@@ -82,6 +88,8 @@ export default function Home() {
     if (savedProgress) {
       setName(savedProgress.name ?? "");
       setAnswers(savedProgress.answers ?? {});
+      setTimings(savedProgress.timings ?? {});
+      setDetails(savedProgress.details ?? {});
       setStep(savedProgress.step ?? STEP_WELCOME);
     }
     setHydrated(true);
@@ -99,12 +107,37 @@ export default function Home() {
   useEffect(() => {
     if (!hydrated) return;
     try {
-      const payload: SavedProgress = { name, answers, step };
+      const payload: SavedProgress = { name, answers, step, timings, details };
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch {
       // Se não der pra salvar (modo privado, quota etc.), segue sem persistir.
     }
-  }, [hydrated, name, answers, step]);
+  }, [hydrated, name, answers, step, timings, details]);
+
+  // Soma o tempo em que cada pergunta ficou na tela (só enquanto a aba está
+  // visível). Voltar e reabrir uma pergunta acumula no mesmo item.
+  useEffect(() => {
+    if (stage !== "app" || step < 0 || step >= total) return;
+    const current = step;
+    let startedAt: number | null = document.hidden ? null : Date.now();
+
+    function flush() {
+      if (startedAt === null) return;
+      const elapsed = Date.now() - startedAt;
+      startedAt = null;
+      setTimings((prev) => ({ ...prev, [current]: (prev[current] ?? 0) + elapsed }));
+    }
+    function handleVisibility() {
+      if (document.hidden) flush();
+      else startedAt = Date.now();
+    }
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      flush();
+    };
+  }, [stage, step, total]);
 
   const isFinal = step >= total;
   const answered = useMemo(
@@ -190,6 +223,8 @@ export default function Home() {
                 answered={answered}
                 total={total}
                 answers={answers}
+                timings={timings}
+                details={details}
                 onBack={() => setStep(total - 1)}
                 onDone={clearSavedProgress}
               />
@@ -202,6 +237,10 @@ export default function Home() {
                 value={answers[step] ?? ""}
                 onChange={(value) =>
                   setAnswers((prev) => ({ ...prev, [step]: value }))
+                }
+                detail={details[step] ?? {}}
+                onDetailChange={(detail) =>
+                  setDetails((prev) => ({ ...prev, [step]: detail }))
                 }
                 onNext={() => setStep((s) => Math.min(s + 1, total))}
                 onBack={() => setStep((s) => Math.max(s - 1, 0))}

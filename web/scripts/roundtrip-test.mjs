@@ -50,13 +50,22 @@ const answers = {
   [QUESTIONS.length - 1]: "Um axolote 🦎",
 };
 
-const qa = QUESTIONS.map((question, i) => ({ question, answer: answers[i] ?? "" }));
+const qa = QUESTIONS.map((question, i) => ({
+  question: question.text,
+  answer: answers[i] ?? "",
+  choices: (question.choices ?? []).map((choice, c) => ({
+    prompt: choice.prompt,
+    options: choice.options,
+    answer: i === 0 && c === 0 ? choice.options[0] : "",
+  })),
+  ...(question.extra ? { extra: { prompt: question.extra, answer: i === 0 ? "Uma tarde de chuva" : "" } } : {}),
+}));
 
 const aesKey = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, [
   "encrypt",
 ]);
 const iv = crypto.getRandomValues(new Uint8Array(12));
-const payload = new TextEncoder().encode(JSON.stringify({ name, qa }));
+const payload = new TextEncoder().encode(JSON.stringify({ name, qa, timings: QUESTIONS.map((_, i) => i * 7) }));
 const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, aesKey, payload);
 const rawAesKey = await crypto.subtle.exportKey("raw", aesKey);
 const encryptedKey = await crypto.subtle.encrypt({ name: "RSA-OAEP" }, publicKey, rawAesKey);

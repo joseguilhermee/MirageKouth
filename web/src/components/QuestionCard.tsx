@@ -4,13 +4,16 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAutoGrowTextarea } from "@/lib/useAutoGrowTextarea";
 import { ENTER_TRANSITION, EXIT_TRANSITION } from "@/lib/motion";
-import type { Question } from "@/lib/questions";
+import type { Question, QuestionDetail } from "@/lib/questions";
 
 // Resposta em branco não é "sem dado": pelo §AUSÊNCIA do protocolo, cinco itens
 // vazios nos blocos de conduta derrubam a confiança do perfil inteiro para
 // baixa. Por isso não dá pra avançar sem escrever nada. O mínimo é curto de
 // propósito — "nunca aconteceu" é resposta legítima em vários itens.
 const MIN_CHARS = 10;
+// O extra também é obrigatório, mas responde coisas curtas ("Quem disse?" →
+// "minha mãe"), então o mínimo é só pra não passar em branco.
+const MIN_EXTRA_CHARS = 2;
 
 export function QuestionCard({
   index,
@@ -18,6 +21,8 @@ export function QuestionCard({
   question,
   value,
   onChange,
+  detail,
+  onDetailChange,
   onNext,
   onBack,
 }: {
@@ -26,23 +31,40 @@ export function QuestionCard({
   question: Question;
   value: string;
   onChange: (value: string) => void;
+  detail: QuestionDetail;
+  onDetailChange: (detail: QuestionDetail) => void;
   onNext: () => void;
   onBack: () => void;
 }) {
   const isFirst = index === 0;
   const isLast = index === total - 1;
   const textareaRef = useAutoGrowTextarea(value);
+  const extraRef = useAutoGrowTextarea(detail.extra ?? "");
+
+  function setChoice(c: number, option: string) {
+    onDetailChange({ ...detail, choices: { ...detail.choices, [c]: option } });
+  }
   const [triedToAdvance, setTriedToAdvance] = useState(false);
 
-  const canAdvance = value.trim().length >= MIN_CHARS;
+  const mainOk = value.trim().length >= MIN_CHARS;
+  const extraOk = !question.extra || (detail.extra ?? "").trim().length >= MIN_EXTRA_CHARS;
+  // Nenhum botão vem marcado: cada linha precisa de uma escolha da pessoa.
+  const missingChoices = (question.choices ?? [])
+    .map((_, c) => c)
+    .filter((c) => !detail.choices?.[c]);
+  const choicesOk = missingChoices.length === 0;
+  const canAdvance = mainOk && extraOk && choicesOk;
   // Derivado, não sincronizado por efeito: o aviso some sozinho assim que a
   // resposta fica longa o bastante, e volta se ela for apagada de novo.
-  const blocked = triedToAdvance && !canAdvance;
+  const blocked = triedToAdvance && !mainOk;
+  const extraBlocked = triedToAdvance && !extraOk;
+  const choicesBlocked = triedToAdvance && !choicesOk;
 
   function handleNext() {
     if (!canAdvance) {
       setTriedToAdvance(true);
-      textareaRef.current?.focus();
+      if (!mainOk) textareaRef.current?.focus();
+      else if (!extraOk) extraRef.current?.focus();
       return;
     }
     onNext();
@@ -66,19 +88,9 @@ export function QuestionCard({
         </span>
       </div>
 
-      <h1 className="font-display text-2xl sm:text-3xl leading-snug tracking-tight text-glow mb-1 max-w-2xl">
+      <h1 className="font-display text-2xl sm:text-3xl leading-snug tracking-tight text-glow mb-6 max-w-2xl">
         {question.text}
       </h1>
-
-      {question.hints && question.hints.length > 0 && (
-        <ul className="mb-8 max-w-xl flex flex-col gap-2 border-l-2 border-accent/30 pl-4">
-          {question.hints.map((hint, i) => (
-            <li key={i} className="text-base text-foreground/70 leading-relaxed">
-              {hint}
-            </li>
-          ))}
-        </ul>
-      )}
 
       <textarea
         ref={textareaRef}
@@ -113,6 +125,99 @@ export function QuestionCard({
           ? "Essa pergunta precisa de uma resposta antes de seguir. Se não se aplica a você, escreva isso mesmo — “nunca aconteceu” já conta."
           : " "}
       </p>
+
+      {question.choices && question.choices.length > 0 && (
+        <div className="mt-4 max-w-xl flex flex-col gap-5 border-l-2 border-accent/30 pl-4">
+          {question.choices.map((choice, c) => {
+            const selected = detail.choices?.[c];
+            return (
+              <div
+                key={c}
+                role="radiogroup"
+                aria-required
+                aria-invalid={choicesBlocked && missingChoices.includes(c)}
+                aria-label={choice.prompt || choice.options.join(" ou ")}
+              >
+                {choice.prompt && (
+                  <p
+                    className={`text-base leading-relaxed mb-2 transition-colors ${
+                      choicesBlocked && missingChoices.includes(c) ? "text-accent-2" : "text-foreground/70"
+                    }`}
+                  >
+                    {choice.prompt}
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  {choice.options.map((option) => {
+                    const isOn = selected === option;
+                    return (
+                      <button
+                        key={option}
+                        type="button"
+                        role="radio"
+                        aria-checked={isOn}
+                        onClick={() => setChoice(c, option)}
+                        className={`px-4 py-2 rounded-full border text-sm transition ${
+                          isOn
+                            ? "border-accent bg-accent/15 text-foreground"
+                            : "border-border text-foreground/70 hover:border-muted"
+                        }`}
+                      >
+                        {option}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+          <p
+            role="status"
+            aria-live="polite"
+            className={`text-sm -mt-2 transition-opacity ${
+              choicesBlocked ? "opacity-100 text-accent-2" : "opacity-0"
+            }`}
+          >
+            {choicesBlocked ? "Escolha uma opção em cada linha antes de seguir." : " "}
+          </p>
+        </div>
+      )}
+
+      {question.extra && (
+        <label className="mt-7 max-w-xl flex flex-col gap-1">
+          <span className="font-display text-lg sm:text-xl leading-snug text-foreground">
+            {question.extra}
+          </span>
+          <textarea
+            ref={extraRef}
+            rows={2}
+            aria-invalid={extraBlocked}
+            aria-describedby={extraBlocked ? `extra-blocked-${index}` : undefined}
+            placeholder="Sua resposta…"
+            value={detail.extra ?? ""}
+            onChange={(e) => onDetailChange({ ...detail, extra: e.target.value })}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                handleNext();
+              }
+            }}
+            className={`w-full bg-transparent border-b-2 outline-none text-lg sm:text-xl py-3 placeholder:text-muted/40 transition-colors font-display resize-none leading-snug ${
+              extraBlocked ? "border-accent-2" : "border-border focus:border-accent"
+            }`}
+          />
+          <span
+            id={`extra-blocked-${index}`}
+            role="status"
+            aria-live="polite"
+            className={`text-sm mt-2 transition-opacity ${
+              extraBlocked ? "opacity-100 text-accent-2" : "opacity-0"
+            }`}
+          >
+            {extraBlocked ? "Essa parte também precisa de resposta antes de seguir." : " "}
+          </span>
+        </label>
+      )}
 
       <div className="flex items-center gap-4 mt-9">
         <button

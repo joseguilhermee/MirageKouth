@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { buildEncryptedFile } from "@/lib/crypto";
 import { DELIVERY_INSTRUCTIONS } from "@/lib/siteConfig";
+import type { QuestionDetail } from "@/lib/questions";
 import { ENTER_TRANSITION, EXIT_TRANSITION, SOFT_TRANSITION } from "@/lib/motion";
 
 const LOG_LINES = [
@@ -41,6 +42,8 @@ export function FinalScreen({
   answered,
   total,
   answers,
+  timings,
+  details,
   onBack,
   onDone,
 }: {
@@ -48,6 +51,8 @@ export function FinalScreen({
   answered: number;
   total: number;
   answers: Record<number, string>;
+  timings: Record<number, number>;
+  details: Record<number, QuestionDetail>;
   onBack: () => void;
   onDone: () => void;
 }) {
@@ -67,7 +72,7 @@ export function FinalScreen({
     }
 
     try {
-      const content = await buildEncryptedFile(name, answers);
+      const content = await buildEncryptedFile(name, answers, timings, details);
       setEncryptedContent(content);
       setStatus("done");
       onDone();
