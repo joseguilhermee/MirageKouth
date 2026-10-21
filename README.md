@@ -1,6 +1,6 @@
 # MirageKouth
 
-Questionário de 31 perguntas abertas com visual estilo SpaceX/Tesla. A pessoa
+Questionário de 15 perguntas abertas com visual estilo SpaceX/Tesla. A pessoa
 informa o nome e responde; tudo é cifrado no navegador (RSA-4096 +
 AES-256-GCM, via Web Crypto API nativa) e baixado como um `.txt`. Só o
 script Python local, com a chave privada, consegue abrir esse arquivo.
