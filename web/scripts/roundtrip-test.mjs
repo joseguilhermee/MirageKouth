@@ -15,13 +15,6 @@ function extractPublicKeyPem() {
   return match[1];
 }
 
-function extractQuestions() {
-  const src = readFileSync(path.join(__dirname, "..", "src", "lib", "questions.ts"), "utf-8");
-  const match = src.match(/=\s*(\[[\s\S]*?\]);/);
-  if (!match) throw new Error("Não achei a lista de perguntas em questions.ts");
-  // eslint-disable-next-line no-new-func
-  return new Function(`return ${match[1]}`)();
-}
 
 function pemToArrayBuffer(pem) {
   const base64 = pem
@@ -32,7 +25,8 @@ function pemToArrayBuffer(pem) {
 }
 
 const PEM = extractPublicKeyPem();
-const QUESTIONS = extractQuestions();
+// questions.ts não tem imports: o Node 24 carrega direto, só removendo os tipos.
+const { QUESTIONS, QUESTIONS_VERSION, formatChoiceAnswer } = await import("../src/lib/questions.ts");
 
 const publicKey = await crypto.subtle.importKey(
   "spki",
@@ -51,13 +45,28 @@ const answers = {
 };
 
 const qa = QUESTIONS.map((question, i) => ({
+  id: question.id,
   question: question.text,
   answer: answers[i] ?? "",
-  choices: (question.choices ?? []).map((choice, c) => ({
-    prompt: choice.prompt,
-    options: choice.options,
-    answer: i === 0 && c === 0 ? choice.options[0] : "",
-  })),
+  choices: (question.choices ?? []).map((choice, c) => {
+    // Primeira linha da Q01 simula a árvore: família → mãe, avó, mais o especificar.
+    const picked =
+      i === 0 && c === 0
+        ? {
+            selected: ["família", "amigos"],
+            sub: { família: ["mãe", "avó"], amigos: ["da escola"] },
+            specify: "minha avó estava doente",
+          }
+        : undefined;
+    return {
+      prompt: choice.prompt,
+      options: choice.options.map((o) => o.label),
+      answer: formatChoiceAnswer(picked),
+      selected: picked?.selected ?? [],
+      sub: picked?.sub ?? {},
+      specify: picked?.specify ?? "",
+    };
+  }),
   ...(question.extra ? { extra: { prompt: question.extra, answer: i === 0 ? "Uma tarde de chuva" : "" } } : {}),
 }));
 
@@ -65,7 +74,7 @@ const aesKey = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 },
   "encrypt",
 ]);
 const iv = crypto.getRandomValues(new Uint8Array(12));
-const payload = new TextEncoder().encode(JSON.stringify({ name, qa, timings: QUESTIONS.map((_, i) => i * 7) }));
+const payload = new TextEncoder().encode(JSON.stringify({ name, version: QUESTIONS_VERSION, qa, timings: QUESTIONS.map((_, i) => i * 7) }));
 const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, aesKey, payload);
 const rawAesKey = await crypto.subtle.exportKey("raw", aesKey);
 const encryptedKey = await crypto.subtle.encrypt({ name: "RSA-OAEP" }, publicKey, rawAesKey);

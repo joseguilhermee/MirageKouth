@@ -4,7 +4,13 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAutoGrowTextarea } from "@/lib/useAutoGrowTextarea";
 import { ENTER_TRANSITION, EXIT_TRANSITION } from "@/lib/motion";
-import type { Question, QuestionDetail } from "@/lib/questions";
+import {
+  missingChoiceRows,
+  type ChoiceAnswer,
+  type Question,
+  type QuestionDetail,
+} from "@/lib/questions";
+import { ChoiceRow } from "./ChoiceRow";
 
 // Resposta em branco não é "sem dado": pelo §AUSÊNCIA do protocolo, cinco itens
 // vazios nos blocos de conduta derrubam a confiança do perfil inteiro para
@@ -41,17 +47,16 @@ export function QuestionCard({
   const textareaRef = useAutoGrowTextarea(value);
   const extraRef = useAutoGrowTextarea(detail.extra ?? "");
 
-  function setChoice(c: number, option: string) {
-    onDetailChange({ ...detail, choices: { ...detail.choices, [c]: option } });
+  function setChoice(c: number, answer: ChoiceAnswer) {
+    onDetailChange({ ...detail, choices: { ...detail.choices, [c]: answer } });
   }
   const [triedToAdvance, setTriedToAdvance] = useState(false);
 
   const mainOk = value.trim().length >= MIN_CHARS;
   const extraOk = !question.extra || (detail.extra ?? "").trim().length >= MIN_EXTRA_CHARS;
-  // Nenhum botão vem marcado: cada linha precisa de uma escolha da pessoa.
-  const missingChoices = (question.choices ?? [])
-    .map((_, c) => c)
-    .filter((c) => !detail.choices?.[c]);
+  // Nenhum botão vem marcado: cada linha precisa de uma escolha da pessoa,
+  // com a segunda camada preenchida e o "outro" especificado.
+  const missingChoices = missingChoiceRows(question, detail);
   const choicesOk = missingChoices.length === 0;
   const canAdvance = mainOk && extraOk && choicesOk;
   // Derivado, não sincronizado por efeito: o aviso some sozinho assim que a
@@ -128,49 +133,15 @@ export function QuestionCard({
 
       {question.choices && question.choices.length > 0 && (
         <div className="mt-4 max-w-xl flex flex-col gap-5 border-l-2 border-accent/30 pl-4">
-          {question.choices.map((choice, c) => {
-            const selected = detail.choices?.[c];
-            return (
-              <div
-                key={c}
-                role="radiogroup"
-                aria-required
-                aria-invalid={choicesBlocked && missingChoices.includes(c)}
-                aria-label={choice.prompt || choice.options.join(" ou ")}
-              >
-                {choice.prompt && (
-                  <p
-                    className={`text-base leading-relaxed mb-2 transition-colors ${
-                      choicesBlocked && missingChoices.includes(c) ? "text-accent-2" : "text-foreground/70"
-                    }`}
-                  >
-                    {choice.prompt}
-                  </p>
-                )}
-                <div className="flex flex-wrap gap-2">
-                  {choice.options.map((option) => {
-                    const isOn = selected === option;
-                    return (
-                      <button
-                        key={option}
-                        type="button"
-                        role="radio"
-                        aria-checked={isOn}
-                        onClick={() => setChoice(c, option)}
-                        className={`px-4 py-2 rounded-full border text-sm transition ${
-                          isOn
-                            ? "border-accent bg-accent/15 text-foreground"
-                            : "border-border text-foreground/70 hover:border-muted"
-                        }`}
-                      >
-                        {option}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
+          {question.choices.map((choice, c) => (
+            <ChoiceRow
+              key={c}
+              choice={choice}
+              answer={detail.choices?.[c]}
+              invalid={choicesBlocked && missingChoices.includes(c)}
+              onChange={(answer) => setChoice(c, answer)}
+            />
+          ))}
           <p
             role="status"
             aria-live="polite"
@@ -178,7 +149,7 @@ export function QuestionCard({
               choicesBlocked ? "opacity-100 text-accent-2" : "opacity-0"
             }`}
           >
-            {choicesBlocked ? "Escolha uma opção em cada linha antes de seguir." : " "}
+            {choicesBlocked ? "Complete os botões antes de seguir: uma opção em cada linha, quem/qual quando abrir, e o que é quando marcar “outro”." : " "}
           </p>
         </div>
       )}

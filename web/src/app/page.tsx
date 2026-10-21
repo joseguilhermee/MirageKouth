@@ -19,8 +19,8 @@ import { generateSessionKey } from "@/lib/crypto";
 // v3: entrou um item novo no meio do roteiro (o portão do Sábio, depois do 14),
 // então todos os índices a partir dali deslocaram. Progresso salvo em v2
 // apontaria respostas para as perguntas erradas — por isso a chave muda.
-// v4: perguntas trocadas por itens com botões e campo extra (ver questions.ts).
-const STORAGE_KEY = "mirage-progress-v4";
+// v5: botões viraram árvore (opção → quem/qual) com "especificar" (ver questions.ts).
+const STORAGE_KEY = "mirage-progress-v5";
 const STEP_WELCOME = -2;
 const STEP_INSTRUCTIONS = -1;
 
