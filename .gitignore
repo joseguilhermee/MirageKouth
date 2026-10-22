@@ -21,3 +21,6 @@ decryptor/*.pyc
 decryptor/build/
 decryptor/dist/
 decryptor/*.spec
+
+.vercel
+.env*
