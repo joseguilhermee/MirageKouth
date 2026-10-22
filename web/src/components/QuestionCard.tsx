@@ -5,21 +5,17 @@ import { motion } from "framer-motion";
 import { useAutoGrowTextarea } from "@/lib/useAutoGrowTextarea";
 import { ENTER_TRANSITION, EXIT_TRANSITION } from "@/lib/motion";
 import {
-  missingChoiceRows,
-  type ChoiceAnswer,
+  MIN_MAIN_CHARS,
+  setStepValue,
+  shownSteps,
   type Question,
   type QuestionDetail,
+  type ShownStep,
 } from "@/lib/questions";
-import { ChoiceRow } from "./ChoiceRow";
 
-// Resposta em branco não é "sem dado": pelo §AUSÊNCIA do protocolo, cinco itens
-// vazios nos blocos de conduta derrubam a confiança do perfil inteiro para
-// baixa. Por isso não dá pra avançar sem escrever nada. O mínimo é curto de
-// propósito — "nunca aconteceu" é resposta legítima em vários itens.
-const MIN_CHARS = 10;
-// O extra também é obrigatório, mas responde coisas curtas ("Quem disse?" →
-// "minha mãe"), então o mínimo é só pra não passar em branco.
-const MIN_EXTRA_CHARS = 2;
+const PILL = "px-4 py-2 rounded-full border text-sm transition";
+const PILL_ON = "border-accent bg-accent/15 text-foreground";
+const PILL_OFF = "border-border text-foreground/70 hover:border-muted";
 
 export function QuestionCard({
   index,
@@ -45,34 +41,41 @@ export function QuestionCard({
   const isFirst = index === 0;
   const isLast = index === total - 1;
   const textareaRef = useAutoGrowTextarea(value);
-  const extraRef = useAutoGrowTextarea(detail.extra ?? "");
-
-  function setChoice(c: number, answer: ChoiceAnswer) {
-    onDetailChange({ ...detail, choices: { ...detail.choices, [c]: answer } });
-  }
   const [triedToAdvance, setTriedToAdvance] = useState(false);
+  // Só o passo aberto por um clique de botão ganha foco: o que aparece
+  // enquanto a pessoa ainda digita a principal não pode roubar o cursor.
+  const [focusAfterClick, setFocusAfterClick] = useState(false);
 
-  const mainOk = value.trim().length >= MIN_CHARS;
-  const extraOk = !question.extra || (detail.extra ?? "").trim().length >= MIN_EXTRA_CHARS;
-  // Nenhum botão vem marcado: cada linha precisa de uma escolha da pessoa,
-  // com a segunda camada preenchida e o "outro" especificado.
-  const missingChoices = missingChoiceRows(question, detail);
-  const choicesOk = missingChoices.length === 0;
-  const canAdvance = mainOk && extraOk && choicesOk;
+  // Resposta em branco não é "sem dado": pelo §AUSÊNCIA do protocolo, itens
+  // vazios derrubam a confiança do perfil inteiro. Por isso tudo o que aparece
+  // é obrigatório; "nunca aconteceu" já conta como resposta.
+  const mainOk = value.trim().length >= MIN_MAIN_CHARS;
+  const { shown, complete } = shownSteps(question, value, detail);
+  const firstOpen = shown.find((s) => !s.answered)?.key;
   // Derivado, não sincronizado por efeito: o aviso some sozinho assim que a
   // resposta fica longa o bastante, e volta se ela for apagada de novo.
   const blocked = triedToAdvance && !mainOk;
-  const extraBlocked = triedToAdvance && !extraOk;
-  const choicesBlocked = triedToAdvance && !choicesOk;
+  const stepBlocked = triedToAdvance && mainOk && !complete;
+
+  function setStep(key: string, next: string, byClick: boolean) {
+    setFocusAfterClick(byClick);
+    onDetailChange(setStepValue(detail, key, next));
+  }
 
   function handleNext() {
-    if (!canAdvance) {
+    if (!complete) {
       setTriedToAdvance(true);
       if (!mainOk) textareaRef.current?.focus();
-      else if (!extraOk) extraRef.current?.focus();
       return;
     }
     onNext();
+  }
+
+  function onKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      handleNext();
+    }
   }
 
   return (
@@ -104,15 +107,10 @@ export function QuestionCard({
         aria-label={question.text}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-            e.preventDefault();
-            handleNext();
-          }
-        }}
+        onKeyDown={onKeyDown}
         aria-invalid={blocked}
         aria-describedby={blocked ? `blocked-${index}` : undefined}
-        placeholder="Conte sua história…"
+        placeholder={question.placeholder}
         className={`w-full max-w-xl bg-transparent border-b-2 outline-none text-lg sm:text-xl py-3 placeholder:text-muted/40 transition-colors font-display resize-none leading-snug ${
           blocked ? "border-accent-2" : "border-border focus:border-accent"
         }`}
@@ -128,66 +126,31 @@ export function QuestionCard({
       >
         {blocked
           ? "Essa pergunta precisa de uma resposta antes de seguir. Se não se aplica a você, escreva isso mesmo — “nunca aconteceu” já conta."
-          : " "}
+          : " "}
       </p>
 
-      {question.choices && question.choices.length > 0 && (
-        <div className="mt-4 max-w-xl flex flex-col gap-5 border-l-2 border-accent/30 pl-4">
-          {question.choices.map((choice, c) => (
-            <ChoiceRow
-              key={c}
-              choice={choice}
-              answer={detail.choices?.[c]}
-              invalid={choicesBlocked && missingChoices.includes(c)}
-              onChange={(answer) => setChoice(c, answer)}
+      {shown.length > 0 && (
+        <div className="mt-4 max-w-xl flex flex-col gap-6 border-l-2 border-accent/30 pl-4">
+          {shown.map((s) => (
+            <StepField
+              key={s.key}
+              shown={s}
+              invalid={stepBlocked && s.key === firstOpen}
+              autoFocus={focusAfterClick && s.key === firstOpen}
+              onChange={(next, byClick) => setStep(s.key, next, byClick)}
+              onKeyDown={onKeyDown}
             />
           ))}
           <p
             role="status"
             aria-live="polite"
-            className={`text-sm -mt-2 transition-opacity ${
-              choicesBlocked ? "opacity-100 text-accent-2" : "opacity-0"
+            className={`text-sm -mt-3 transition-opacity ${
+              stepBlocked ? "opacity-100 text-accent-2" : "opacity-0"
             }`}
           >
-            {choicesBlocked ? "Complete os botões antes de seguir: uma opção em cada linha, quem/qual quando abrir, e o que é quando marcar “outro”." : " "}
+            {stepBlocked ? "Responda essa parte também antes de seguir." : " "}
           </p>
         </div>
-      )}
-
-      {question.extra && (
-        <label className="mt-7 max-w-xl flex flex-col gap-1">
-          <span className="font-display text-lg sm:text-xl leading-snug text-foreground">
-            {question.extra}
-          </span>
-          <textarea
-            ref={extraRef}
-            rows={2}
-            aria-invalid={extraBlocked}
-            aria-describedby={extraBlocked ? `extra-blocked-${index}` : undefined}
-            placeholder="Sua resposta…"
-            value={detail.extra ?? ""}
-            onChange={(e) => onDetailChange({ ...detail, extra: e.target.value })}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                e.preventDefault();
-                handleNext();
-              }
-            }}
-            className={`w-full bg-transparent border-b-2 outline-none text-lg sm:text-xl py-3 placeholder:text-muted/40 transition-colors font-display resize-none leading-snug ${
-              extraBlocked ? "border-accent-2" : "border-border focus:border-accent"
-            }`}
-          />
-          <span
-            id={`extra-blocked-${index}`}
-            role="status"
-            aria-live="polite"
-            className={`text-sm mt-2 transition-opacity ${
-              extraBlocked ? "opacity-100 text-accent-2" : "opacity-0"
-            }`}
-          >
-            {extraBlocked ? "Essa parte também precisa de resposta antes de seguir." : " "}
-          </span>
-        </label>
       )}
 
       <div className="flex items-center gap-4 mt-9">
@@ -202,9 +165,9 @@ export function QuestionCard({
         <button
           type="button"
           onClick={handleNext}
-          aria-disabled={!canAdvance}
+          aria-disabled={!complete}
           className={`px-7 py-3 rounded-full text-sm font-semibold tracking-wide transition ${
-            canAdvance
+            complete
               ? "bg-gradient-to-r from-accent to-accent-2 text-background hover:brightness-110 shadow-lg shadow-accent/20"
               : "border border-border text-muted hover:border-muted"
           }`}
@@ -215,6 +178,81 @@ export function QuestionCard({
           Enter pula linha · Ctrl+Enter avança
         </span>
       </div>
+    </motion.div>
+  );
+}
+
+/** Um passo: botões de escolha única ou uma pergunta curta em texto. */
+function StepField({
+  shown,
+  invalid,
+  autoFocus,
+  onChange,
+  onKeyDown,
+}: {
+  shown: ShownStep;
+  invalid: boolean;
+  autoFocus: boolean;
+  onChange: (value: string, byClick: boolean) => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
+}) {
+  const { step, value } = shown;
+  const ref = useAutoGrowTextarea(value);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={ENTER_TRANSITION}
+      role={step.kind === "button" ? "radiogroup" : undefined}
+      aria-label={step.kind === "button" ? step.prompt : undefined}
+    >
+      {step.kind === "button" ? (
+        <>
+          <p
+            className={`text-lg sm:text-xl font-display leading-snug mb-3 transition-colors ${
+              invalid ? "text-accent-2" : "text-foreground"
+            }`}
+          >
+            {step.prompt}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {step.options.map((option) => {
+              const isOn = value === option.label;
+              return (
+                <button
+                  key={option.label}
+                  type="button"
+                  role="radio"
+                  aria-checked={isOn}
+                  onClick={() => onChange(option.label, true)}
+                  className={`${PILL} ${isOn ? PILL_ON : PILL_OFF}`}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <label className="flex flex-col gap-1">
+          <span className="font-display text-lg sm:text-xl leading-snug text-foreground">
+            {step.prompt}
+          </span>
+          <textarea
+            ref={ref}
+            rows={2}
+            autoFocus={autoFocus}
+            aria-invalid={invalid}
+            value={value}
+            onChange={(e) => onChange(e.target.value, false)}
+            onKeyDown={onKeyDown}
+            className={`w-full bg-transparent border-b-2 outline-none text-lg sm:text-xl py-3 transition-colors font-display resize-none leading-snug ${
+              invalid ? "border-accent-2" : "border-border focus:border-accent"
+            }`}
+          />
+        </label>
+      )}
     </motion.div>
   );
 }

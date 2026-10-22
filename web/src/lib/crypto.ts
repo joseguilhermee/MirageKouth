@@ -1,5 +1,5 @@
 import { MIRAGE_PUBLIC_KEY_PEM } from "./publicKey";
-import { QUESTIONS, QUESTIONS_VERSION, formatChoiceAnswer, type QuestionDetail } from "./questions";
+import { QUESTIONS, QUESTIONS_VERSION, buildSteps, type QuestionDetail } from "./questions";
 
 // Envelope final: RSA-OAEP-4096 (SHA-256) envelopa uma chave AES-256, que
 // cifra o payload real com AES-GCM. Formato compativel com decryptor/decrypt.py.
@@ -108,21 +108,7 @@ export async function buildEncryptedFile(
     id: question.id,
     question: question.text,
     answer: answers[i] ?? "",
-    // Botões e extra seguem junto da pergunta, com o enunciado, pra leitura
-    // não depender de saber o índice. `answer` é o texto pronto ("família →
-    // mãe, avó"); `selected`/`sub` guardam o mesmo dado estruturado.
-    choices: (question.choices ?? []).map((choice, c) => {
-      const picked = details[i]?.choices?.[c];
-      return {
-        prompt: choice.prompt,
-        options: choice.options.map((o) => o.label),
-        answer: formatChoiceAnswer(picked),
-        selected: picked?.selected ?? [],
-        sub: picked?.sub ?? {},
-        specify: (picked?.specify ?? "").trim(),
-      };
-    }),
-    ...(question.extra ? { extra: { prompt: question.extra, answer: details[i]?.extra ?? "" } } : {}),
+    passos: buildSteps(question, answers[i] ?? "", details[i]),
   }));
 
   // Segundos por pergunta, na mesma ordem de qa. Metadado: o decryptor mostra

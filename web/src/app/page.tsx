@@ -19,8 +19,8 @@ import { generateSessionKey } from "@/lib/crypto";
 // v3: entrou um item novo no meio do roteiro (o portão do Sábio, depois do 14),
 // então todos os índices a partir dali deslocaram. Progresso salvo em v2
 // apontaria respostas para as perguntas erradas — por isso a chave muda.
-// v5: botões viraram árvore (opção → quem/qual) com "especificar" (ver questions.ts).
-const STORAGE_KEY = "mirage-progress-v5";
+// v7: fusão com a versão de 28 — 20 itens, ordem nova (ver questions.ts).
+const STORAGE_KEY = "mirage-progress-v9";
 const STEP_WELCOME = -2;
 const STEP_INSTRUCTIONS = -1;
 
@@ -242,8 +242,11 @@ export default function Home() {
                 onDetailChange={(detail) =>
                   setDetails((prev) => ({ ...prev, [step]: detail }))
                 }
-                onNext={() => setStep((s) => Math.min(s + 1, total))}
-                onBack={() => setStep((s) => Math.max(s - 1, 0))}
+                // Relativo à própria pergunta, não ao passo atual: durante a
+                // animação de saída o card anterior ainda recebe clique, e um
+                // segundo "Próxima" nele pularia a pergunta seguinte em branco.
+                onNext={() => setStep(Math.min(step + 1, total))}
+                onBack={() => setStep(Math.max(step - 1, 0))}
               />
             )}
           </AnimatePresence>
