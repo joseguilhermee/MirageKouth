@@ -35,6 +35,7 @@ export function QuestionCard({
   onNext,
   onBack,
   onSeal,
+  departing = false,
 }: {
   index: number;
   total: number;
@@ -51,6 +52,7 @@ export function QuestionCard({
    * não aparecer duas vezes.
    */
   onSeal?: (field: HTMLTextAreaElement) => boolean;
+  departing?: boolean;
 }) {
   const isFirst = index === 0;
   const isLast = index === total - 1;
@@ -102,10 +104,10 @@ export function QuestionCard({
   return (
     <motion.div
       key={index}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -6, transition: EXIT_TRANSITION }}
-      transition={ENTER_TRANSITION}
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: departing ? 0 : 1, y: departing ? -12 : 0 }}
+      exit={{ opacity: 0, y: -12, transition: EXIT_TRANSITION }}
+      transition={departing ? { duration: 0.55, ease: [0.4, 0, 0.2, 1] } : ENTER_TRANSITION}
       className={`flex flex-col ${sealing ? "[&_textarea]:text-transparent [&_textarea]:caret-transparent" : ""}`}
     >
       <h1 className={`${DISPLAY} mb-6 max-w-[34ch] text-[28px] leading-[1.18] sm:text-[34px] lg:text-[40px] lg:leading-[1.14]`}>

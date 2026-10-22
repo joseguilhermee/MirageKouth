@@ -169,6 +169,7 @@ export default function Home() {
   const [pranchetaOpen, setPranchetaOpen] = useState(false);
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [flight, setFlight] = useState<Flight | null>(null);
+  const [departingStep, setDepartingStep] = useState<number | null>(null);
   const [pulse, setPulse] = useState(0);
   const pranchetaButtonRef = useRef<HTMLButtonElement>(null);
   const flightFrom = useRef(0);
@@ -335,6 +336,7 @@ export default function Home() {
                 onNext={() => setStep(Math.min(step + 1, total))}
                 onBack={() => setStep(Math.max(step - 1, 0))}
                 onSeal={(field) => startSeal(field, step)}
+                departing={departingStep === step}
               />
             )}
           </AnimatePresence>
@@ -349,9 +351,11 @@ export default function Home() {
           flight={flight}
           sessionKey={sessionKey}
           getTarget={() => pranchetaButtonRef.current?.getBoundingClientRect() ?? null}
-          onScrambled={() => setStep(Math.min(flightFrom.current + 1, total))}
+          onScrambled={() => setDepartingStep(flightFrom.current)}
           onLanded={() => {
+            setStep(Math.min(flightFrom.current + 1, total));
             setFlight(null);
+            setDepartingStep(null);
             setPulse((p) => p + 1);
           }}
         />

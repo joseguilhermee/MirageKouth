@@ -20,8 +20,8 @@ export type Flight = { id: number; fields: FieldSnap[] };
 
 const SCRAMBLE_MS = 520;
 /** Pausa com a cifra pronta e o selo à vista, antes de voar. */
-const HOLD_MS = 260;
-const FLY_S = 0.5;
+const HOLD_MS = 320;
+const FLY_S = 0.75;
 // Se a prévia não chegar a tempo, a resposta voa como está: nunca mostra cifra inventada.
 const HEX_WAIT_MS = 400;
 
@@ -43,6 +43,12 @@ export function SealFlight({
   onScrambled: () => void;
   onLanded: () => void;
 }) {
+  const landedCount = useRef(0);
+  function handleLanded() {
+    landedCount.current += 1;
+    if (landedCount.current === flight.fields.length) onLanded();
+  }
+
   return (
     <>
       {flight.fields.map((field, i) => (
@@ -53,7 +59,7 @@ export function SealFlight({
           sessionKey={sessionKey}
           getTarget={getTarget}
           onScrambled={i === 0 ? onScrambled : undefined}
-          onLanded={i === 0 ? onLanded : undefined}
+          onLanded={handleLanded}
         />
       ))}
     </>
@@ -80,6 +86,7 @@ function FieldSeal({
   const [revealed, setRevealed] = useState(0);
   const [sealed, setSealed] = useState(false);
   const [to, setTo] = useState<{ x: number; y: number; scale: number } | null>(null);
+  const landed = useRef(false);
   const callbacks = useRef({ onScrambled, onLanded, getTarget });
 
   useEffect(() => {
@@ -169,9 +176,12 @@ function FieldSeal({
           ? { x: to.x, y: to.y, scale: to.scale, opacity: 0.15, filter: "blur(1.5px)" }
           : { x: 0, y: 0, scale: 1, opacity: 1, filter: "blur(0px)" }
       }
-      transition={{ duration: FLY_S, ease: [0.65, 0, 0.35, 1] }}
+      transition={{ duration: FLY_S, ease: [0.42, 0, 0.2, 1] }}
       onAnimationComplete={() => {
-        if (to) callbacks.current.onLanded?.();
+        if (to && !landed.current) {
+          landed.current = true;
+          callbacks.current.onLanded?.();
+        }
       }}
     >
       <div className="h-full overflow-hidden">
