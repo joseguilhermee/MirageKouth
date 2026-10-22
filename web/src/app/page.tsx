@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, MotionConfig } from "framer-motion";
 import { Header } from "@/components/Header";
 import { ProgressBar } from "@/components/ProgressBar";
-import { TrustBadge } from "@/components/TrustBadge";
-import { MethodologyBadge } from "@/components/MethodologyBadge";
-import { CipherPreview } from "@/components/CipherPreview";
 import { WelcomeStep } from "@/components/WelcomeStep";
 import { InstructionsStep } from "@/components/InstructionsStep";
 import { QuestionCard } from "@/components/QuestionCard";
 import { FinalScreen } from "@/components/FinalScreen";
 import { IntroSequence } from "@/components/IntroSequence";
 import { ResumePrompt } from "@/components/ResumePrompt";
-import { QUESTIONS, type QuestionDetail } from "@/lib/questions";
+import { PranchetaButton, PranchetaDrawer, type PranchetaItem } from "@/components/Prancheta";
+import { SealFlight, type Flight } from "@/components/SealFlight";
+import { QUESTIONS, shownSteps, type QuestionDetail } from "@/lib/questions";
 import { generateSessionKey } from "@/lib/crypto";
+import { NIGHT, skyAt } from "@/lib/sky";
 
 // v3: entrou um item novo no meio do roteiro (o portão do Sábio, depois do 14),
 // então todos os índices a partir dali deslocaram. Progresso salvo em v2
@@ -39,6 +39,31 @@ function hasMeaningfulProgress(saved: SavedProgress | null): saved is SavedProgr
   if (!saved) return false;
   const answered = Object.values(saved.answers ?? {}).some((v) => v.trim().length > 0);
   return saved.name.trim().length > 0 || answered || (saved.step ?? STEP_WELCOME) > STEP_INSTRUCTIONS;
+}
+
+/** O céu da página: a tarde anda com as perguntas; a noite é só para selar. */
+function SkyShell({
+  progress,
+  night,
+  children,
+}: {
+  progress: number;
+  night?: boolean;
+  children: React.ReactNode;
+}) {
+  const sky = night ? NIGHT : skyAt(progress);
+  return (
+    // reducedMotion="user": toda animação do framer respeita a preferência do sistema.
+    <MotionConfig reducedMotion="user">
+      <div
+        data-sky={night ? "night" : "day"}
+        className="sky flex min-h-dvh flex-1 flex-col text-ink"
+        style={{ "--sky-top": sky.top, "--sky-mid": sky.mid, "--sky-low": sky.low } as React.CSSProperties}
+      >
+        {children}
+      </div>
+    </MotionConfig>
+  );
 }
 
 export default function Home() {
@@ -140,6 +165,39 @@ export default function Home() {
   }, [stage, step, total]);
 
   const isFinal = step >= total;
+
+  const [pranchetaOpen, setPranchetaOpen] = useState(false);
+  const [fileContent, setFileContent] = useState<string | null>(null);
+  const [flight, setFlight] = useState<Flight | null>(null);
+  const [pulse, setPulse] = useState(0);
+  const pranchetaButtonRef = useRef<HTMLButtonElement>(null);
+  const flightFrom = useRef(0);
+
+  // Copia a geometria do campo para a resposta virar cifra exatamente onde
+  // foi escrita. Sem animação (preferência do sistema), segue direto.
+  function startSeal(field: HTMLTextAreaElement, from: number) {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return false;
+    if (!field.value.trim()) return false;
+    // A principal primeiro; depois os passos em texto da mesma pergunta.
+    const others = [...(field.closest("main")?.querySelectorAll("textarea") ?? [])].filter(
+      (t) => t !== field && t.value.trim()
+    );
+    const fields = [field, ...others].map((t) => {
+      const r = t.getBoundingClientRect();
+      const cs = getComputedStyle(t);
+      return {
+        text: t.value,
+        rect: { left: r.left, top: r.top, width: r.width, height: r.height },
+        scrollTop: t.scrollTop,
+        font: cs.font,
+        lineHeight: cs.lineHeight,
+        padding: cs.padding,
+      };
+    });
+    flightFrom.current = from;
+    setFlight({ id: Date.now(), fields });
+    return true;
+  }
   const answered = useMemo(
     () => Object.values(answers).filter((v) => v.trim().length > 0).length,
     [answers]
@@ -166,14 +224,18 @@ export default function Home() {
   }
 
   if (stage === "intro") {
-    return <IntroSequence questionCount={total} onDone={handleIntroDone} />;
+    return (
+      <SkyShell progress={0}>
+        <IntroSequence questionCount={total} onDone={handleIntroDone} />
+      </SkyShell>
+    );
   }
 
   if (stage === "resume" && savedProgress) {
     return (
-      <main className="flex-1 flex flex-col px-6 sm:px-10 lg:px-16">
+      <SkyShell progress={0}>
         <Header />
-        <div className="w-full max-w-6xl mx-auto flex-1 flex flex-col justify-center py-8">
+        <main className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col justify-center px-5 py-12 sm:px-10 lg:px-16">
           <ResumePrompt
             name={savedProgress.name}
             answered={
@@ -184,24 +246,44 @@ export default function Home() {
             onResume={handleResume}
             onRestart={handleRestart}
           />
-        </div>
-      </main>
+        </main>
+      </SkyShell>
     );
   }
 
+  const progress = step < 0 ? 0 : Math.min(step, total - 1) / Math.max(1, total - 1);
+
+  // Prancheta: só entram perguntas completas (principal e todos os passos).
+  const pranchetaItems: PranchetaItem[] = QUESTIONS.flatMap((q, i) =>
+    shownSteps(q, answers[i] ?? "", details[i]).complete
+      ? [{ index: i, question: q.text, text: (answers[i] ?? "").trim() }]
+      : []
+  );
+
+  function closePrancheta() {
+    setPranchetaOpen(false);
+    pranchetaButtonRef.current?.focus();
+  }
+
   return (
-    <main className="flex-1 flex flex-col px-6 sm:px-10 lg:px-16">
-      <Header />
+    <SkyShell progress={progress} night={isFinal}>
+      <Header
+        extra={
+          step >= 0 && (
+            <PranchetaButton
+              ref={pranchetaButtonRef}
+              count={pranchetaItems.length}
+              total={total}
+              pulse={pulse}
+              open={pranchetaOpen}
+              onClick={() => setPranchetaOpen(true)}
+            />
+          )
+        }
+      />
 
-      <div className="w-full max-w-6xl mx-auto flex-1 flex flex-col py-8">
-        {step >= 0 && <ProgressBar current={Math.min(step, total)} total={total} />}
-
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-10 lg:gap-16 mt-12 min-h-[480px]">
-          {/* mode="wait": a pergunta anterior termina de sair antes da
-              próxima entrar. Com popLayout as duas ficavam visíveis ao
-              mesmo tempo (crossfade), e dois títulos grandes sobrepostos
-              ficava poluído — sequencial fica limpo, e a saída é rápida
-              o bastante (ver EXIT_TRANSITION) pra não parecer lento. */}
+      <main className="mx-auto w-full max-w-[1200px] flex-1 px-5 pt-10 pb-4 sm:px-10 sm:pt-14 lg:px-16 lg:pt-20">
+        <div className="mx-auto min-w-0 max-w-[760px]">
           <AnimatePresence mode="wait">
             {step === STEP_WELCOME ? (
               <WelcomeStep
@@ -227,6 +309,11 @@ export default function Home() {
                 details={details}
                 onBack={() => setStep(total - 1)}
                 onDone={clearSavedProgress}
+                onGenerated={(content) => {
+                  setFileContent(content);
+                  // Um instante para a lista de etapas aparecer antes da prancheta abrir.
+                  setTimeout(() => setPranchetaOpen(true), 500);
+                }}
               />
             ) : (
               <QuestionCard
@@ -247,26 +334,41 @@ export default function Home() {
                 // segundo "Próxima" nele pularia a pergunta seguinte em branco.
                 onNext={() => setStep(Math.min(step + 1, total))}
                 onBack={() => setStep(Math.max(step - 1, 0))}
+                onSeal={(field) => startSeal(field, step)}
               />
             )}
           </AnimatePresence>
-
-          <div>
-            <CipherPreview
-              text={step < 0 ? name : !isFinal ? answers[step] ?? "" : ""}
-              sessionKey={sessionKey}
-            />
-          </div>
         </div>
-      </div>
+      </main>
 
-      <footer className="flex justify-center py-8 opacity-50">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logos/wordmark-horizontal.svg" alt="MirageKouth" className="h-3 w-auto" />
-      </footer>
+      {step >= 0 && <ProgressBar current={Math.min(step, total)} total={total} />}
 
-      <TrustBadge />
-      <MethodologyBadge />
-    </main>
+      {flight && (
+        <SealFlight
+          key={flight.id}
+          flight={flight}
+          sessionKey={sessionKey}
+          getTarget={() => pranchetaButtonRef.current?.getBoundingClientRect() ?? null}
+          onScrambled={() => setStep(Math.min(flightFrom.current + 1, total))}
+          onLanded={() => {
+            setFlight(null);
+            setPulse((p) => p + 1);
+          }}
+        />
+      )}
+
+      <PranchetaDrawer
+        open={pranchetaOpen}
+        onClose={closePrancheta}
+        items={pranchetaItems}
+        total={total}
+        sessionKey={sessionKey}
+        fileContent={isFinal ? fileContent : null}
+        onEdit={(i) => {
+          setPranchetaOpen(false);
+          setStep(i);
+        }}
+      />
+    </SkyShell>
   );
 }

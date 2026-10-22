@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { EASE_OUT, ENTER_TRANSITION, EXIT_TRANSITION, SOFT_TRANSITION } from "@/lib/motion";
+import { DISPLAY } from "@/lib/ui";
+import { ArrowRight, Kbd } from "./Glyphs";
+import { Logo } from "./Logo";
 
 type Phase = "icon" | "wordmark" | "text";
 
@@ -18,15 +21,15 @@ function buildLines(questionCount: number): ReactNode[] {
   return [
     "Vamos descobrir, juntos, os seus arquétipos.",
     <>
-      A leitura usa os <em className="italic text-accent">12 arquétipos</em> de Carol
+      A leitura usa os <span className="text-brand">12 arquétipos</span> de Carol
       Pearson, a partir do conceito criado por Carl Jung.
     </>,
     <>
-      Suas respostas seguem <em className="italic text-cipher">criptografadas</em> — ninguém
+      Suas respostas seguem <span className="text-brand">criptografadas</span> — ninguém
       vai lê-las.
     </>,
     <>
-      Só pedimos uma coisa: <em className="italic text-accent">sinceridade</em>. É o que te
+      Só pedimos uma coisa: <span className="text-brand">sinceridade</span>. É o que te
       aproxima do resultado real.
     </>,
     `${questionCount} perguntas abertas. Leve o tempo que precisar.`,
@@ -86,7 +89,7 @@ function PersonAvatar({ card }: { card: ExampleCard }) {
 
   if (!card.photo || failed) {
     return (
-      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-2 font-mono text-base font-semibold text-background">
+      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-terra font-display text-base font-semibold text-terra-ink">
         {card.initials}
       </div>
     );
@@ -110,7 +113,7 @@ function DotMeter({ value }: { value: number }) {
       {Array.from({ length: DOT_COUNT }).map((_, i) => (
         <span
           key={i}
-          className={`h-1.5 w-1.5 rounded-full ${i < value ? "bg-accent" : "bg-border"}`}
+          className={`h-1.5 w-1.5 rounded-full ${i < value ? "bg-terra" : "bg-line"}`}
         />
       ))}
     </div>
@@ -206,7 +209,7 @@ export function IntroSequence({
   const showingCards = phase === "text" && stepIndex >= lines.length;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 overflow-hidden py-10">
+    <div className="sky fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden px-5 py-10 text-ink">
       <AnimatePresence>
         {(phase === "icon" || phase === "wordmark") && (
           <motion.div
@@ -215,15 +218,7 @@ export function IntroSequence({
             className="flex flex-col items-center"
           >
             <div className="relative flex items-center justify-center">
-              <motion.div
-                initial={{ scale: 0, opacity: 0.9 }}
-                animate={{ scale: 3.4, opacity: 0 }}
-                transition={{ duration: 1.3, ease: EASE_OUT }}
-                className="absolute h-24 w-24 rounded-full bg-accent blur-3xl"
-              />
-              <motion.img
-                src="/logos/spark-icon.svg"
-                alt=""
+              <motion.span
                 initial={{ scale: 0.3, opacity: 0, rotate: -18 }}
                 animate={{
                   scale: iconShrunk ? 0.42 : 1,
@@ -231,24 +226,26 @@ export function IntroSequence({
                   rotate: 0,
                 }}
                 transition={{ duration: iconShrunk ? 0.8 : 1.1, ease: EASE_OUT }}
-                className="relative h-32 w-32 sm:h-44 sm:w-44"
-              />
+                className="relative text-brand"
+              >
+                <Logo mark="spark" height={168} label="" />
+              </motion.span>
             </div>
-            <motion.img
-              src="/logos/wordmark-horizontal.svg"
-              alt="MirageKouth"
+            <motion.span
               initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: iconShrunk ? 0.95 : 0, y: 0 }}
+              animate={{ opacity: iconShrunk ? 1 : 0, y: 0 }}
               transition={{ duration: 0.7, delay: 0.15, ease: EASE_OUT }}
-              className="h-7 sm:h-9 w-auto mt-1"
-            />
+              className="mt-1 text-brand"
+            >
+              <Logo mark="wordmark" height={30} />
+            </motion.span>
           </motion.div>
         )}
       </AnimatePresence>
 
       {phase === "text" && !showingCards && (
         <div className="flex flex-col items-center max-w-2xl">
-          <span className="font-mono text-[11px] tracking-[0.2em] text-muted mb-6">
+          <span className="mb-6 text-sm tabular-nums text-ink-3">
             {String(stepIndex + 1).padStart(2, "0")} / {String(lines.length).padStart(2, "0")}
           </span>
 
@@ -259,7 +256,7 @@ export function IntroSequence({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8, transition: EXIT_TRANSITION }}
               transition={ENTER_TRANSITION}
-              className="font-display text-2xl sm:text-4xl text-center leading-snug text-foreground text-glow"
+              className={`${DISPLAY} text-center text-[28px] leading-[1.2] sm:text-[44px] sm:leading-[1.15]`}
             >
               {lines[stepIndex]}
             </motion.p>
@@ -269,14 +266,14 @@ export function IntroSequence({
             type="button"
             onClick={advanceStep}
             aria-label="Próxima"
-            className="mt-12 flex h-14 w-14 items-center justify-center rounded-full border border-border text-foreground/80 hover:border-accent hover:text-accent transition"
+            className="mt-12 flex h-14 w-14 items-center justify-center rounded-full bg-action text-action-ink transition hover:brightness-110"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} className="h-6 w-6">
               <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
-          <span className="mt-3 font-mono text-[11px] text-muted">
-            clique ou pressione Enter ↵
+          <span className="mt-3 text-[13px] text-ink-3">
+            clique ou pressione <Kbd>Enter</Kbd>
           </span>
         </div>
       )}
@@ -288,38 +285,35 @@ export function IntroSequence({
           transition={ENTER_TRANSITION}
           className="flex flex-col items-center max-w-5xl w-full h-full"
         >
-          <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-cipher mb-3 shrink-0">
-            Um gostinho do resultado
-          </span>
-          <h2 className="font-display text-2xl sm:text-3xl text-center text-glow mb-2 shrink-0">
+          <h2 className={`${DISPLAY} mb-2 shrink-0 text-center text-[28px] leading-tight sm:text-4xl`}>
             Cada arquétipo, duas pessoas muito famosas
           </h2>
-          <p className="text-sm text-muted text-center mb-6 max-w-lg shrink-0">
+          <p className="mb-8 max-w-[52ch] shrink-0 text-center text-[15px] leading-relaxed text-ink-2">
             Ninguém é só uma coisa — cada pessoa carrega uma combinação dos 3 arquétipos
             mais fortes nela. As associações abaixo são só um gostinho de como a leitura
             funciona.
           </p>
 
           <div className="flex-1 min-h-0 w-full overflow-y-auto px-1">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full pb-4">
+            <div className="grid w-full grid-cols-1 gap-x-10 pb-4 sm:grid-cols-2 lg:grid-cols-3">
               {EXAMPLE_CARDS.map((card) => (
                 <div
                   key={card.name}
-                  className="rounded-2xl border border-border bg-surface/60 p-6 text-left flex flex-col gap-5"
+                  className="flex flex-col gap-4 border-t border-line py-5 text-left"
                 >
                   <div className="flex items-center gap-4">
                     <PersonAvatar card={card} />
                     <div className="min-w-0">
-                      <p className="font-display text-xl text-foreground truncate">
+                      <p className="truncate font-display text-lg font-semibold text-ink">
                         {card.name}
                       </p>
-                      <p className="text-xs text-muted truncate">{card.hint}</p>
+                      <p className="truncate text-[13px] text-ink-2">{card.hint}</p>
                     </div>
                   </div>
                   <div className="flex flex-col gap-2.5">
                     {card.archetypes.map((a) => (
                       <div key={a.name} className="flex items-center justify-between gap-3">
-                        <span className="text-sm text-foreground/85">{a.name}</span>
+                        <span className="text-[15px] text-ink">{a.name}</span>
                         <DotMeter value={a.dots} />
                       </div>
                     ))}
@@ -333,14 +327,14 @@ export function IntroSequence({
             type="button"
             onClick={onDone}
             aria-label="Começar"
-            className="shrink-0 mt-6 flex h-14 w-14 items-center justify-center rounded-full border border-border text-foreground/80 hover:border-accent hover:text-accent transition"
+            className="mt-6 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-action text-action-ink transition hover:brightness-110"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} className="h-6 w-6">
               <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
-          <span className="shrink-0 mt-3 font-mono text-[11px] text-muted">
-            clique ou pressione Enter ↵
+          <span className="mt-3 shrink-0 text-[13px] text-ink-3">
+            clique ou pressione <Kbd>Enter</Kbd>
           </span>
         </motion.div>
       )}
@@ -354,9 +348,9 @@ export function IntroSequence({
             exit={{ opacity: 0 }}
             transition={SOFT_TRANSITION}
             onClick={onDone}
-            className="fixed bottom-7 right-7 font-mono text-[11px] uppercase tracking-[0.2em] text-muted hover:text-foreground transition"
+            className="fixed bottom-6 right-6 rounded-full px-4 py-2 text-sm text-ink-2 transition hover:bg-terra-wash hover:text-ink"
           >
-            Pular →
+            <span className="flex items-center gap-1.5">Pular <ArrowRight /></span>
           </motion.button>
         )}
       </AnimatePresence>

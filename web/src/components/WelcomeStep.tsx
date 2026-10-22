@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { ENTER_TRANSITION, EXIT_TRANSITION } from "@/lib/motion";
+import { BTN_PRIMARY, DISPLAY } from "@/lib/ui";
+import { Kbd } from "./Glyphs";
 
 export function WelcomeStep({
   value,
@@ -20,18 +22,14 @@ export function WelcomeStep({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -6, transition: EXIT_TRANSITION }}
       transition={ENTER_TRANSITION}
-      className="flex flex-col justify-center h-full"
+      className="flex flex-col"
     >
-      <span className="font-mono text-xs tracking-[0.2em] text-accent mb-5">
-        ANTES DE COMEÇAR
-      </span>
-
-      <h1 className="font-display text-4xl sm:text-6xl leading-[1.05] tracking-tight text-glow mb-4 max-w-xl">
-        Como podemos <em className="italic text-accent">te chamar</em>?
+      <h1 className={`${DISPLAY} mb-4 text-[40px] leading-[1.05] sm:text-6xl`}>
+        Como podemos <span className="text-brand">te chamar</span>?
       </h1>
-      <p className="text-muted text-base sm:text-lg mb-10 max-w-md">
-        Seu nome vai junto no arquivo cifrado — só assim quem for ler as
-        respostas depois sabe de quem é cada arquétipo.
+      <p className="mb-10 max-w-[46ch] text-lg leading-relaxed text-ink-2">
+        Seu nome vai junto no arquivo cifrado — só assim quem for ler as respostas depois
+        sabe de quem é cada arquétipo.
       </p>
 
       <input
@@ -43,21 +41,14 @@ export function WelcomeStep({
           if (e.key === "Enter" && canStart) onNext();
         }}
         placeholder="Digite seu nome…"
-        className="w-full max-w-lg bg-transparent border-b-2 border-border focus:border-accent outline-none text-xl sm:text-2xl py-3 placeholder:text-muted/40 transition-colors font-display"
+        className="w-full max-w-lg border-b-2 border-line-strong bg-transparent py-3 font-display text-2xl text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-terra sm:text-3xl"
       />
 
-      <div className="flex items-center gap-4 mt-12">
-        <button
-          type="button"
-          onClick={onNext}
-          disabled={!canStart}
-          className="px-7 py-3 rounded-full bg-gradient-to-r from-accent to-accent-2 text-background text-sm font-semibold tracking-wide disabled:opacity-30 disabled:cursor-not-allowed hover:brightness-110 transition shadow-lg shadow-accent/20"
-        >
+      <div className="mt-10 flex items-center gap-4">
+        <button type="button" onClick={onNext} disabled={!canStart} className={BTN_PRIMARY}>
           Começar
         </button>
-        <span className="text-xs text-muted hidden sm:inline">
-          pressione Enter ↵
-        </span>
+        <span className="hidden text-[13px] text-ink-3 sm:inline">pressione <Kbd>Enter</Kbd></span>
       </div>
     </motion.div>
   );

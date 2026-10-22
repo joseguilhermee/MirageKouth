@@ -5,6 +5,17 @@ import { motion } from "framer-motion";
 import { useAutoGrowTextarea } from "@/lib/useAutoGrowTextarea";
 import { ENTER_TRANSITION, EXIT_TRANSITION } from "@/lib/motion";
 import {
+  BTN_GHOST,
+  BTN_PRIMARY,
+  BTN_PRIMARY_WAITING,
+  DISPLAY,
+  FIELD,
+  PILL,
+  PILL_OFF,
+  PILL_ON,
+} from "@/lib/ui";
+import { Kbd } from "./Glyphs";
+import {
   MIN_MAIN_CHARS,
   setStepValue,
   shownSteps,
@@ -12,10 +23,6 @@ import {
   type QuestionDetail,
   type ShownStep,
 } from "@/lib/questions";
-
-const PILL = "px-4 py-2 rounded-full border text-sm transition";
-const PILL_ON = "border-accent bg-accent/15 text-foreground";
-const PILL_OFF = "border-border text-foreground/70 hover:border-muted";
 
 export function QuestionCard({
   index,
@@ -27,6 +34,7 @@ export function QuestionCard({
   onDetailChange,
   onNext,
   onBack,
+  onSeal,
 }: {
   index: number;
   total: number;
@@ -37,6 +45,12 @@ export function QuestionCard({
   onDetailChange: (detail: QuestionDetail) => void;
   onNext: () => void;
   onBack: () => void;
+  /**
+   * Chamado ao avançar com tudo respondido. Se devolver true, a página cuida da
+   * animação de selar e chama onNext no fim dela; o texto some do campo para
+   * não aparecer duas vezes.
+   */
+  onSeal?: (field: HTMLTextAreaElement) => boolean;
 }) {
   const isFirst = index === 0;
   const isLast = index === total - 1;
@@ -45,6 +59,7 @@ export function QuestionCard({
   // Só o passo aberto por um clique de botão ganha foco: o que aparece
   // enquanto a pessoa ainda digita a principal não pode roubar o cursor.
   const [focusAfterClick, setFocusAfterClick] = useState(false);
+  const [sealing, setSealing] = useState(false);
 
   // Resposta em branco não é "sem dado": pelo §AUSÊNCIA do protocolo, itens
   // vazios derrubam a confiança do perfil inteiro. Por isso tudo o que aparece
@@ -68,6 +83,12 @@ export function QuestionCard({
       if (!mainOk) textareaRef.current?.focus();
       return;
     }
+    if (sealing) return;
+    const field = textareaRef.current;
+    if (field && onSeal?.(field)) {
+      setSealing(true);
+      return;
+    }
     onNext();
   }
 
@@ -85,18 +106,9 @@ export function QuestionCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -6, transition: EXIT_TRANSITION }}
       transition={ENTER_TRANSITION}
-      className="flex flex-col justify-center h-full"
+      className={`flex flex-col ${sealing ? "[&_textarea]:text-transparent [&_textarea]:caret-transparent" : ""}`}
     >
-      <div className="flex items-baseline gap-3 mb-5">
-        <span className="font-display text-3xl text-accent/70">
-          {String(index + 1).padStart(2, "0")}
-        </span>
-        <span className="font-mono text-xs tracking-[0.2em] text-muted">
-          / {String(total).padStart(2, "0")}
-        </span>
-      </div>
-
-      <h1 className="font-display text-2xl sm:text-3xl leading-snug tracking-tight text-glow mb-6 max-w-2xl">
+      <h1 className={`${DISPLAY} mb-6 max-w-[34ch] text-[28px] leading-[1.18] sm:text-[34px] lg:text-[40px] lg:leading-[1.14]`}>
         {question.text}
       </h1>
 
@@ -111,8 +123,9 @@ export function QuestionCard({
         aria-invalid={blocked}
         aria-describedby={blocked ? `blocked-${index}` : undefined}
         placeholder={question.placeholder}
-        className={`w-full max-w-xl bg-transparent border-b-2 outline-none text-lg sm:text-xl py-3 placeholder:text-muted/40 transition-colors font-display resize-none leading-snug ${
-          blocked ? "border-accent-2" : "border-border focus:border-accent"
+        readOnly={sealing}
+        className={`${FIELD} ${blocked ? "border-warn" : "border-line-strong focus:border-terra"} ${
+          sealing ? "text-transparent caret-transparent placeholder:text-transparent" : ""
         }`}
       />
 
@@ -120,8 +133,8 @@ export function QuestionCard({
         id={`blocked-${index}`}
         role="status"
         aria-live="polite"
-        className={`text-sm mt-3 max-w-xl transition-opacity ${
-          blocked ? "opacity-100 text-accent-2" : "opacity-0"
+        className={`mt-3 min-h-5 text-[15px] leading-snug text-warn transition-opacity ${
+          blocked ? "opacity-100" : "opacity-0"
         }`}
       >
         {blocked
@@ -130,7 +143,7 @@ export function QuestionCard({
       </p>
 
       {shown.length > 0 && (
-        <div className="mt-4 max-w-xl flex flex-col gap-6 border-l-2 border-accent/30 pl-4">
+        <div className="mt-5 flex flex-col gap-8">
           {shown.map((s) => (
             <StepField
               key={s.key}
@@ -144,8 +157,8 @@ export function QuestionCard({
           <p
             role="status"
             aria-live="polite"
-            className={`text-sm -mt-3 transition-opacity ${
-              stepBlocked ? "opacity-100 text-accent-2" : "opacity-0"
+            className={`-mt-5 min-h-5 text-[15px] text-warn transition-opacity ${
+              stepBlocked ? "opacity-100" : "opacity-0"
             }`}
           >
             {stepBlocked ? "Responda essa parte também antes de seguir." : " "}
@@ -153,29 +166,20 @@ export function QuestionCard({
         </div>
       )}
 
-      <div className="flex items-center gap-4 mt-9">
-        <button
-          type="button"
-          onClick={onBack}
-          disabled={isFirst}
-          className="px-5 py-3 rounded-full border border-border text-sm text-foreground/80 disabled:opacity-30 disabled:cursor-not-allowed hover:border-muted transition"
-        >
+      <div className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
+        <button type="button" onClick={onBack} disabled={isFirst || sealing} className={BTN_GHOST}>
           Voltar
         </button>
         <button
           type="button"
           onClick={handleNext}
           aria-disabled={!complete}
-          className={`px-7 py-3 rounded-full text-sm font-semibold tracking-wide transition ${
-            complete
-              ? "bg-gradient-to-r from-accent to-accent-2 text-background hover:brightness-110 shadow-lg shadow-accent/20"
-              : "border border-border text-muted hover:border-muted"
-          }`}
+          className={complete ? BTN_PRIMARY : BTN_PRIMARY_WAITING}
         >
           {isLast ? "Concluir" : "Próxima"}
         </button>
-        <span className="text-xs text-muted hidden sm:inline">
-          Enter pula linha · Ctrl+Enter avança
+        <span className="hidden text-[13px] text-ink-3 sm:inline">
+          <Kbd>Enter</Kbd> pula linha · <Kbd>Ctrl</Kbd> + <Kbd>Enter</Kbd> avança
         </span>
       </div>
     </motion.div>
@@ -198,10 +202,13 @@ function StepField({
 }) {
   const { step, value } = shown;
   const ref = useAutoGrowTextarea(value);
+  const promptClass = `font-display text-xl sm:text-[22px] font-medium leading-snug transition-colors ${
+    invalid ? "text-warn" : "text-ink"
+  }`;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={ENTER_TRANSITION}
       role={step.kind === "button" ? "radiogroup" : undefined}
@@ -209,13 +216,7 @@ function StepField({
     >
       {step.kind === "button" ? (
         <>
-          <p
-            className={`text-lg sm:text-xl font-display leading-snug mb-3 transition-colors ${
-              invalid ? "text-accent-2" : "text-foreground"
-            }`}
-          >
-            {step.prompt}
-          </p>
+          <p className={`${promptClass} mb-3`}>{step.prompt}</p>
           <div className="flex flex-wrap gap-2">
             {step.options.map((option) => {
               const isOn = value === option.label;
@@ -236,9 +237,7 @@ function StepField({
         </>
       ) : (
         <label className="flex flex-col gap-1">
-          <span className="font-display text-lg sm:text-xl leading-snug text-foreground">
-            {step.prompt}
-          </span>
+          <span className={promptClass}>{step.prompt}</span>
           <textarea
             ref={ref}
             rows={2}
@@ -247,9 +246,7 @@ function StepField({
             value={value}
             onChange={(e) => onChange(e.target.value, false)}
             onKeyDown={onKeyDown}
-            className={`w-full bg-transparent border-b-2 outline-none text-lg sm:text-xl py-3 transition-colors font-display resize-none leading-snug ${
-              invalid ? "border-accent-2" : "border-border focus:border-accent"
-            }`}
+            className={`${FIELD} ${invalid ? "border-warn" : "border-line-strong focus:border-terra"}`}
           />
         </label>
       )}

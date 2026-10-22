@@ -16,3 +16,8 @@ web/dev.log
 
 decryptor/__pycache__/
 decryptor/*.pyc
+
+# Build do executável (o .exe empacotado leva a chave privada embutida)
+decryptor/build/
+decryptor/dist/
+decryptor/*.spec

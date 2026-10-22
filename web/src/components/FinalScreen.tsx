@@ -6,10 +6,11 @@ import { buildEncryptedFile } from "@/lib/crypto";
 import { DELIVERY_INSTRUCTIONS } from "@/lib/siteConfig";
 import type { QuestionDetail } from "@/lib/questions";
 import { ENTER_TRANSITION, EXIT_TRANSITION, SOFT_TRANSITION } from "@/lib/motion";
+import { BTN_GHOST, BTN_PRIMARY, DISPLAY } from "@/lib/ui";
 
 const LOG_LINES = [
   "Coletando respostas…",
-  "Derivando chave AES-256…",
+  "Gerando chave AES-256…",
   "Cifrando payload com AES-GCM…",
   "Envelopando chave com RSA-4096…",
   "Selando arquivo…",
@@ -46,6 +47,7 @@ export function FinalScreen({
   details,
   onBack,
   onDone,
+  onGenerated,
 }: {
   name: string;
   answered: number;
@@ -55,6 +57,8 @@ export function FinalScreen({
   details: Record<number, QuestionDetail>;
   onBack: () => void;
   onDone: () => void;
+  /** O arquivo real, para a prancheta mostrar exatamente o que vai ser entregue. */
+  onGenerated?: (content: string) => void;
 }) {
   const [status, setStatus] = useState<Status>("idle");
   const [visibleLines, setVisibleLines] = useState(0);
@@ -76,6 +80,7 @@ export function FinalScreen({
       setEncryptedContent(content);
       setStatus("done");
       onDone();
+      onGenerated?.(content);
     } catch {
       setStatus("error");
     }
@@ -111,27 +116,24 @@ export function FinalScreen({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -6, transition: EXIT_TRANSITION }}
       transition={ENTER_TRANSITION}
-      className="flex flex-col justify-center h-full"
+      className="flex flex-col"
     >
-      <span className="font-mono text-xs tracking-[0.2em] text-cipher mb-5">
-        SELAR RESPOSTAS
-      </span>
-      <h1 className="font-display text-4xl sm:text-6xl leading-[1.05] tracking-tight text-glow mb-4 max-w-xl">
+      <h1 className={`${DISPLAY} mb-4 max-w-[16ch] text-[40px] leading-[1.05] sm:text-6xl`}>
         A miragem está pronta pra virar arquétipo
       </h1>
-      <p className="text-muted text-base sm:text-lg mb-10 max-w-md">
+      <p className="mb-10 max-w-[52ch] text-lg leading-relaxed text-ink-2">
         {name ? `${name}, você` : "Você"} respondeu {answered} de {total}{" "}
         perguntas. Ao gerar, tudo é criptografado no seu navegador — depois
         você escolhe se baixa como arquivo ou copia o texto cifrado. Nada é
         enviado para nenhum servidor nesse processo.
       </p>
 
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-3 sm:gap-4">
         <button
           type="button"
           onClick={onBack}
           disabled={status === "processing"}
-          className="px-5 py-3.5 rounded-full border border-border text-sm text-foreground/80 disabled:opacity-30 disabled:cursor-not-allowed hover:border-muted transition"
+          className={BTN_GHOST}
         >
           Voltar
         </button>
@@ -139,7 +141,7 @@ export function FinalScreen({
           type="button"
           onClick={handleGenerate}
           disabled={status === "processing"}
-          className="px-7 py-3.5 rounded-full bg-gradient-to-r from-accent to-accent-2 text-background text-sm font-semibold tracking-wide disabled:opacity-60 hover:brightness-110 transition shadow-lg shadow-accent/20"
+          className={BTN_PRIMARY}
         >
           {status === "done" ? "Gerar novamente" : "Gerar Criptografia"}
         </button>
@@ -147,48 +149,48 @@ export function FinalScreen({
 
       <AnimatePresence>
         {status !== "idle" && (
-          <motion.div
+          <motion.ol
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={SOFT_TRANSITION}
-            className="mt-6 rounded-xl bg-black/50 border border-border/70 p-4 font-mono text-xs text-cipher overflow-hidden max-w-lg"
+            aria-live="polite"
+            className="mt-8 flex max-w-lg flex-col overflow-hidden"
           >
             {LOG_LINES.slice(0, visibleLines).map((line, i) => (
-              <motion.div
+              <motion.li
                 key={i}
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={SOFT_TRANSITION}
-                className="py-0.5"
+                className="flex items-center gap-3 border-t border-line py-2.5 text-[15px] text-ink-2"
               >
-                <span className="text-muted mr-2">$</span>
-                {line}
-              </motion.div>
+                <CheckIcon />
+                {line.replace(/…$/, "")}
+              </motion.li>
             ))}
             {status === "done" && (
-              <motion.div
+              <motion.li
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={SOFT_TRANSITION}
-                className="py-0.5 text-foreground"
+                className="flex items-center gap-3 border-t border-line py-2.5 text-[15px] font-semibold text-ink"
               >
-                <span className="text-muted mr-2">$</span>
+                <CheckIcon />
                 Arquivo cifrado pronto.
-              </motion.div>
+              </motion.li>
             )}
             {status === "error" && (
-              <motion.div
+              <motion.li
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={SOFT_TRANSITION}
-                className="py-0.5 text-red-400"
+                className="border-t border-line py-2.5 text-[15px] font-semibold text-warn"
               >
-                <span className="text-muted mr-2">$</span>
                 Algo deu errado. Tente novamente.
-              </motion.div>
+              </motion.li>
             )}
-          </motion.div>
+          </motion.ol>
         )}
       </AnimatePresence>
 
@@ -199,41 +201,31 @@ export function FinalScreen({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={SOFT_TRANSITION}
-            className="mt-6 flex flex-col gap-3 max-w-lg"
+            className="mt-8 flex max-w-lg flex-col gap-3"
           >
-            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
-              Como prefere entregar?
-            </span>
+            <h2 className="font-display text-xl font-semibold text-ink">Como prefere entregar?</h2>
             <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={handleDownload}
-                className="flex items-center gap-2 px-5 py-3 rounded-full border border-border text-sm text-foreground/90 hover:border-accent hover:text-accent transition"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} className="h-4 w-4">
+              <button type="button" onClick={handleDownload} className={BTN_PRIMARY}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4" aria-hidden>
                   <path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 Baixar arquivo
               </button>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="flex items-center gap-2 px-5 py-3 rounded-full border border-border text-sm text-foreground/90 hover:border-accent hover:text-accent transition"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} className="h-4 w-4">
+              <button type="button" onClick={handleCopy} className={BTN_GHOST}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4" aria-hidden>
                   <rect x="8" y="8" width="12" height="12" rx="2" />
                   <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 {copyStatus === "copied" ? "Copiado!" : "Copiar texto"}
               </button>
-              {copyStatus === "error" && (
-                <span className="text-xs text-red-400">
-                  Não deu pra copiar automaticamente — tente selecionar o texto manualmente.
-                </span>
-              )}
             </div>
-            <p className="text-xs text-muted max-w-md">
-              Baixar salva o arquivo <code className="text-foreground/80">{FILE_NAME}</code>{" "}
+            {copyStatus === "error" && (
+              <p className="text-[15px] text-warn">
+                Não deu pra copiar automaticamente — tente selecionar o texto manualmente.
+              </p>
+            )}
+            <p className="max-w-md text-[14px] leading-relaxed text-ink-2">
+              Baixar salva o arquivo <code className="font-mono text-[13px] text-ink">{FILE_NAME}</code>{" "}
               no dispositivo. Copiar coloca o mesmo conteúdo cifrado na área de
               transferência, pra colar direto onde for enviar (útil no celular
               ou se preferir não baixar nada).
@@ -244,17 +236,25 @@ export function FinalScreen({
 
       <AnimatePresence>
         {status === "done" && (
-          <motion.div
+          <motion.p
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...SOFT_TRANSITION, delay: 0.15 }}
-            className="mt-4 rounded-xl border border-accent/25 bg-accent/5 p-4 text-sm text-foreground/90 leading-relaxed max-w-lg"
+            className="mt-6 max-w-lg rounded-2xl bg-terra-wash px-5 py-4 text-[15px] leading-relaxed text-ink"
           >
-            <strong className="text-accent">Próximo passo:</strong>{" "}
+            <strong className="font-semibold text-brand">Próximo passo:</strong>{" "}
             {DELIVERY_INSTRUCTIONS}
-          </motion.div>
+          </motion.p>
         )}
       </AnimatePresence>
     </motion.div>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 shrink-0 text-brand" aria-hidden>
+      <path d="M5 12.5l4.5 4.5L19 7.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }

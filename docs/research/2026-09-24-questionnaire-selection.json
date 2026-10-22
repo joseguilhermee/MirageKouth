@@ -1,0 +1,80 @@
+{
+  "status": "Candidato revisado para piloto; não validado e não implantado",
+  "date": "2026-09-24",
+  "method": "Leitura qualitativa integral das 28 respostas dos 22 casos abaixo, inspeção dos resultados disponíveis e das regras do protocolo. Contagens descritivas selecionadas, com classificação manual explícita. Sem novos escores, ablação cega, julgamento independente ou estimativa de acurácia.",
+  "caseIds": ["01", "02", "03", "04", "05", "06", "07", "08", "09", "11", "12", "13", "14", "15", "17", "18", "19", "20", "21", "22", "23", "25"],
+  "readItems": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28],
+  "observations": [
+    {
+      "item": 4,
+      "label": "Menciona parceiro, familiar, amiga/amigo próximo ou pequeno círculo de amigos",
+      "caseIds": ["01", "02", "03", "04", "05", "06", "07", "08", "09", "11", "12", "13", "14", "15", "17", "18", "19", "20", "21", "22", "23", "25"],
+      "qualification": "Não significa que todos procuram alguém sempre. Há isolamento, seletividade e diferenças entre notícia boa e ruim. O nome do vínculo sozinho discrimina pouco; suas condições podem discriminar."
+    },
+    {
+      "item": 17,
+      "label": "Inclui explicitamente dinheiro, finanças, aposentadoria ou planejamento para necessidades materiais da casa",
+      "caseIds": ["01", "05", "08", "12", "15", "19", "20", "23"],
+      "qualification": "O caso 05 inclui alimentos, educação, moradia e transporte. Não inferir medo financeiro nos demais só porque falam em organização."
+    },
+    {
+      "item": 17,
+      "label": "Não recorda exemplo, diz que não aconteceu ou não consegue pensar em algo",
+      "caseIds": ["02", "04", "07", "11"],
+      "qualification": "Ausência de relato não demonstra ausência de medo nem de comportamento de evitação."
+    },
+    {
+      "item": 18,
+      "label": "Apresenta ao menos um rótulo, padrão, crítica ou exemplo; exclui apenas não sei responder",
+      "caseIds": ["01", "02", "03", "05", "06", "07", "08", "09", "11", "12", "13", "14", "15", "17", "18", "19", "20", "21", "22", "23", "25"],
+      "qualification": "21 respostas não equivalem a 21 evidências comportamentais detalhadas. Predominam formulações gerais; relato de crítica continua sendo autorrelato."
+    },
+    {
+      "item": 22,
+      "label": "Indica situação ou tipo de momento de presença/prazer; nenhum respondeu apenas não sei/não lembro",
+      "caseIds": ["01", "02", "03", "04", "05", "06", "07", "08", "09", "11", "12", "13", "14", "15", "17", "18", "19", "20", "21", "22", "23", "25"],
+      "qualification": "Inclui respostas gerais e muito breves. Não é uma taxa de validade, especificidade ou sinceridade."
+    },
+    {
+      "item": 24,
+      "label": "Apresenta pessoa, episódio ou reação à decepção; nenhum respondeu apenas não sei/não lembro",
+      "caseIds": ["01", "02", "03", "04", "05", "06", "07", "08", "09", "11", "12", "13", "14", "15", "17", "18", "19", "20", "21", "22", "23", "25"],
+      "qualification": "Algumas respostas não esclarecem ações posteriores. Não concluir restauração da confiança só porque a relação continuou."
+    },
+    {
+      "item": 25,
+      "label": "Diz que nunca/não aconteceu ou não se recorda; não descreve tentativa frustrada",
+      "caseIds": ["04", "05", "11", "17", "21"],
+      "qualification": "Outros casos respondem genericamente ou relatam perda sem uma tentativa própria. A reformulação para tentativa cotidiana é hipótese a testar."
+    }
+  ],
+  "dataQuality": [
+    {"cases": ["22", "23"], "finding": "O bloco principal da narrativa do 23 repete literalmente o do 22, incluindo a entrega do carro ao pai, que é resposta do 22, não do 23.", "action": "Quarentena da narrativa 23 como referência; conferir associação do vetor separadamente; não alterar os originais."},
+    {"cases": ["07"], "finding": "A narrativa diz nada além de pensar sobre o episódio do metrô, mas a resposta 9 descreve oferecer/ceder o lugar.", "action": "Revisar inferência e rastrear cada afirmação até a resposta; não corrigir automaticamente o ranking."},
+    {"cases": ["01", "19", "20", "21"], "finding": "Há vetor de percentuais, mas não foi localizada narrativa interpretativa entre ele e a fórmula nos arquivos inspecionados.", "action": "Não confundir composição do perfume com narrativa de personalidade."}
+  ],
+  "questions": [
+    {"id": "N01", "sourceItems": [22, 1], "text": "Conte um momento recente em que você estava bem e não queria estar em outro lugar. O que estava fazendo, e como esse momento aconteceu?", "purpose": "Prazer vivido e vínculo fora da pressão por desempenho; não converter cenário ou hobby automaticamente em arquétipo."},
+    {"id": "N02", "sourceItems": [12, 11], "text": "Conte algo que você resolveu fazer ou aprender por vontade própria. O que você fez de fato, e o que te fez continuar ou parar?", "purpose": "Investimento voluntário, ação e motivo de persistência; absorve apenas parte do orgulho/autoria do antigo 11."},
+    {"id": "N03", "sourceItems": [5], "text": "Lembre um elogio que ficou com você. O que você tinha feito, e por que aquele reconhecimento foi importante?", "purpose": "Reconhecimento desejado para contrastar com conduta. Valor declarado não prova competência ou motivo de toda a vida."},
+    {"id": "N04", "sourceItems": [10], "text": "Conte uma escolha em que você não podia ficar com duas coisas que queria. O que escolheu, e do que abriu mão de verdade?", "purpose": "Prioridade sob renúncia; verificar alternativas disponíveis, restrições e custo real."},
+    {"id": "N05", "sourceItems": [13, 3, 21], "text": "Conte uma situação em que você discordou do que estava acontecendo, mas a decisão não era sua. O que você fez — ou deixou de fazer — e o que pesou nisso?", "purpose": "Resposta à discordância sem autoridade; diferencia condutas de saída, contestação, proteção, influência ou silêncio sem moralizá-las."},
+    {"id": "N06", "sourceItems": [14], "text": "Conte uma situação em que uma tarefa ou decisão ficou sob sua responsabilidade e envolvia outras pessoas. O que você fez, e o que ficou a cargo delas?", "purpose": "Distinguir execução própria, coordenação e sustentação do conjunto; responsabilidade não é sinônimo de governança."},
+    {"id": "N07", "sourceItems": [15, 6, 20], "text": "Conte uma vez em que você se envolveu no problema de alguém. O que tentou fazer, e até onde decidiu se envolver?", "purpose": "Ajuda dada, finalidade e limites. Transformação intencional exige esclarecimento se mecanismo e resultado não aparecerem."},
+    {"id": "N08", "sourceItems": [16], "text": "Na última vez em que uma ajuda fez falta, o que você fez? Conte como foi pedir, receber ou ficar sem essa ajuda.", "purpose": "Reciprocidade, autonomia, recepção e disponibilidade real de apoio; ficar sem apoio não equivale a recusá-lo."},
+    {"id": "N09", "sourceItems": [17], "text": "Conte algo que você fez recentemente para evitar uma situação que não queria enfrentar. O que tentou evitar, e o que isso mudou na sua vida?", "purpose": "Evitação observada e consequências sem exigir uma pessoa organizada ou transformar precaução comum em medo central."},
+    {"id": "N10", "sourceItems": [18], "text": "Qual reclamação sobre seu jeito de agir você já ouviu mais de uma vez? Conte uma situação em que ela apareceu e o que você fez depois.", "purpose": "Atrito recorrente com exemplo, em contraste com elogio e conduta. Não é um informante independente nem uma confissão obrigatória."},
+    {"id": "N11", "sourceItems": [2], "text": "Lembre um momento de brincadeira ou descontração. Como você participou, e o que aconteceu depois?", "purpose": "Função da leveza, vínculo, exposição e possíveis efeitos do humor; não pontuar engraçado como Bobo automaticamente."},
+    {"id": "N12", "sourceItems": [23], "text": "Conte uma situação que te fez sentir parte de um grupo, ou de fora dele. O que você fez depois em relação àquelas pessoas?", "purpose": "Pertencimento e resposta relacional sem pressupor exclusão; não inferir busca de igualdade só por ter amigos."},
+    {"id": "N13", "sourceItems": [24, 27], "text": "Conte uma decepção com alguém importante. Depois disso, o que mudou no seu jeito de lidar com essa pessoa e com outras?", "purpose": "Confiança depois do dano, limites e alcance da mudança; perdão, retomada de contato e confiança não são equivalentes."},
+    {"id": "N14", "sourceItems": [25], "text": "Conte uma tentativa sua que não saiu como você queria. O que você fez depois, e como está isso hoje?", "purpose": "Persistência, mudança de estratégia, desistência e reorganização após frustração; evita exigir grande tragédia ou meses de história."}
+  ],
+  "limits": [
+    "sourceItems indica parentesco de conteúdo, não equivalência empírica nem substituição integral.",
+    "Contagens são leitura descritiva de conveniência, sem segunda codificação independente.",
+    "Novo enunciado exige respostas novas: não inventar respostas à versão curta usando a versão antiga.",
+    "Não houve reprodução dos percentuais nem mensuração da contribuição causal de cada item.",
+    "14 perguntas são uma hipótese de núcleo; até 2 esclarecimentos e resultado inconclusivo continuam necessários.",
+    "Não treinar modelo com narrativas e vetores salvos sem revisão de procedência e correção."
+  ]
+}
