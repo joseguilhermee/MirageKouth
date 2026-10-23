@@ -65,12 +65,30 @@ try {
     await centered(page, firstRadio, "missing-step", width);
     await page.getByRole("radio", { name: "quase nunca", exact: true }).click();
     const branch = page.getByRole("textbox", { name: "O que mudou?", exact: true });
+    if (motion === "no-preference") {
+      await page.waitForTimeout(220);
+      const distance = await branch.evaluate(el => {
+        const rect = el.closest("label").parentElement.getBoundingClientRect();
+        const footerHeight = document.querySelector(".kouth-progress")?.getBoundingClientRect().height ?? 0;
+        return Math.abs(rect.top + rect.height / 2 - (innerHeight - footerHeight) / 2);
+      });
+      assert.ok(distance > 40, "The long reveal must still be moving gently after 220ms");
+    }
     await centered(page, branch, "long-branch", width);
     await branch.pressSequentially("Minha resposta continua com o foco aqui.");
     assert.ok(await branch.evaluate(el => document.activeElement === el));
     await choose().click();
     await page.getByRole("button", { name: "Para quem eu quero ser", exact: true }).click();
     await page.getByRole("radio", { name: "1 ano", exact: true }).click();
+    if (motion === "no-preference") {
+      await page.waitForTimeout(150);
+      await page.mouse.wheel(0, 80);
+      await page.waitForTimeout(300);
+      const stopped = await page.evaluate(() => scrollY);
+      await page.waitForTimeout(700);
+      assert.ok(Math.abs(await page.evaluate(() => scrollY) - stopped) < 3, "Manual scrolling must interrupt centering");
+      await page.getByRole("radio", { name: "1 ano", exact: true }).click();
+    }
     const day = page.locator("main textarea");
     await centered(page, day, "horizon-branch", width);
     if (width < 640) {

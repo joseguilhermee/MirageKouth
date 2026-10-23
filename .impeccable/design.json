@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-23T13:55:12.774679+00:00",
+  "generatedAt": "2026-10-23T14:05:53.442642+00:00",
   "title": "Design System: KOUTH",
   "extensions": {
     "colorMeta": {
@@ -187,6 +187,11 @@
         "name": "progress",
         "value": "300ms",
         "purpose": "Largura; sem transição com movimento reduzido."
+      },
+      {
+        "name": "focus-centering",
+        "value": "900ms; (1 - cos(pi * t)) / 2",
+        "purpose": "Controlled centering, slow acceleration/deceleration, immediate under reduced motion and interruptible by user input."
       }
     ],
     "breakpoints": [

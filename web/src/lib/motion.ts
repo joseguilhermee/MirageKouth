@@ -19,3 +19,6 @@ export const EXIT_TRANSITION = { duration: 0.18, ease: EASE_OUT };
 
 /** Transição mais curta, pra elementos pequenos (popover, badges, linhas de log). */
 export const SOFT_TRANSITION = { duration: 0.35, ease: EASE_OUT };
+
+/** Centralização com aceleração e desaceleração graduais, sem salto inicial. */
+export const FOCUS_SCROLL_MS = 900;
