@@ -179,7 +179,7 @@ A paleta é quente, mineral e contida. O frontmatter registra os valores normati
 
 O escuro é o padrão, inclusive no HTML inicial e quando o armazenamento está indisponível. Uma escolha explícita persiste em `mirage-theme`, aplica-se antes da primeira pintura e não altera respostas ou progresso. Apagar a preferência restaura o padrão escuro. A tela final pode usar a paleta escura independentemente dessa preferência. Variáveis antigas de cena não estabelecem um gradiente.
 
-Textura: papel original do brandbook (`web/public/brand/paper-grain.webp`), extraído da página 5, xref 73. O fundo da página e o painel de recepção usam uma camada estática atrás do conteúdo, com `pointer-events: none`, escala (720px 405px), `soft-light`, filtro neutro e opacidade (0.16) no escuro / (0.08) no claro. Campos, botões, fotografia e folha modal continuam lisos. Não há grão animado nem textura sintética gerada em CSS.
+Textura: papel original do brandbook (`web/public/brand/paper-grain.webp`), extraído da página 5, xref 73. O fundo da página e o painel de recepção usam uma camada estática atrás do conteúdo, com `pointer-events: none`, escala (720px 405px), `soft-light`, filtro neutro e opacidade (0.30) no escuro / (0.08) no claro. Campos, botões, fotografia e folha modal continuam lisos. Não há grão animado nem textura sintética gerada em CSS.
 
 ## Typography
 
@@ -224,7 +224,7 @@ As telas são planas; a fotografia fornece luz e matéria. Contornos e diferenç
 
 ## Shapes
 
-Ações e opções usam cantos discretos (3px), campos curtos (4px), respostas (6px). Pílulas permanecem nos pequenos controles de cabeçalho e contadores; não são mais a forma universal de ação. A finalidade usa indicador circular (22px), com centro marcado (10px). Divisórias e contornos têm (1px).
+Ações e opções usam cantos discretos (3px), campos curtos (4px), respostas (6px). Pílulas permanecem nos pequenos controles de cabeçalho e contadores; não são mais a forma universal de ação. A finalidade usa seta de navegação, pois a escolha abre imediatamente seu caminho. Divisórias e contornos têm (1px).
 
 Popover e folha usam raio (16px); estrutura da prancheta (24px) nos cantos voltados para a página; clipe (8px). Ícones são SVG de traço em `currentColor`, normalmente (16px).
 
@@ -248,7 +248,11 @@ Respostas: fundo próprio, contorno completo, altura mínima (110px), padding (1
 Wordmark original e botões discretos com ícones. Os alvos do cabeçalho têm mínimo de (44px), e “Respostas” continua visível no celular. Em telas estreitas, aparência fica ao lado da marca e os controles de apoio ocupam a linha seguinte. Popovers seguem o tema, respeitam margens mobile e fecham com Esc ou clique fora. Aparência, respostas e explicações não competem com o enunciado. A privacidade distingue rascunho local e arquivo final; detalhes de algoritmos só aparecem sob demanda.
 
 ### Finalidades e progresso
-Quatro linhas amplas com título serifado e rádio à direita, altura mínima (78px), padding vertical (20px), divisória inferior. Seleção reforça indicador e borda. Progresso por linha (2px), contagem textual e `role="progressbar"`, sem horizonte ou sol. Transição de largura (300ms), desativada com movimento reduzido. Na conclusão, o rodapé passa a fluxo normal para não cobrir instruções de entrega; durante as perguntas, permanece sticky.
+Quatro linhas amplas de navegação com título serifado e seta à direita, altura mínima (78px), padding vertical (20px), divisória inferior. Cada botão entra diretamente na finalidade, sem “Continuar” nem outra confirmação. “Escolher outra opção” é ação secundária de (13px) com alvo de (44px), somente na primeira pergunta; alternar preserva os rascunhos. Presente mantém sua configuração necessária e a revisão dos dados na primeira pergunta da entrevista.
+
+O campo aberto por uma escolha recebe foco sem o salto nativo inicial; o bloco de enunciado e resposta é centralizado na área útil, descontado o rodapé. A rolagem é suave, ou imediata com movimento reduzido, e acompanha apenas o redimensionamento inicial do teclado. Campos que surgem enquanto a pessoa digita não roubam o foco. Uma área de respiro inferior de (45svh) mantém espaço de rolagem após a primeira solicitação de foco, sem colapsar durante a digitação. Tentativa de avançar incompleta conduz ao primeiro campo pendente. Setas, Home e End navegam nos rádios sem lançar a pessoa ao campo; Enter/Espaço confirmam a opção.
+
+Progresso por linha (2px), contagem textual e `role="progressbar"`, sem horizonte ou sol. Transição de largura (300ms), desativada com movimento reduzido. Na conclusão, o rodapé passa a fluxo normal para não cobrir instruções de entrega; durante as perguntas, permanece sticky.
 
 ### Prancheta e selo
 Respostas guardadas continuam editáveis. Prancheta lateral no desktop (460px), inferior no celular até (88dvh), folha tonal e título “Suas respostas”. Revisão e edição lideram; a prévia cifrada real fica recolhida em um disclosure. O diálogo usa `showModal()` nativo para conter o foco e tornar o fundo inativo; fecha com Esc, botão ou clique fora, liberando o modal antes de devolver o foco. Editar tem alvo mínimo de (44px). O selo transforma o texto na prévia real antes de guardá-lo; não usa cifra inventada.

@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { focusContext } from "@/lib/focusContext";
 import { motion } from "framer-motion";
 import { useAutoGrowTextarea } from "@/lib/useAutoGrowTextarea";
 import { ENTER_TRANSITION, EXIT_TRANSITION } from "@/lib/motion";
@@ -37,6 +38,8 @@ export function QuestionCard({
   onSeal,
   departing = false,
   canBackFirst = false,
+  onChoosePurpose,
+  firstBackLabel,
 }: {
   index: number;
   total: number;
@@ -55,15 +58,16 @@ export function QuestionCard({
   onSeal?: (field: HTMLElement) => boolean;
   departing?: boolean;
   canBackFirst?: boolean;
+  onChoosePurpose?: () => void;
+  firstBackLabel?: string;
 }) {
   const isFirst = index === 0;
   const isLast = index === total - 1;
   const textareaRef = useAutoGrowTextarea(value);
   const cardRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
   const [triedToAdvance, setTriedToAdvance] = useState(false);
-  // Só o passo aberto por um clique de botão ganha foco: o que aparece
-  // enquanto a pessoa ainda digita a principal não pode roubar o cursor.
-  const [focusAfterClick, setFocusAfterClick] = useState(false);
+  const [focusRequest, setFocusRequest] = useState<{ key: string; revision: number } | null>(null);
   const [sealing, setSealing] = useState(false);
   const [sealingButton, setSealingButton] = useState(false);
 
@@ -78,15 +82,37 @@ export function QuestionCard({
   const blocked = triedToAdvance && !mainOk;
   const stepBlocked = triedToAdvance && mainOk && !complete;
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+    const control = textareaRef.current ?? cardRef.current?.querySelector<HTMLElement>('button[role="radio"]');
+    control?.focus({ preventScroll: true });
+  }, [textareaRef]);
+
+  useEffect(() => {
+    if (focusRequest?.key === "main" && mainRef.current && textareaRef.current) {
+      return focusContext(mainRef.current, textareaRef.current);
+    }
+  }, [focusRequest, textareaRef]);
+
+  function requestFocus(key: string) {
+    setFocusRequest(previous => ({ key, revision: (previous?.revision ?? 0) + 1 }));
+  }
+
   function setStep(key: string, next: string, byClick: boolean) {
-    setFocusAfterClick(byClick);
-    onDetailChange(setStepValue(detail, key, next));
+    const updated = setStepValue(detail, key, next);
+    onDetailChange(updated);
+    if (byClick) {
+      const nextShown = shownSteps(question, value, updated).shown;
+      const following = nextShown[nextShown.findIndex(item => item.key === key) + 1];
+      if (following) requestFocus(following.key);
+    }
   }
 
   function handleNext() {
     if (!complete) {
       setTriedToAdvance(true);
-      if (!mainOk) textareaRef.current?.focus();
+      if (!mainOk) requestFocus("main");
+      else if (firstOpen) requestFocus(firstOpen);
       return;
     }
     if (sealing) return;
@@ -116,16 +142,16 @@ export function QuestionCard({
       animate={{ opacity: departing ? 0 : 1, y: departing ? -12 : 0 }}
       exit={{ opacity: 0, y: -12, transition: EXIT_TRANSITION }}
       transition={departing ? { duration: 0.55, ease: [0.4, 0, 0.2, 1] } : ENTER_TRANSITION}
-      className={`flex flex-col ${sealing ? "[&_textarea]:text-transparent [&_textarea]:caret-transparent" : ""}`}
+      className={`flex flex-col ${focusRequest ? "pb-[45svh]" : ""} ${sealing ? "[&_textarea]:text-transparent [&_textarea]:caret-transparent" : ""}`}
     >
-      {question.noMain ? null : <><h1 className={`${DISPLAY} mb-6 max-w-[34ch] text-[28px] leading-[1.18] sm:text-[34px] lg:text-[40px] lg:leading-[1.14]`}>
+      {question.noMain ? null : <div ref={mainRef}><h1 className={`${DISPLAY} mb-6 max-w-[34ch] text-[28px] leading-[1.18] sm:text-[34px] lg:text-[40px] lg:leading-[1.14]`}>
         {question.text}
       </h1>
       <textarea
         ref={textareaRef}
         rows={3}
-        autoFocus
         aria-label={question.text}
+        aria-required="true"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
@@ -136,7 +162,7 @@ export function QuestionCard({
         className={`${FIELD} ${blocked ? "border-warn" : "border-line-strong focus:border-terra"} ${
           sealing ? "text-transparent caret-transparent placeholder:text-transparent" : ""
         }`}
-      /></>}
+      /></div>}
 
       {!question.noMain && <p
         id={`blocked-${index}`}
@@ -158,7 +184,7 @@ export function QuestionCard({
               key={s.key}
               shown={s}
               invalid={stepBlocked && s.key === firstOpen}
-              autoFocus={focusAfterClick && s.key === firstOpen}
+              focusRevision={focusRequest?.key === s.key ? focusRequest.revision : 0}
               hideSelected={sealingButton}
               readOnly={sealing}
               onChange={(next, byClick) => setStep(s.key, next, byClick)}
@@ -178,14 +204,14 @@ export function QuestionCard({
       )}
 
       <div className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
-        <button type="button" onClick={onBack} disabled={(isFirst && !canBackFirst) || sealing} className={BTN_GHOST}>
+        {!isFirst && <button type="button" onClick={onBack} disabled={sealing} className={BTN_GHOST}>
           Voltar
-        </button>
+        </button>}
         <button
           type="button"
           onClick={handleNext}
           disabled={sealing}
-          aria-disabled={!complete || sealing}
+          aria-disabled={sealing}
           className={complete ? BTN_PRIMARY : BTN_PRIMARY_WAITING}
         >
           {isLast ? "Concluir" : "Próxima"}
@@ -194,6 +220,10 @@ export function QuestionCard({
           <Kbd>Enter</Kbd> pula linha · <Kbd>Ctrl</Kbd> + <Kbd>Enter</Kbd> avança
         </span>
       </div>
+      {isFirst && <div className="mt-5 flex flex-wrap gap-x-6 gap-y-1 text-[13px] text-ink-3">
+        {onChoosePurpose && <button type="button" onClick={onChoosePurpose} disabled={sealing} className="min-h-11 w-fit underline-offset-4 hover:text-ink hover:underline">Escolher outra opção</button>}
+        {canBackFirst && firstBackLabel && <button type="button" onClick={onBack} disabled={sealing} className="min-h-11 w-fit underline-offset-4 hover:text-ink hover:underline">{firstBackLabel}</button>}
+      </div>}
     </motion.div>
   );
 }
@@ -202,7 +232,7 @@ export function QuestionCard({
 function StepField({
   shown,
   invalid,
-  autoFocus,
+  focusRevision,
   hideSelected,
   readOnly,
   onChange,
@@ -210,7 +240,7 @@ function StepField({
 }: {
   shown: ShownStep;
   invalid: boolean;
-  autoFocus: boolean;
+  focusRevision: number;
   hideSelected: boolean;
   readOnly: boolean;
   onChange: (value: string, byClick: boolean) => void;
@@ -218,17 +248,26 @@ function StepField({
 }) {
   const { step, value } = shown;
   const ref = useAutoGrowTextarea(value);
+  const blockRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!focusRevision || !blockRef.current) return;
+    const control = ref.current ?? blockRef.current.querySelector<HTMLElement>('button[role="radio"]:not(:disabled)');
+    if (control) return focusContext(blockRef.current, control);
+  }, [focusRevision, ref]);
   const promptClass = `font-display text-xl sm:text-[22px] font-medium leading-snug transition-colors ${
     invalid ? "text-warn" : "text-ink"
   }`;
 
   return (
     <motion.div
+      ref={blockRef}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={ENTER_TRANSITION}
       role={step.kind === "button" ? "radiogroup" : undefined}
       aria-label={step.kind === "button" ? step.prompt : undefined}
+      aria-required={step.kind === "button" ? true : undefined}
+      aria-invalid={invalid || undefined}
     >
       {step.kind === "button" ? (
         <>
@@ -242,8 +281,20 @@ function StepField({
                   type="button"
                   role="radio"
                   aria-checked={isOn}
+                  tabIndex={option.label === (step.options.some(item => item.label === value && !item.disabled) ? value : step.options.find(item => !item.disabled)?.label) ? 0 : -1}
                   disabled={option.disabled || readOnly}
                   onClick={() => onChange(option.label, true)}
+                  onKeyDown={event => {
+                    const movement = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
+                    if (movement !== undefined || event.key === "Home" || event.key === "End") {
+                      event.preventDefault();
+                      const buttons = Array.from(event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('button[role="radio"]:not(:disabled)') ?? []);
+                      const position = buttons.indexOf(event.currentTarget);
+                      const next = event.key === "Home" ? 0 : event.key === "End" ? buttons.length - 1 : (position + movement! + buttons.length) % buttons.length;
+                      const target = buttons[next];
+                      if (target) { target.focus({ preventScroll: true }); onChange(target.textContent?.trim() ?? "", false); }
+                    } else onKeyDown(event);
+                  }}
                   style={hideSelected && isOn ? { color: "transparent" } : undefined}
                   className={`${PILL} ${option.disabled ? "cursor-not-allowed border-line bg-[var(--control-disabled)] text-ink-3 opacity-55" : isOn ? PILL_ON : PILL_OFF}`}
                 >
@@ -260,8 +311,8 @@ function StepField({
           <textarea
             ref={ref}
             rows={2}
-            autoFocus={autoFocus}
             aria-invalid={invalid}
+            aria-required="true"
             value={value}
             readOnly={readOnly}
             placeholder={step.placeholder || "Escreva sua resposta aqui…"}

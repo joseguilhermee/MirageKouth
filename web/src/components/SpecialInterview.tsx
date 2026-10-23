@@ -15,7 +15,7 @@ import type { GiftInfo } from "@/lib/giftQuestions";
 
 export function SpecialInterview({
   name, label, questions, step, answers, details, detailAt, gift, occasion, becoming,
-  onAnswer, onDetail, onStep, onBack, onCompleted,
+  onAnswer, onDetail, onStep, onBack, onChoosePurpose, onCompleted,
 }: {
   name: string;
   label: string;
@@ -31,6 +31,7 @@ export function SpecialInterview({
   onDetail: (index: number, detail: QuestionDetail) => void;
   onStep: (index: number) => void;
   onBack: () => void;
+  onChoosePurpose: () => void;
   onCompleted: () => void;
 }) {
   const total = questions.length;
@@ -81,7 +82,7 @@ export function SpecialInterview({
       <div className="mx-auto min-w-0 max-w-[760px]">
           {isFinal ? <FinalScreen name={name} answered={items.length} total={total}
             answers={answers} timings={{}} details={details} gift={gift} occasion={occasion} becoming={becoming}
-            onBack={() => onStep(total - 1)} onDone={onCompleted}
+            onBack={() => { setFileContent(null); onStep(total - 1); }} onDone={onCompleted}
             onGenerated={content => {
               setFileContent(content);
             }} onViewFile={() => setPranchetaOpen(true)} />
@@ -90,6 +91,7 @@ export function SpecialInterview({
               <QuestionCard key={`${questions[step].id}:${editRevision}`} index={step} total={total} question={questions[step]} value={answers[step] ?? ""}
                 onChange={value => onAnswer(step, value)} detail={getDetail(step)} onDetailChange={detail => onDetail(step, detail)}
                 onNext={() => onStep(Math.min(step + 1, total))} onBack={onBack} canBackFirst
+                onChoosePurpose={onChoosePurpose} firstBackLabel={gift ? "Rever dados do presente" : undefined}
                 onSeal={startSeal} departing={departingStep === step} />
             </>}
       </div>

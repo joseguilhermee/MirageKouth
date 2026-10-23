@@ -43,9 +43,7 @@ try {
     await nameField.click();
     await page.keyboard.type("Pessoa Teste");
     await page.getByRole("button", { name: "Começar", exact: true }).click();
-    await page.getByRole("radio", { name: "Para quem eu quero ser", exact: true }).click();
-    await page.getByRole("button", { name: "Continuar", exact: true }).click();
-    await page.getByRole("button", { name: "Começar", exact: true }).click();
+    await page.getByRole("button", { name: "Para quem eu quero ser", exact: true }).click();
     await page.getByRole("radio", { name: "1 ano", exact: true }).click();
     const input = page.locator("main textarea");
     await input.click();

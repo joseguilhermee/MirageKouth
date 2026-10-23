@@ -35,11 +35,14 @@ concretas e sem se cansar, confiando que o que escreveu está protegido.
 
 ## Operating Context
 
-- **No site:** nome → finalidade. `Para mim` segue para instruções e as 15 perguntas
+- **No site:** nome → finalidade, com entrada por um clique. `Para mim` abre as 15 perguntas
   `15D`; `Para presente` abre a entrevista `PRESENTE-1` sobre quem vai receber;
   `Para uma ocasião especial` abre `OCASIAO-1` sobre a situação desejada;
   `Para quem eu quero ser` abre `QUEM-1` sobre a pessoa que quer se tornar.
   Os quatro caminhos terminam em arquivo cifrado (`.txt`) para baixar ou copiar.
+- “Escolher outra opção” aparece discretamente na primeira pergunta, preservando
+  os rascunhos ao alternar os caminhos. A orientação geral acontece na recepção;
+  a escolha da finalidade não abre outra tela de confirmação.
 - **Fora do site:** a pessoa envia o arquivo ao dono, e ele decifra na própria
   máquina, com o decryptor local.
 - Cada pergunta tem a principal em texto livre e depois passos curtos, um de cada

@@ -9,7 +9,6 @@ import { PurposeStep, type Purpose } from "@/components/PurposeStep";
 import { GiftFlow } from "@/components/GiftFlow";
 import { OccasionFlow } from "@/components/OccasionFlow";
 import { BecomingFlow } from "@/components/BecomingFlow";
-import { InstructionsStep } from "@/components/InstructionsStep";
 import { QuestionCard } from "@/components/QuestionCard";
 import { FinalScreen } from "@/components/FinalScreen";
 import { IntroSequence } from "@/components/IntroSequence";
@@ -17,7 +16,7 @@ import { ResumePrompt } from "@/components/ResumePrompt";
 import { PranchetaButton, PranchetaDrawer, type PranchetaItem } from "@/components/Prancheta";
 import { SealFlight, type Flight } from "@/components/SealFlight";
 import { SkyShell } from "@/components/SkyShell";
-import { QUESTIONS, shownSteps, type QuestionDetail } from "@/lib/questions";
+import { QUESTIONS, shownSteps, buildSteps, type QuestionDetail } from "@/lib/questions";
 import { generateSessionKey } from "@/lib/crypto";
 import { captureFlight } from "@/lib/captureFlight";
 
@@ -28,7 +27,7 @@ import { captureFlight } from "@/lib/captureFlight";
 const STORAGE_KEY = "mirage-progress-v10";
 const STEP_WELCOME = -3;
 const STEP_PURPOSE = -2;
-const STEP_INSTRUCTIONS = -1;
+const STEP_FLOW_ENTRY = -1;
 
 type SavedProgress = {
   name: string;
@@ -45,7 +44,7 @@ type Stage = "intro" | "resume" | "app";
 function hasMeaningfulProgress(saved: SavedProgress | null): saved is SavedProgress {
   if (!saved) return false;
   const answered = Object.values(saved.answers ?? {}).some((v) => v.trim().length > 0);
-  return saved.name.trim().length > 0 || answered || (saved.step ?? STEP_WELCOME) > STEP_INSTRUCTIONS;
+  return saved.name.trim().length > 0 || answered || (saved.step ?? STEP_WELCOME) > STEP_FLOW_ENTRY;
 }
 
 export default function Home() {
@@ -110,7 +109,8 @@ export default function Home() {
       setAnswers(savedProgress.answers ?? {});
       setTimings(savedProgress.timings ?? {});
       setDetails(savedProgress.details ?? {});
-      setStep(savedProgress.step ?? STEP_WELCOME);
+      const restoredStep = savedProgress.step ?? STEP_WELCOME;
+      setStep(savedProgress.purpose === "para_mim" && restoredStep === STEP_FLOW_ENTRY ? 0 : restoredStep);
     }
     setHydrated(true);
     setStage("app");
@@ -237,13 +237,13 @@ export default function Home() {
     );
   }
 
-  if (purpose === "presente" && step >= STEP_INSTRUCTIONS) {
+  if (purpose === "presente" && step >= STEP_FLOW_ENTRY) {
     return <GiftFlow donor={name} onBack={() => setStep(STEP_PURPOSE)} onCompleted={clearSavedProgress} />;
   }
-  if (purpose === "ocasiao" && step >= STEP_INSTRUCTIONS) {
+  if (purpose === "ocasiao" && step >= STEP_FLOW_ENTRY) {
     return <OccasionFlow name={name} onBack={() => setStep(STEP_PURPOSE)} onCompleted={clearSavedProgress} />;
   }
-  if (purpose === "quem_quero_ser" && step >= STEP_INSTRUCTIONS) {
+  if (purpose === "quem_quero_ser" && step >= STEP_FLOW_ENTRY) {
     return <BecomingFlow name={name} onBack={() => setStep(STEP_PURPOSE)} onCompleted={clearSavedProgress} />;
   }
 
@@ -252,7 +252,7 @@ export default function Home() {
   // Prancheta: só entram perguntas completas (principal e todos os passos).
   const pranchetaItems: PranchetaItem[] = QUESTIONS.flatMap((q, i) =>
     shownSteps(q, answers[i] ?? "", details[i]).complete
-      ? [{ index: i, question: q.text, text: (answers[i] ?? "").trim() }]
+      ? [{ index: i, question: q.text, text: [(answers[i] ?? "").trim(), ...buildSteps(q, answers[i] ?? "", details[i]).map(s => s.resposta)].filter(Boolean).join("\n") }]
       : []
   );
 
@@ -289,13 +289,10 @@ export default function Home() {
                 onNext={() => setStep(STEP_PURPOSE)}
               />
             ) : step === STEP_PURPOSE ? (
-              <PurposeStep key="purpose" value={purpose} onChange={setPurpose} onNext={() => setStep(STEP_INSTRUCTIONS)} onBack={() => setStep(STEP_WELCOME)} />
-            ) : step === STEP_INSTRUCTIONS ? (
-              <InstructionsStep
-                key="instructions"
-                onNext={() => setStep(0)}
-                onBack={() => setStep(STEP_PURPOSE)}
-              />
+              <PurposeStep key="purpose" onSelect={nextPurpose => {
+                setPurpose(nextPurpose);
+                setStep(nextPurpose === "para_mim" ? 0 : STEP_FLOW_ENTRY);
+              }} onBack={() => setStep(STEP_WELCOME)} />
             ) : isFinal ? (
               <FinalScreen
                 key="final"
@@ -305,7 +302,7 @@ export default function Home() {
                 answers={answers}
                 timings={timings}
                 details={details}
-                onBack={() => setStep(total - 1)}
+                onBack={() => { setFileContent(null); setStep(total - 1); }}
                 onDone={clearSavedProgress}
                 onGenerated={(content) => {
                   setFileContent(content);
@@ -331,6 +328,7 @@ export default function Home() {
                 // segundo "Próxima" nele pularia a pergunta seguinte em branco.
                 onNext={() => setStep(Math.min(step + 1, total))}
                 onBack={() => setStep(Math.max(step - 1, 0))}
+                onChoosePurpose={() => setStep(STEP_PURPOSE)}
                 onSeal={(field) => startSeal(field, step)}
                 departing={departingStep === step}
               />
@@ -369,6 +367,7 @@ export default function Home() {
           setDepartingStep(null);
           setEditRevision(value => value + 1);
           setPranchetaOpen(false);
+          setFileContent(null);
           setStep(i);
         }}
       />

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { ENTER_TRANSITION, EXIT_TRANSITION } from "@/lib/motion";
 import { BTN_GHOST, BTN_PRIMARY, DISPLAY } from "@/lib/ui";
@@ -13,17 +12,6 @@ export function InstructionsStep({
   onNext: () => void;
   onBack: () => void;
 }) {
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        onNext();
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onNext]);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}

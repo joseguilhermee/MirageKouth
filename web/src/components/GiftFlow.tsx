@@ -82,7 +82,8 @@ export function GiftFlow({ donor, onBack, onCompleted }: { donor: string; onBack
       {options[key] ? <div role="radiogroup" aria-label={labels[key]} className="flex flex-wrap gap-3">
         {options[key].map(o => <button key={o.value} type="button" role="radio" aria-checked={values[key] === o.value} onClick={() => setValue(key, o.value)} className={`${PILL} ${values[key] === o.value ? PILL_ON : PILL_OFF}`}>{o.label}</button>)}
       </div> : <input autoFocus aria-label={labels[key]} value={String(values[key] || "")} onChange={e => setValue(key, e.target.value)} onKeyDown={e => { if (e.key === "Enter") nextSetup(); }} className="kouth-input w-full text-xl" />}
-      <div className="mt-10 flex gap-3"><button type="button" onClick={backSetup} className={BTN_GHOST}>Voltar</button><button type="button" onClick={nextSetup} disabled={!String(values[key] || "").trim()} className={BTN_PRIMARY}>Continuar</button></div>
+      <div className="mt-10 flex gap-3">{state.setup > 0 && <button type="button" onClick={backSetup} className={BTN_GHOST}>Voltar</button>}<button type="button" onClick={nextSetup} disabled={!String(values[key] || "").trim()} className={BTN_PRIMARY}>Continuar</button></div>
+      {state.setup === 0 && <button type="button" onClick={onBack} className="mt-5 min-h-11 w-fit text-[13px] text-ink-3 underline-offset-4 hover:text-ink hover:underline">Escolher outra opção</button>}
     </main></SkyShell>;
   }
   return <SpecialInterview name={donor} label="Modo Presente" questions={questions}
@@ -91,5 +92,6 @@ export function GiftFlow({ donor, onBack, onCompleted }: { donor: string; onBack
     onDetail={(index, detail) => setState(prev => ({ ...prev, details: { ...prev.details, [index]: detail } }))}
     onStep={question => setState(prev => ({ ...prev, question }))}
     onBack={() => setState(prev => ({ ...prev, question: prev.question === 0 ? -1 : prev.question - 1, setup: prev.question === 0 ? setupKeys.length - 1 : prev.setup }))}
+    onChoosePurpose={onBack}
     onCompleted={() => { try { localStorage.removeItem(KEY); } catch {} onCompleted(); }} />;
 }

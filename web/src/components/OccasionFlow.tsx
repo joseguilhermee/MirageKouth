@@ -40,5 +40,6 @@ export function OccasionFlow({ name, onBack, onCompleted }: { name: string; onBa
     onDetail={(index, detail) => setState(prev => ({ ...prev, details: { ...prev.details, [index]: detail } }))}
     onStep={step => setState(prev => ({ ...prev, step }))}
     onBack={() => state.step === 0 ? onBack() : setState(prev => ({ ...prev, step: prev.step - 1 }))}
+    onChoosePurpose={onBack}
     onCompleted={() => { try { localStorage.removeItem(STORAGE_KEY); } catch {} onCompleted(); }} />;
 }

@@ -97,6 +97,8 @@ npm run test:input
 npm run test:flows
 npm run test:brand
 npm run test:delivery
+npm run test:appearance
+npm run test:ux
 ```
 
 Os testes usam Microsoft Edge e respostas fictícias. `test:input` cobre a
@@ -118,6 +120,12 @@ verificação em aparelho físico.
 falha de cifra e nova tentativa, cópia real, download, visualização voluntária
 do arquivo e retorno para editar. A conclusão não abre o arquivo cifrado
 automaticamente; baixar e copiar ficam em primeiro plano.
+
+`test:ux` confere a entrada em um clique nas quatro finalidades, troca de
+caminho sem perder o rascunho, foco e centralização de campos novos e pendentes,
+viewport reduzido e navegação dos rádios por teclado. `MIRAGE_E2E_MOTION` aceita
+`reduce` ou `no-preference`; as capturas registram o viewport real, não apenas a
+página inteira.
 
 O `web/` é um app Next.js padrão, sem variáveis de ambiente nem backend —
 basta apontar a Vercel para a pasta `web/` como raiz do projeto.

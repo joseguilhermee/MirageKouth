@@ -11,7 +11,8 @@
     "test:flows": "node scripts/flow-regression.mjs",
     "test:brand": "node scripts/brand-review.mjs",
     "test:delivery": "node scripts/delivery-regression.mjs",
-    "test:appearance": "node scripts/theme-texture-review.mjs"
+    "test:appearance": "node scripts/theme-texture-review.mjs",
+    "test:ux": "node scripts/ux-regression.mjs"
   },
   "dependencies": {
     "framer-motion": "^13.1.1",

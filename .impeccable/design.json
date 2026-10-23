@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-23T12:31:59.683347+00:00",
+  "generatedAt": "2026-10-23T13:55:12.774679+00:00",
   "title": "Design System: KOUTH",
   "extensions": {
     "colorMeta": {
@@ -314,8 +314,13 @@
       },
       {
         "name": "Dark by default, quiet material",
-        "body": "New visits start dark before first paint. Explicit light preference is retained; clearing storage restores dark. Original brandbook paper sits behind content at soft-light opacity .16 dark/.08 light, without pointer events or motion. Writing fields and modal paper remain smooth.",
+        "body": "New visits start dark before first paint. Explicit light preference is retained; clearing storage restores dark. Original brandbook paper sits behind content at soft-light opacity .30 dark/.08 light, without pointer events or motion. Writing fields and modal paper remain smooth.",
         "section": "colors"
+      },
+      {
+        "name": "Direct entry and deliberate focus",
+        "body": "Purpose rows are navigation buttons and open in one activation. A quiet change-purpose action belongs only to the first question and keeps drafts. Explicit choices center the revealed prompt/control within the useful viewport; typing never transfers focus. Missing steps receive focus, and radio arrows retain focus in their group.",
+        "section": "components"
       }
     ],
     "dos": [

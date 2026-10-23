@@ -95,6 +95,14 @@ try {
     await page.getByRole("button", { name: "Revisar minhas respostas", exact: true }).click();
     await page.getByRole("button", { name: "Concluir", exact: true }).waitFor();
     assert.ok((await page.locator("main textarea").inputValue()).includes("Relato fictício"));
+    await page.locator("main textarea").fill("Relato fictício revisado depois de selar o primeiro arquivo.");
+    await page.getByRole("button", { name: "Concluir", exact: true }).click();
+    await page.getByRole("button", { name: "Selar minhas respostas", exact: true }).waitFor();
+    await trigger.click();
+    await drawer.waitFor();
+    assert.equal(await page.getByRole("dialog", { name: "Seu arquivo selado", exact: true }).count(), 0, "Editing must invalidate the previous encrypted file");
+    assert.equal(await drawer.locator("pre").count(), 0);
+    await page.getByRole("button", { name: "Fechar prancheta", exact: true }).click();
     assert.deepEqual(errors, []);
     console.log(`${width}px: modal focus, error/retry, personal completion, actual copy/download, optional file and editing OK`);
     await context.close();

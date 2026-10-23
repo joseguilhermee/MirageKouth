@@ -126,7 +126,7 @@ input:focus-visible, textarea:focus-visible { outline-offset: 3px; }
   background-size: 720px 405px;
   filter: grayscale(1) brightness(.55) contrast(3);
   mix-blend-mode: soft-light;
-  opacity: .16;
+  opacity: .30;
 }
 :root[data-theme="light"] .sky::before,
 :root[data-theme="light"] .kouth-reception-body::before { opacity: .08; }
@@ -172,10 +172,10 @@ input:focus-visible, textarea:focus-visible { outline-offset: 3px; }
 .kouth-reception-title em { font-weight: 300; }
 #intro-heading:focus { outline: none; }
 .kouth-purpose { display: flex; min-height: 78px; width: 100%; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 0; border-bottom: 1px solid var(--line); text-align: left; transition: color 180ms, border-color 180ms; }
-.kouth-purpose[aria-checked="true"] { color: var(--brand); border-color: var(--action); }
-.kouth-purpose-indicator { display: flex; height: 22px; width: 22px; flex-shrink: 0; align-items: center; justify-content: center; border: 1px solid var(--line-strong); border-radius: 50%; }
-[aria-checked="true"] .kouth-purpose-indicator { border-color: var(--action); }
-[aria-checked="true"] .kouth-purpose-indicator::after { content: ""; height: 10px; width: 10px; border-radius: 50%; background: var(--action); }
+.kouth-purpose:hover, .kouth-purpose:focus-visible { color: var(--brand); border-color: var(--action); }
+.kouth-purpose-arrow { flex-shrink: 0; transition: transform 180ms; }
+.kouth-purpose:hover .kouth-purpose-arrow { transform: translateX(4px); }
+@media (prefers-reduced-motion: reduce) { .kouth-purpose-arrow { transition: none; } }
 
 @media (max-width: 1279px) and (min-width: 1024px) {
   .kouth-reception-body { padding: 32px 40px; }

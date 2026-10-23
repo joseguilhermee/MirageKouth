@@ -10,9 +10,7 @@ try {
   for (const name of ["Como responder", "E a privacidade?", "Vamos começar"]) await page.getByRole("button", { name, exact: true }).click();
   await page.getByRole("textbox", { name: "Seu nome" }).fill("Pessoa Teste");
   await page.getByRole("button", { name: "Começar", exact: true }).click();
-  await page.getByRole("radio", { name: "Para quem eu quero ser", exact: true }).click();
-  await page.getByRole("button", { name: "Continuar", exact: true }).click();
-  await page.getByRole("button", { name: "Começar", exact: true }).click();
+  await page.getByRole("button", { name: "Para quem eu quero ser", exact: true }).click();
   await page.getByRole("radio", { name: "1 ano", exact: true }).click();
   await page.locator("main textarea").pressSequentially("Passo o dia criando coisas e encontrando pessoas de quem gosto.");
   await page.getByRole("button", { name: "Próxima", exact: true }).click();

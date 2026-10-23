@@ -9,7 +9,7 @@ related_targets: ["web/src/components/QuestionCard.tsx","web/src/components/Pran
 
 Modo: Operate. Recepção e entrevista pessoal em quatro finalidades; a experiência de marca serve a leitura e a escrita. Autoridade: REFDESIGN/Kouth_Brandbook.pptx (1).pdf e Kouth_VF_2.docx, fornecidos pelo usuário.
 
-Perguntas, opções, ordem, ramificações, validação, cifra e progresso são preservados. Arquivos de perguntas têm hashes registrados em question-hashes.json. Nome KOUTH inferido do brandbook, sujeito à preferência solicitada ao usuário.
+Perguntas, opções, ordem, ramificações, validação, cifra e progresso são preservados. Arquivos de perguntas têm hashes registrados em question-hashes.json. Nome KOUTH conforme identidade adotada pelo usuário.
 
 ## Direction contract
 
@@ -19,7 +19,7 @@ OWN-WORLD: Smoked Oak #31281e, Fluted Glass #2e1f17, Saddle Leather #54331d, War
 
 STORY: a pessoa é acolhida, entende como responder e como seus dados são tratados, escolhe a finalidade, escreve sem pressa e recebe um arquivo cifrado para entregar.
 
-FIRST VIEWPORT: recepção dividida entre imagem sensorial original e convite tipográfico com uma única ação principal. Na entrevista, cabeçalho discreto, pergunta intacta, campo amplo visivelmente editável e navegação estável. No celular, imagem baixa seguida do conteúdo, sem sobreposição nos campos.
+FIRST VIEWPORT: recepção dividida entre imagem sensorial original e convite tipográfico com uma única ação principal. Na entrevista, cabeçalho discreto, pergunta intacta, campo amplo visivelmente editável e navegação estável. A finalidade entra com um clique; trocar de caminho é secundário na primeira pergunta. Campos revelados são centralizados com foco explícito, sem interromper a digitação. No celular, imagem baixa seguida do conteúdo, sem sobreposição nos campos.
 
 FORM: identidade fixada pelo usuário através do brandbook; execução em código para a interface Operate. seed:ea1ce6fd79d2eb4a. A identidade fornecida prevalece sobre o sorteio. Assinatura: palavras se transformam em prévia cifrada ao serem guardadas, com movimento reduzido respeitado.
 

@@ -59,10 +59,7 @@ async function run([mode, purpose, storageKey], width) {
     await finishIntro(page);
     await type(page, "Seu nome", "Pessoa Teste");
     await page.getByRole("button", { name: "Começar", exact: true }).click();
-    await page.getByRole("radio").filter({ hasText: purpose }).filter({ has: page.locator("strong", { hasText: purpose }) }).first().click();
-    await page.getByRole("button", { name: "Continuar", exact: true }).click();
-    if (mode === "quem_quero_ser") await page.getByRole("button", { name: "Começar", exact: true }).click();
-    if (mode === "para_mim") await page.getByRole("button", { name: "Entendi, vamos começar", exact: true }).click();
+    await page.getByRole("button", { name: purpose, exact: true }).click();
     if (mode === "presente") {
       await page.getByRole("radio", { name: "Amigo(a)", exact: true }).click();
       await page.getByRole("button", { name: "Continuar", exact: true }).click();
