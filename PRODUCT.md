@@ -35,8 +35,11 @@ concretas e sem se cansar, confiando que o que escreveu está protegido.
 
 ## Operating Context
 
-- **No site:** nome → instruções → 15 perguntas → arquivo cifrado (`.txt`) para
-  baixar ou copiar.
+- **No site:** nome → finalidade. `Para mim` segue para instruções e as 15 perguntas
+  `15D`; `Para presente` abre a entrevista `PRESENTE-1` sobre quem vai receber;
+  `Para uma ocasião especial` abre `OCASIAO-1` sobre a situação desejada;
+  `Para quem eu quero ser` abre `QUEM-1` sobre a pessoa que quer se tornar.
+  Os quatro caminhos terminam em arquivo cifrado (`.txt`) para baixar ou copiar.
 - **Fora do site:** a pessoa envia o arquivo ao dono, e ele decifra na própria
   máquina, com o decryptor local.
 - Cada pergunta tem a principal em texto livre e depois passos curtos, um de cada
@@ -56,8 +59,8 @@ concretas e sem se cansar, confiando que o que escreveu está protegido.
 - **Cifra:** RSA-OAEP-4096 + AES-256-GCM no navegador, via Web Crypto. Sem
   backend, e nada é enviado a servidor. O arquivo sai sempre cifrado do aparelho
   de quem responde.
-- **Entrega:** o arquivo gerado, o formato dele (o que o decryptor lê) e o texto
-  que diz para quem enviá-lo (`web/src/lib/siteConfig.ts`) não mudam.
+- **Entrega:** os quatro formatos são identificados por `finalidade`; o decryptor
+  apresenta os passos na ordem exibida e mantém O03 em `momento_do_dia`, fora de `answers`.
 - O decryptor e a chave privada nunca vão para o git nem para a Vercel.
 
 ### Livres
@@ -79,12 +82,17 @@ concretas e sem se cansar, confiando que o que escreveu está protegido.
 
 ## Brand Commitments
 
-- **Nome:** MirageKouth.
-- **Assets:** logos e wordmarks em `Logos/`, em SVG (horizontal, vertical,
-  empilhado, ícone de app).
+- **Nome visível:** KOUTH, conforme o brandbook fornecido em outubro de 2026.
+  Identificadores técnicos `mirage-*` continuam para preservar os rascunhos existentes.
+- **Autoridade de marca:** `REFDESIGN/Kouth_Brandbook.pptx (1).pdf` e
+  `REFDESIGN/Kouth_VF_2.docx`. Primeiro a pessoa, depois o perfume:
+  identidade, exclusividade e acolhimento, com comunicação íntima e precisa.
+- **Assets atuais:** logotipo vetorial e imagem sensorial originais extraídos
+  do brandbook em `web/public/brand/`, com origem registrada. Os arquivos em
+  `Logos/` pertencem à identidade anterior.
 - **Língua:** português do Brasil, em toda a interface.
 - **Créditos de método:** Jung, Carol Pearson (*The Hero Within*, 1986) e McAdams.
-- **Nada sobre perfume** aparece no site.
+- O Modo Presente fala do perfume e permite ao doador revisar e editar o texto antes de imprimir.
 
 ## Evidence on Hand
 

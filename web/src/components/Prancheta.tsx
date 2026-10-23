@@ -29,10 +29,10 @@ export const PranchetaButton = forwardRef<
       aria-expanded={open}
       aria-haspopup="dialog"
       aria-label={`Prancheta: ${count} de ${total} respostas guardadas`}
-      className="flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-2 text-sm text-ink-2 sm:gap-2 sm:px-3 transition hover:bg-terra-wash hover:text-ink"
+      className="flex min-h-11 items-center gap-1 whitespace-nowrap rounded-full px-1 py-2 text-xs text-ink-2 sm:gap-2 sm:px-3 sm:text-sm transition hover:bg-terra-wash hover:text-ink"
     >
       {ClipboardIcon}
-      <span className="hidden sm:inline">Prancheta</span>
+      <span>Respostas</span>
       <motion.span
         key={pulse}
         initial={pulse ? { scale: 1.35 } : false}
@@ -63,7 +63,7 @@ function CipherLine({ sessionKey, text }: { sessionKey: CryptoKey | null; text: 
     <div className="flex items-start gap-2">
       <LockSeal label="cifrado" />
       <p className="line-clamp-3 min-w-0 flex-1 font-mono text-[12.5px] leading-relaxed break-all">
-        {hex ? <CipherText text={hex} /> : <span className="text-[#6b5448]">cifrando…</span>}
+        {hex ? <CipherText text={hex} /> : <span className="text-[var(--paper-muted)]">cifrando…</span>}
       </p>
     </div>
   );
@@ -72,8 +72,8 @@ function CipherLine({ sessionKey, text }: { sessionKey: CryptoKey | null; text: 
 /**
  * A prancheta: placa de terra roxa com uma folha presa no clipe. Mostra cada
  * resposta completa como ela vai sair (prévia da cifra) e, depois de selar, o
- * conteúdo real do arquivo. Cores fixas, porque a folha é papel claro de dia e
- * de noite.
+ * conteúdo real do arquivo. A folha mantém as cores originais no tema claro
+ * e acompanha a aparência escura quando ela é escolhida.
  */
 export function PranchetaDrawer({
   open,
@@ -93,6 +93,7 @@ export function PranchetaDrawer({
   onEdit: (index: number) => void;
 }) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   // No celular a prancheta sobe de baixo; no computador entra pela direita.
   const [wide, setWide] = useState(false);
   useEffect(() => {
@@ -104,61 +105,61 @@ export function PranchetaDrawer({
   }, []);
   const hidden = wide ? { x: "100%", y: 0 } : { x: 0, y: "100%" };
 
+  function dismiss() {
+    dialogRef.current?.close();
+    onClose();
+  }
+
   useEffect(() => {
     if (!open) return;
+    if (!dialogRef.current?.open) dialogRef.current?.showModal();
     closeRef.current?.focus();
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open]);
 
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[70]">
+        <dialog ref={dialogRef} aria-label={fileContent ? "Seu arquivo selado" : "Prancheta"}
+          onCancel={event => { event.preventDefault(); dismiss(); }}
+          className="fixed inset-0 z-[70] m-0 h-dvh w-screen max-h-none max-w-none border-0 bg-transparent p-0 text-inherit backdrop:bg-transparent">
           <motion.div
             className="absolute inset-0 bg-[#2a1712]/30"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: EASE_OUT }}
-            onClick={onClose}
+            onClick={dismiss}
           />
           <motion.div
-            role="dialog"
-            aria-modal="true"
-            aria-label={fileContent ? "Seu arquivo selado" : "Prancheta"}
-            className="absolute inset-x-0 bottom-0 flex max-h-[88dvh] flex-col rounded-t-3xl bg-[#5e2317] px-3 pt-8 pb-3 shadow-[0_-20px_50px_-20px_rgba(42,23,18,0.5)] sm:inset-y-0 sm:right-0 sm:left-auto sm:max-h-none sm:w-[460px] sm:rounded-l-3xl sm:rounded-tr-none sm:px-4 sm:pt-10 sm:pb-4"
+            className="absolute inset-x-0 bottom-0 flex max-h-[88dvh] flex-col rounded-t-3xl bg-[var(--clipboard)] px-3 pt-8 pb-3 shadow-[0_-20px_50px_-20px_rgba(42,23,18,0.5)] sm:inset-y-0 sm:right-0 sm:left-auto sm:max-h-none sm:w-[460px] sm:rounded-l-3xl sm:rounded-tr-none sm:px-4 sm:pt-10 sm:pb-4"
             initial={hidden}
             animate={{ x: 0, y: 0 }}
             exit={hidden}
             transition={{ duration: 0.5, ease: EASE_OUT }}
           >
             {/* Clipe da prancheta. */}
-            <div aria-hidden className="absolute top-3 left-1/2 h-6 w-28 -translate-x-1/2 rounded-lg bg-[#cdb8a6] shadow-[0_2px_4px_rgba(42,23,18,0.35)] sm:top-5">
-              <div className="mx-auto mt-2 h-2 w-14 rounded-full bg-[#a98d7a]" />
+            <div aria-hidden className="absolute top-3 left-1/2 h-6 w-28 -translate-x-1/2 rounded-lg bg-[var(--clipboard-clip)] shadow-[0_2px_4px_rgba(42,23,18,0.35)] sm:top-5">
+              <div className="mx-auto mt-2 h-2 w-14 rounded-full bg-[var(--clipboard-clip-slot)]" />
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col rounded-2xl bg-[#fbf6ef] text-[#2a1b17]">
-              <div className="flex items-start justify-between gap-4 border-b border-[#e6d6c6] px-5 pt-6 pb-4">
+            <div className="flex min-h-0 flex-1 flex-col rounded-2xl bg-[var(--paper)] text-[var(--paper-ink)]">
+              <div className="flex items-start justify-between gap-4 border-b border-[var(--paper-line)] px-5 pt-6 pb-4">
                 <div>
                   <h2 className="font-display text-xl font-semibold">
-                    {fileContent ? "Seu arquivo selado" : "Prancheta"}
+                    {fileContent ? "Seu arquivo selado" : "Suas respostas"}
                   </h2>
-                  <p className="mt-1 text-[14px] leading-relaxed text-[#4f3c33]">
+                  <p className="mt-1 text-[14px] leading-relaxed text-[var(--paper-ink-2)]">
                     {fileContent
-                      ? "Este é exatamente o conteúdo de mirage-respostas.txt. Só a chave privada de quem monta os arquétipos consegue abrir."
-                      : `${items.length} de ${total} respostas, como vão sair do seu aparelho. É uma prévia: a cifra definitiva (RSA-4096 + AES-256-GCM) acontece quando você selar, no fim.`}
+                      ? "Este é o conteúdo protegido do seu arquivo. Você também pode selecioná-lo e copiar."
+                      : `${items.length} de ${total} respostas completas. Use Editar para reler ou ajustar o que escreveu.`}
                   </p>
                 </div>
                 <button
                   ref={closeRef}
                   type="button"
-                  onClick={onClose}
+                  onClick={dismiss}
                   aria-label="Fechar prancheta"
-                  className="-mr-2 shrink-0 rounded-full p-2 text-[#4f3c33] transition hover:bg-[#7a2e1e]/10 hover:text-[#2a1b17]"
+                  className="-mr-2 flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full p-2 text-[var(--paper-ink-2)] transition hover:bg-[var(--paper-hover)] hover:text-[var(--paper-ink)]"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-5 w-5" aria-hidden>
                     <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
@@ -175,29 +176,32 @@ export function PranchetaDrawer({
                     </pre>
                   </div>
                 ) : items.length === 0 ? (
-                  <p className="py-8 text-[15px] leading-relaxed text-[#4f3c33]">
-                    Nada aqui ainda. Cada resposta que você completar vem pra cá, já cifrada.
+                  <p className="py-8 text-[15px] leading-relaxed text-[var(--paper-ink-2)]">
+                    Sua conversa começa com a primeira resposta. Quando ela estiver completa, você poderá voltar aqui para reler e editar.
                   </p>
                 ) : (
                   <ol>
                     {items.map((item) => (
-                      <li key={item.index} className="border-b border-[#ecdfd2] py-4 last:border-b-0">
+                      <li key={item.index} className="border-b border-[var(--paper-row-line)] py-4 last:border-b-0">
                         <div className="mb-2 flex items-baseline justify-between gap-3">
                           <p className="line-clamp-2 text-[14px] leading-snug">
-                            <span className="mr-2 font-display font-semibold text-[#7a2e1e] tabular-nums">
+                            <span className="mr-2 font-display font-semibold text-[var(--paper-brand)] tabular-nums">
                               {String(item.index + 1).padStart(2, "0")}
                             </span>
                             {item.question}
                           </p>
                           <button
                             type="button"
-                            onClick={() => onEdit(item.index)}
-                            className="shrink-0 rounded-full px-2 py-1 text-[13px] font-medium text-[#7a2e1e] underline-offset-4 transition hover:underline"
+                            onClick={() => { dialogRef.current?.close(); onEdit(item.index); }}
+                            className="inline-flex min-h-11 shrink-0 items-center rounded-full px-2 py-1 text-[13px] font-medium text-[var(--paper-brand)] underline-offset-4 transition hover:underline"
                           >
                             Editar
                           </button>
                         </div>
-                        <CipherLine sessionKey={sessionKey} text={item.text} />
+                        <details className="text-[var(--paper-ink-2)]">
+                          <summary className="w-fit cursor-pointer py-3 text-xs underline decoration-[var(--paper-line)] underline-offset-4">Ver prévia protegida</summary>
+                          <div className="mt-2"><CipherLine sessionKey={sessionKey} text={item.text} /></div>
+                        </details>
                       </li>
                     ))}
                   </ol>
@@ -205,7 +209,7 @@ export function PranchetaDrawer({
               </div>
             </div>
           </motion.div>
-        </div>
+        </dialog>
       )}
     </AnimatePresence>
   );

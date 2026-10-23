@@ -125,7 +125,7 @@ for (let k = 0; k < VARIANTS; k++) {
   const aesKey = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt"]);
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const payload = new TextEncoder().encode(
-    JSON.stringify({ name, version: QUESTIONS_VERSION, qa, timings })
+    JSON.stringify({ name, finalidade: "para_mim", version: QUESTIONS_VERSION, qa, timings })
   );
   const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, aesKey, payload);
   const rawAesKey = await crypto.subtle.exportKey("raw", aesKey);
@@ -148,6 +148,7 @@ for (let k = 0; k < VARIANTS; k++) {
   const expected = {
     respondente: name,
     versao: QUESTIONS_VERSION,
+    finalidade: "para_mim",
     answers: qa.map((item) => ({ id: item.id, text: item.answer, passos: item.passos })),
     tempos: {
       aviso: "(Interpretador: ignore estes dados)",

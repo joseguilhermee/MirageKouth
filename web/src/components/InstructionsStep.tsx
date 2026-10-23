@@ -47,8 +47,8 @@ export function InstructionsStep({
         </p>
         <p className="text-ink">
           A resposta <strong className="font-semibold text-brand">óbvia</strong> costuma ser a
-          certa. Não tente adivinhar o que a gente está medindo — a tentativa é o único jeito
-          de estragar a leitura.
+          certa. Você não precisa impressionar nem adivinhar o que esperamos ouvir.
+          O que importa é reconhecer a sua própria história.
         </p>
         <p className="text-ink-2">
           &ldquo;Nada&rdquo;, &ldquo;não sei&rdquo; e &ldquo;nunca aconteceu comigo&rdquo; são

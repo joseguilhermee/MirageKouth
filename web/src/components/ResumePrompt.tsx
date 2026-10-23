@@ -8,12 +8,14 @@ export function ResumePrompt({
   name,
   answered,
   total,
+  purpose,
   onResume,
   onRestart,
 }: {
   name: string;
   answered: number;
   total: number;
+  purpose?: "para_mim" | "presente" | "ocasiao" | "quem_quero_ser" | null;
   onResume: () => void;
   onRestart: () => void;
 }) {
@@ -28,9 +30,11 @@ export function ResumePrompt({
         Continuar de onde parou?
       </h1>
       <p className="mb-10 max-w-[48ch] text-lg leading-relaxed text-ink-2">
-        {name ? `${name}, encontramos` : "Encontramos"} respostas salvas neste navegador (
-        {answered} de {total} perguntas). Pode ter sido um fechamento sem querer — suas
-        respostas continuam aqui.
+        {purpose === "ocasiao" || purpose === "presente" || purpose === "quem_quero_ser"
+          ? `${name ? `${name}, encontramos` : "Encontramos"} sua entrevista ${purpose === "ocasiao" ? "de ocasião especial" : purpose === "presente" ? "de presente" : "Para quem eu quero ser"} em andamento neste navegador. Suas respostas continuam aqui.`
+          : <>{name ? `${name}, encontramos` : "Encontramos"} respostas salvas neste navegador (
+            {answered} de {total} perguntas). Pode ter sido um fechamento sem querer — suas
+            respostas continuam aqui.</>}
       </p>
 
       <div className="flex flex-wrap items-center gap-3 sm:gap-4">

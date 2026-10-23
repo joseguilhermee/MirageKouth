@@ -1,5 +1,8 @@
 import { MIRAGE_PUBLIC_KEY_PEM } from "./publicKey";
-import { QUESTIONS, QUESTIONS_VERSION, buildSteps, type QuestionDetail } from "./questions";
+import { QUESTIONS, QUESTIONS_VERSION, buildSteps, type Question, type QuestionDetail } from "./questions";
+import { GIFT_VERSION, type GiftInfo } from "./giftQuestions";
+import { MOMENTO_DO_DIA, OCCASION_VERSION } from "./occasionQuestions";
+import { BECOMING_VERSION } from "./becomingQuestions";
 
 // Envelope final: RSA-OAEP-4096 (SHA-256) envelopa uma chave AES-256, que
 // cifra o payload real com AES-GCM. Formato compativel com decryptor/decrypt.py.
@@ -94,7 +97,10 @@ export async function buildEncryptedFile(
   name: string,
   answers: Record<number, string>,
   timings: Record<number, number> = {},
-  details: Record<number, QuestionDetail> = {}
+  details: Record<number, QuestionDetail> = {},
+  gift?: { info: GiftInfo; questions: Question[] },
+  occasion?: { questions: Question[] },
+  becoming?: { questions: Question[] }
 ): Promise<string> {
   const publicKey = await getPublicKey();
 
@@ -104,19 +110,28 @@ export async function buildEncryptedFile(
     ["encrypt"]
   );
 
-  const qa = QUESTIONS.map((question, i) => ({
+  const questions = becoming?.questions ?? occasion?.questions ?? gift?.questions ?? QUESTIONS;
+  const qa = questions.map((question, i) => ({
     id: question.id,
     question: question.text,
     answer: answers[i] ?? "",
     passos: buildSteps(question, answers[i] ?? "", details[i]),
-  }));
+  })).filter((item) => item.id !== "O03");
 
   // Segundos por pergunta, na mesma ordem de qa. Metadado: o decryptor mostra
   // no fim do arquivo com aviso para o interpretador ignorar.
-  const tempoPorPergunta = QUESTIONS.map((_, i) => Math.round((timings[i] ?? 0) / 1000));
+  const tempoPorPergunta = questions.map((_, i) => Math.round((timings[i] ?? 0) / 1000));
 
   const iv = window.crypto.getRandomValues(new Uint8Array(12));
-  const payload = new TextEncoder().encode(JSON.stringify({ name: name.trim(), version: QUESTIONS_VERSION, qa, timings: tempoPorPergunta }));
+  const payload = new TextEncoder().encode(JSON.stringify({
+    name: name.trim(),
+    finalidade: becoming ? "quem_quero_ser" : occasion ? "ocasiao" : gift ? "presente" : "para_mim",
+    version: becoming ? BECOMING_VERSION : occasion ? OCCASION_VERSION : gift ? GIFT_VERSION : QUESTIONS_VERSION,
+    ...(gift ? { presente: gift.info } : {}),
+    ...(occasion ? { momento_do_dia: MOMENTO_DO_DIA } : {}),
+    qa,
+    ...(!gift && !occasion && !becoming ? { timings: tempoPorPergunta } : {}),
+  }));
   const ciphertext = await window.crypto.subtle.encrypt(
     { name: "AES-GCM", iv },
     aesKey,

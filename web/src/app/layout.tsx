@@ -1,11 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Figtree, JetBrains_Mono } from "next/font/google";
+import { Noto_Serif_Display, Figtree, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { THEME_BOOTSTRAP } from "@/lib/theme";
 
-const bricolage = Bricolage_Grotesque({
+const editorial = Noto_Serif_Display({
   variable: "--font-display",
   subsets: ["latin"],
-  axes: ["opsz"],
+  weight: ["300", "400", "500"],
+  style: ["normal", "italic"],
+  display: "swap",
 });
 
 const figtree = Figtree({
@@ -20,24 +23,27 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MirageKouth — Descubra seu arquétipo",
+  title: "KOUTH — Primeiro a pessoa. Depois o perfume.",
   description:
-    "Responda perguntas rápidas e curiosas. Suas respostas são criptografadas no seu navegador antes de saírem da sua tela.",
+    "Sua história é o ponto de partida. Uma conversa pessoal para inspirar uma assinatura olfativa, com respostas cifradas no seu aparelho.",
   icons: {
-    icon: "/logos/app-icon.svg",
+    icon: "/brand/kouth-monogram.svg",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#d6e6ef",
+  themeColor: "#2e1f17",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
-      className={`${bricolage.variable} ${figtree.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      data-theme="dark"
+      suppressHydrationWarning
+      className={`${editorial.variable} ${figtree.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
+      <head><script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} /></head>
       <body className="min-h-full flex flex-col text-ink font-sans">{children}</body>
     </html>
   );

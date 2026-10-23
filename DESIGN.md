@@ -1,370 +1,279 @@
 ---
-name: MirageKouth
-description: Tarde na terra roxa. O céu do norte do Paraná anda do dia ao anoitecer conforme as perguntas passam, e a terra roxa é o chão e a cor de toda ação.
+name: KOUTH
+description: Primeiro a pessoa. Depois o perfume; acolhimento e precisão em uma conversa pessoal.
 colors:
-  terra: "#7a2e1e"
-  terra-ink: "#fbf3ea"
-  terra-wash: "color-mix(in oklab, #7a2e1e 7%, transparent)"
-  terra-deep: "#5e2317"
-  sun: "#e59a4c"
-  focus: "#3e6a86"
-  cipher: "#2f5670"
-  warn: "#8f4407"
-  ink: "#2a1b17"
-  ink-2: "#4f3c33"
-  ink-3: "#604a3f"
-  line: "#cdb8a6"
-  line-strong: "#a98d7a"
-  paper: "#fbf6ef"
-  paper-line: "#e6d6c6"
-  scrim: "rgb(42 23 18 / 0.3)"
-  sky-afternoon-top: "#d6e6ef"
-  sky-afternoon-mid: "#e4ece9"
-  sky-afternoon-low: "#eef0e6"
-  sky-golden-top: "#dfe1ea"
-  sky-golden-mid: "#eedfd6"
-  sky-golden-low: "#f3d8c4"
-  sky-dusk-top: "#d9cad8"
-  sky-dusk-mid: "#e9cdc8"
-  sky-dusk-low: "#efc2ae"
-  sky-night-top: "#2a1a22"
-  sky-night-mid: "#34202a"
-  sky-night-low: "#4a2b25"
-  action-night: "#f6e9dd"
-  action-ink-night: "#2a1712"
-  brand-night: "#f1c9a3"
-  sun-night: "#f0b26c"
-  focus-night: "#a9c7da"
-  cipher-night: "#a9c7da"
-  warn-night: "#f3b37a"
-  ink-night: "#f6e9dd"
-  ink-2-night: "#dcc6b6"
-  ink-3-night: "#b89d8c"
-  line-night: "#6a4a42"
-  line-strong-night: "#9a7466"
+  action: "#54331d"
+  action-ink: "#fbf8f2"
+  ink: "#31281e"
+  ink-2: "#594b3d"
+  ink-3: "#71614f"
+  surface: "#f2eee6"
+  field: "#fbf9f5"
+  control: "#f8f5ef"
+  line: "#d9cfc0"
+  line-strong: "#a4917b"
+  focus: "#78583c"
+  warn: "#914020"
+  cipher: "#5c6250"
+  warm-suede: "#9c8166"
+  terra-wash: "rgb(84 51 29 / 0.055)"
+  dark-surface: "#2e1f17"
+  dark-field: "#35271e"
+  dark-action: "#dcc6a5"
+  dark-ink: "#f2eadd"
+  dark-ink-2: "#d5c6b2"
+  dark-ink-3: "#bdaa92"
+  dark-line: "#584635"
+  dark-line-strong: "#8d755a"
+  dark-focus: "#d3b286"
+  dark-warn: "#f0b396"
+  dark-cipher: "#c8cfb6"
+  dark-control: "#38291e"
+  dark-wash: "rgb(220 198 165 / 0.07)"
 typography:
   display:
-    fontFamily: "Bricolage Grotesque, sans-serif"
-    fontSize: "60px"
-    fontWeight: 600
-    lineHeight: 1.05
-    letterSpacing: "-0.015em"
+    fontFamily: "Noto Serif Display, Georgia, serif"
+    fontSize: "52px"
+    fontWeight: 300
+    lineHeight: 1.15
   headline:
-    fontFamily: "Bricolage Grotesque, sans-serif"
+    fontFamily: "Noto Serif Display, Georgia, serif"
     fontSize: "40px"
-    fontWeight: 600
+    fontWeight: 400
     lineHeight: 1.14
-    letterSpacing: "-0.015em"
+    letterSpacing: "-0.025em"
   title:
-    fontFamily: "Bricolage Grotesque, sans-serif"
+    fontFamily: "Noto Serif Display, Georgia, serif"
     fontSize: "22px"
     fontWeight: 500
     lineHeight: 1.375
-  title-sm:
-    fontFamily: "Bricolage Grotesque, sans-serif"
-    fontSize: "20px"
-    fontWeight: 600
-    lineHeight: 1.4
-  field:
-    fontFamily: "Figtree, sans-serif"
-    fontSize: "20px"
-    fontWeight: 400
-    lineHeight: 1.625
-  body-lg:
+  body:
     fontFamily: "Figtree, sans-serif"
     fontSize: "18px"
     fontWeight: 400
     lineHeight: 1.625
-  body:
+  field:
     fontFamily: "Figtree, sans-serif"
-    fontSize: "15px"
+    fontSize: "20px"
     fontWeight: 400
-    lineHeight: 1.5
+    lineHeight: 1.625
   label:
     fontFamily: "Figtree, sans-serif"
-    fontSize: "13px"
-    fontWeight: 400
-    lineHeight: 1.5
+    fontSize: "15px"
+    fontWeight: 500
+    lineHeight: 1.4
   cipher:
     fontFamily: "JetBrains Mono, monospace"
-    fontSize: "12.5px"
+    fontSize: "12px"
     fontWeight: 400
     lineHeight: 1.625
 rounded:
-  key: "6px"
-  panel: "16px"
-  board: "24px"
-  full: "999px"
+  button: "3px"
+  input: "4px"
+  field: "6px"
+  clip: "8px"
+  overlay: "16px"
+  clipboard: "24px"
+  full: "9999px"
 spacing:
-  gutter-sm: "20px"
-  gutter-md: "40px"
-  gutter-lg: "64px"
-  column: "760px"
-  container: "1200px"
-  drawer: "460px"
+  "2": "8px"
+  "3": "12px"
+  "4": "16px"
+  "5": "20px"
+  "6": "24px"
+  "8": "32px"
+  "10": "40px"
+  "14": "56px"
+  "16": "64px"
+  "20": "80px"
 components:
   button-primary:
-    backgroundColor: "{colors.terra}"
-    textColor: "{colors.terra-ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.full}"
-    padding: "14px 28px"
-  button-primary-waiting:
+    backgroundColor: "{colors.action}"
+    textColor: "{colors.action-ink}"
+    typography: "{typography.label}"
+    rounded: "{rounded.button}"
+    padding: "13px 25px"
+  button-waiting:
     backgroundColor: "transparent"
-    textColor: "{colors.terra}"
-    typography: "{typography.body}"
-    rounded: "{rounded.full}"
-    padding: "14px 28px"
-  button-primary-night:
-    backgroundColor: "{colors.action-night}"
-    textColor: "{colors.action-ink-night}"
-    rounded: "{rounded.full}"
-    padding: "14px 28px"
+    textColor: "{colors.action}"
+    rounded: "{rounded.button}"
+    padding: "13px 25px"
   button-ghost:
     backgroundColor: "transparent"
     textColor: "{colors.ink-2}"
-    typography: "{typography.body}"
-    rounded: "{rounded.full}"
-    padding: "14px 20px"
-  button-round:
-    backgroundColor: "{colors.terra}"
-    textColor: "{colors.terra-ink}"
-    rounded: "{rounded.full}"
-    size: "56px"
-  option-pill:
-    backgroundColor: "rgb(255 255 255 / 0.35)"
+    rounded: "{rounded.button}"
+    padding: "13px 25px"
+  choice:
+    backgroundColor: "{colors.control}"
     textColor: "{colors.ink-2}"
-    typography: "{typography.body}"
-    rounded: "{rounded.full}"
-    padding: "10px 16px"
-  option-pill-on:
-    backgroundColor: "{colors.terra}"
-    textColor: "{colors.terra-ink}"
-    rounded: "{rounded.full}"
-    padding: "10px 16px"
+    rounded: "{rounded.button}"
+    padding: "12px 18px"
+  choice-selected:
+    backgroundColor: "{colors.action}"
+    textColor: "{colors.action-ink}"
+    rounded: "{rounded.button}"
+    padding: "12px 18px"
   field:
-    backgroundColor: "transparent"
+    backgroundColor: "{colors.field}"
     textColor: "{colors.ink}"
     typography: "{typography.field}"
-    padding: "12px 0"
-  nav-info-button:
-    backgroundColor: "transparent"
-    textColor: "{colors.ink-2}"
-    rounded: "{rounded.full}"
-    padding: "8px 12px"
-  prancheta-badge:
-    backgroundColor: "{colors.terra}"
-    textColor: "{colors.terra-ink}"
-    rounded: "{rounded.full}"
-    padding: "2px 6px"
-    width: "24px"
-  prancheta-board:
-    backgroundColor: "{colors.terra-deep}"
-    rounded: "{rounded.board}"
-    width: "{spacing.drawer}"
-  prancheta-sheet:
-    backgroundColor: "{colors.paper}"
+    rounded: "{rounded.field}"
+    padding: "18px 20px"
+  input:
+    backgroundColor: "{colors.field}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.panel}"
-    padding: "24px 20px"
+    rounded: "{rounded.input}"
+    padding: "12px 16px"
   popover:
-    backgroundColor: "{colors.paper}"
+    backgroundColor: "{colors.field}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.panel}"
+    rounded: "{rounded.overlay}"
     padding: "20px"
-  horizon:
-    backgroundColor: "{colors.terra}"
-    textColor: "{colors.terra-ink}"
-    height: "60px"
-  sun-marker:
-    backgroundColor: "{colors.sun}"
-    rounded: "{rounded.full}"
-    size: "20px"
-  delivery-note:
-    backgroundColor: "{colors.terra-wash}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.panel}"
-    padding: "16px 20px"
+    width: "22rem"
 ---
 
-# Design System: MirageKouth
+# Design System: KOUTH
 
 ## Overview
 
-**Creative North Star: "Tarde na terra roxa"**
+**Creative North Star: "Primeiro a pessoa. Depois o perfume."**
 
-Responder é atravessar uma tarde. O fundo da página não é uma cor: é o céu em três faixas (alto, meio, horizonte), que anda do azul de tarde clara à hora dourada e ao rosa-lilás do fim de tarde a cada pergunta, e só anoitece na hora de selar o arquivo. A terra roxa é o chão (a faixa fixa no pé da tela) e a cor de toda ação. Não existe cinza neutro: todo tom secundário, de texto ou de linha, é marrom puxado da própria terra.
+A KOUTH recebe, escuta e guarda com discrição. Papel claro, marrons de madeira e couro, serifas de contraste e espaço negativo traduzem a identidade, a exclusividade e o acolhimento da marca. A sofisticação está na contenção, na imagem original e na precisão dos controles; o ritmo respeita uma conversa longa.
 
-A densidade é de leitura longa, não de painel. Uma única coluna central de até 760px carrega a pergunta grande, o campo amplo e os passos, um de cada vez. O que já foi respondido não ocupa a página: vai para a prancheta, uma placa de terra roxa escura com uma folha de papel claro presa no clipe, que se abre da barra do topo e mostra cada resposta como ela vai sair do aparelho, já cifrada. A hierarquia vem da escala do grotesco, não de caixas, cores de fundo ou sombras. A firmeza é modernista e o tom é de intimidade: superfícies chapadas, linhas finas de 1px, cantos inteiramente redondos nos controles.
-
-O sistema recusa duas coisas de forma explícita: o formulário branco com botão azul e o escuro com neon de "cripto". O mono aparece só onde há dado de verdade (a cifra), nunca como enfeite de segurança.
+A autoridade visual é o brandbook KOUTH de 2026 e a estratégia fornecidos em REFDESIGN, com transcrições e contatos em `.impeccable/brand-reference/`. Esta documentação substitui a identidade anterior de terra roxa, céu em gradiente e sol de progresso. Os nomes legados `terra`, `sun`, `sky` e `spark` no código não autorizam restaurá-la. PRODUCT.md permanece a autoridade funcional.
 
 **Key Characteristics:**
-- O céu é o fundo e é estado: a cor do fundo diz quanto da tarde já passou.
-- A terra roxa é a única cor de ação; de dia, ação e terra são a mesma cor.
-- À noite, a tinta clareia e a ação vira o creme da luz que sobrou.
-- Linhas de 1px no lugar de caixas; campos de escrita só com a linha de base.
-- Controles em pílula (raio total); nada de cantos médios genéricos.
-- A resposta completa vira cifra no lugar e voa para a prancheta: o selo é visto, não prometido.
-- Movimento de base único: desaceleração "expo out", entrada mais lenta que a saída.
+- Papel e madeira como relações de cor, com fotografia de matéria verdadeira.
+- Títulos serifados, respostas e controles em sans legível.
+- Campos visivelmente editáveis, ações reconhecíveis e progresso discreto.
+- Uma pergunta por vez, com respostas guardadas e editáveis.
+- Claro e escuro na mesma família quente.
+
+Base de extração: `globals.css`, `layout.tsx`, `ui.ts`, `motion.ts`, `theme.ts` e componentes finais; contatos do brandbook; capturas de recepção e pergunta a 1440px, pergunta escura a 390px e finalidade a 320px em `.impeccable/review/kouth/`. As capturas documentam esses estados, sem representar aprovação irrestrita de toda a experiência. O popover mobile foi ajustado no Header; a validação completa dos fluxos pertence ao relatório de revisão, não a esta extração visual.
 
 ## Colors
 
-Uma paleta terrosa de função estrita: céu que muda, terra que age, tinta marrom que lê, papel claro para o que é guardado, e dois azuis de céu reservados para foco e cifra.
+A paleta é quente, mineral e contida. O frontmatter registra os valores normativos; os nomes abaixo explicam seus usos.
 
 ### Primary
-- **Terra Roxa** (`terra`): botões principais, opção marcada, a faixa do horizonte, o contador da prancheta, os botões redondos da abertura, avatar de iniciais, pontos cheios do medidor. De dia é também `action` e `brand` (wordmark, palavras destacadas nos títulos, ícones de confirmação, número e "Editar" na folha da prancheta).
-- **Creme da Terra** (`terra-ink`): texto e marcos sobre a terra roxa.
-- **Véu de Terra** (`terra-wash`): 7% da terra sobre transparente. Hover dos botões de texto e o único painel de conteúdo da página, a nota de "Próximo passo" no fim.
-- **Terra Funda** (`terra-deep`): a placa da prancheta, de dia e de noite; é também o valor de `terra` no anoitecer.
+- **Saddle Leather** (`action`): ações principais, opção marcada, borda da ação pendente e marca. `brand`, `terra` e `paper-brand` são aliases contextuais no código.
+- **Tinta de ação** (`action-ink`): conteúdo claro sobre a ação.
 
 ### Secondary
-- **Sol da Tarde** (`sun`): só o marcador do sol no horizonte e a cor da seleção de texto (45% sobre transparente). Em nenhum outro lugar.
+- **Warm Suede** (`warm-suede`): referência material do brandbook, aplicada ao clipe no escuro; não é outra cor de ação.
 
 ### Tertiary
-- **Azul de Céu Firme** (`focus`): anel de foco de teclado (2px, afastado 3px).
-- **Azul da Cifra** (`cipher`): só texto cifrado: a resposta virando cifra no selo, as prévias e o arquivo selado na prancheta.
-- **Terra Queimada** (`warn`): aviso calmo do que falta (texto, linha de base do campo bloqueado, enunciado do passo pendente). Não é vermelho de erro.
+- **Foco quente** (`focus`): contorno de teclado e campo em edição.
+- **Aviso** (`warn`): preenchimento que falta, acompanhado de mensagem.
+- **Cifra oliva** (`cipher`): dado cifrado real.
 
 ### Neutral
-- **Tinta** (`ink`): texto principal, títulos, texto digitado.
-- **Tinta Média** (`ink-2`): texto de apoio, parágrafos secundários, botão fantasma, opção desmarcada, botões da barra. Medida a 7:1 ou mais contra o céu mais escuro do dia.
-- **Tinta Clara** (`ink-3`): placeholders, dicas de teclado, contadores. 4,5:1 ou mais contra o céu mais escuro do dia.
-- **Linha** (`line`): divisórias de 1px entre linhas de lista, pontos vazios do medidor, o corpo do clipe da prancheta.
-- **Linha Firme** (`line-strong`): contorno de botão fantasma, de opção desmarcada e de tecla, linha de base do campo em repouso, polegar da barra de rolagem, mola do clipe.
-- **Papel** (`paper`, com divisória `paper-line`): a folha da prancheta e o painel dos popovers. Papel claro fixo, que não muda no anoitecer.
-- **Véu** (`scrim`): o escurecimento da página atrás da prancheta aberta.
-- **Céu** (`sky-*`): três paradas de dia (`afternoon`, `golden`, `dusk`) interpoladas linearmente por progresso de 0 a 1, e `night` só para a tela de selar. Transição de 1,6s entre perguntas.
+- **Smoked Oak** (`ink`): texto no claro e estrutura da prancheta.
+- **Papel** (`surface`): tela clara; **papel de escrita** (`field`): campos, folha e popovers.
+- **Tintas de apoio** (`ink-2`, `ink-3`): parágrafos secundários, dicas e placeholders.
+- **Linhas** (`line`, `line-strong`): separação editorial e limites de controles.
+- **Controle** (`control`): opção desmarcada. `terra-wash` fornece lavagem translúcida no hover e nas notas.
+- **Fluted Glass** (`dark-surface`): tela escura. Os demais tokens `dark-*` registram campo marrom, tinta marfim, ação bege e foco quente. Folha e popovers também invertem.
 
-### Named Rules
-**The Earth Acts Rule.** Toda ação é terra roxa. Botão principal, opção marcada, o contador da prancheta e o horizonte usam `terra`/`action`; nenhuma outra cor de fundo sinaliza "clique aqui".
+**The Warm Inversion Rule.** No escuro e na tela final com `data-sky="night"`, usar os papéis semânticos de ação, tinta, campo e papel juntos; não fixar uma cor clara dependente do tema.
 
-**The No Neutral Gray Rule.** Nenhum cinza neutro. Todo tom secundário de texto, linha ou contorno vem da família marrom da terra (`ink-2`, `ink-3`, `line`, `line-strong`, `paper-line`). O único branco é translúcido (35 a 40%) sobre o céu, nas opções e nas teclas.
+O escuro é o padrão, inclusive no HTML inicial e quando o armazenamento está indisponível. Uma escolha explícita persiste em `mirage-theme`, aplica-se antes da primeira pintura e não altera respostas ou progresso. Apagar a preferência restaura o padrão escuro. A tela final pode usar a paleta escura independentemente dessa preferência. Variáveis antigas de cena não estabelecem um gradiente.
 
-**The One Sun Rule.** O laranja do sol aparece em um só objeto: o marcador da pergunta atual (mais a seleção de texto). Ele nunca vira cor de botão, de link ou de destaque.
-
-**The Nightfall Inversion Rule.** No anoitecer (`data-sky="night"`), a terra escurece mas continua terra (`terra-deep`), a tinta vira creme e a ação vira a luz clara (`action-night` com `action-ink-night`). Componentes que ficam sobre o céu usam `action`/`brand`, nunca `terra` direto.
-
-**The Paper Stays Paper Rule.** O que é folha (prancheta, popover) é papel claro com tinta escura nos dois céus. A folha não inverte no anoitecer; só o céu em volta muda.
+Textura: papel original do brandbook (`web/public/brand/paper-grain.webp`), extraído da página 5, xref 73. O fundo da página e o painel de recepção usam uma camada estática atrás do conteúdo, com `pointer-events: none`, escala (720px 405px), `soft-light`, filtro neutro e opacidade (0.16) no escuro / (0.08) no claro. Campos, botões, fotografia e folha modal continuam lisos. Não há grão animado nem textura sintética gerada em CSS.
 
 ## Typography
 
-**Display Font:** Bricolage Grotesque (eixo `opsz`), com sans-serif
-**Body Font:** Figtree, com sans-serif
-**Label/Mono Font:** JetBrains Mono, só para a cifra
+**Display Font:** Noto Serif Display, com Georgia e serif.
+**Body Font:** Figtree, com sans-serif.
+**Label/Mono Font:** JetBrains Mono, com monospace, somente para cifra e arquivo.
 
-**Character:** um grotesco firme e um pouco excêntrico para tudo o que é pergunta ou título, sobre um sans redondo e calmo para escrever e ler por horas. O mono é dado, não decoração.
+Noto Serif Display é a adaptação web implementada, escolhida entre os testes da consultora. O brandbook indica IvyPresto, mas não foi fornecido um arquivo instalável dessa família. Quiet Sans e as fontes manuscritas do documento não estão carregadas na interface.
 
 ### Hierarchy
-- **Display** (600, 40px no celular, 60px a partir de `sm`, 1.05, -0.015em): títulos de tela (nome, instruções, retomar, fim). Medida curta (16ch no fim). Uma palavra pode vir em `brand`.
-- **Headline** (600, 28px / 34px / 40px, 1.18 a 1.14, -0.015em): a pergunta principal, até 34ch. Também as frases da abertura (28px a 44px, centradas).
-- **Title** (500, 20px no celular, 22px a partir de `sm`, 1.375): o enunciado de cada passo. Muda para `warn` quando é o passo que falta.
-- **Title pequeno** (600, 15px a 20px): título da prancheta, "Como prefere entregar?", nome nas fichas da abertura, título dos popovers, contador no horizonte (16px a 18px, números tabulares). O número de cada resposta na folha vai em Bricolage semibold na cor da terra.
-- **Campo** (Figtree 400, 18px no celular, 20px a partir de `sm`, 1.625): texto digitado nas histórias. O nome na tela inicial é a exceção: digitado em Bricolage, 24px a 30px.
-- **Body grande** (Figtree 400, 18px, 1.625): parágrafos de abertura de tela, 46ch a 58ch.
-- **Body** (Figtree 400, 15px): botões (600), opções, avisos, popovers. Itens da prancheta e textos de apoio em 14px.
-- **Label** (Figtree 400, 13px): dicas de teclado, "Editar". O contador da prancheta em 12px semibold tabular. Nunca em caixa alta.
-- **Cifra** (JetBrains Mono 400, 12px a 12.5px, 1.625): prévias na folha (até 3 linhas) e o arquivo selado. No selo, a cifra herda a fonte do próprio campo, porque a resposta vira cifra no lugar.
+- **Display:** recepção leve (300), tamanho (52px), reduzido para (44px) no desktop compacto/tablet e (36px) no celular; itálico pontual na segunda frase.
+- **Headline:** pergunta em peso regular, tamanho (28px / 34px / 40px), entrelinha (1.18 / 1.14), tracking (-0.025em), até (34ch).
+- **Títulos de tela:** nome e final em (40px / 60px); finalidade em (38px / 60px). São variantes observadas, não uma escala única.
+- **Title:** enunciados de passo (20px / 22px), peso médio; finalidades (25px), peso regular.
+- **Body:** aberturas em (18px), entrelinha (1.625), medidas de aproximadamente (43ch a 52ch). Apoio em (14px a 16px).
+- **Field:** Figtree regular (18px / 20px), entrelinha (1.625); placeholder (16px).
+- **Label:** ações e escolhas (15px), peso médio; navegação (14px), dicas (13px), progresso (12px / 14px) com algarismos tabulares.
+- **Cipher:** mono pequeno para cifra e arquivo. A transformação da resposta preserva a geometria da fonte do campo.
 
-### Named Rules
-**The Mono Is Data Rule.** JetBrains Mono só aparece em conteúdo cifrado e no nome do arquivo gerado. Nunca em títulos, botões ou rótulos de interface.
-
-**The Scale Carries Hierarchy Rule.** A hierarquia é por tamanho e peso do Bricolage, não por cor de fundo, caixa ou rótulo acima do título. Títulos não ganham sobretítulos.
+**The Living Text Rule.** Perguntas, opções, respostas e instruções são texto vivo e selecionável; não colocá-las em imagens nem substituí-las por slogans.
 
 ## Layout
 
-Contêiner central de até 1200px com margens laterais de 20px no celular, 40px a partir de `sm` e 64px a partir de `lg`. A barra do topo e o horizonte usam esse contêiner; o conteúdo é uma única coluna de até 760px, centrada nele.
+A entrevista usa contêiner de até (1200px), com margens internas de (20px), (40px) a partir de (640px) e (64px) a partir de (1024px). O conteúdo ocupa coluna central de até (760px), sem cartão externo. O respiro superior da pergunta cresce de (40px) para (56px) e (80px).
 
-Na barra do topo, o wordmark vai à esquerda (10px de altura no celular, 13px a partir de `sm`). À direita ficam a prancheta, a partir da primeira pergunta, e os dois botões de explicação. No celular, os rótulos encurtam ou viram só ícone e o espaçamento aperta para caber numa linha.
+O cabeçalho tem marca à esquerda e navegação à direita, permitindo quebra em telas estreitas. Wordmark com altura (21px / 26px). Rótulos encurtam ou viram ícones com nome acessível. Popovers mantêm margens de (20px) no celular; a partir de (640px), ancoram ao gatilho com largura (22rem).
 
-A pergunta começa sempre na mesma linha de base (80px de respiro no topo em `lg`, 56px em `sm`, 40px no celular), qualquer que seja a pergunta. Ritmo vertical: título → campo 24px; passos separados por 32px; ações 32px abaixo do último passo; em telas de abertura, parágrafo → campo/ações 40px. Botões em linha com 12px a 16px de vão, quebrando linha no celular.
+A recepção usa duas colunas (44% / 56%), foto sticky e corpo de até (820px). Abaixo de (1024px), a foto vira faixa superior de (240px); abaixo de (640px), (180px), e o corpo usa margens internas de (24px). A imagem não se sobrepõe a campos. Essa composição pertence à recepção e não é um padrão para todas as telas.
 
-O horizonte é `sticky` no pé da tela, com um espaçador de 40px a 56px antes para nunca cobrir o último botão. A prancheta entra pela direita como painel de altura total e 460px de largura a partir de `sm`; no celular sobe de baixo, até 88% da altura.
-
-### Named Rules
-**The Fixed Furniture Rule.** Toda pergunta tem a mesma mobília no mesmo lugar: barra do topo com a prancheta, pergunta na coluna central, horizonte no pé. O conteúdo muda; a mobília não se move. O que já foi respondido mora na prancheta, não ao lado da pergunta.
+Ritmo: título → campo (24px), passos (32px) entre si, ações (32px) após o conteúdo. Ações quebram linha com vãos de (12px / 16px). Campos crescem com a resposta. Progresso sticky no rodapé, com fundo da tela, borda superior e área segura inferior; a última ação deve continuar alcançável.
 
 ## Elevation & Depth
 
-O sistema é chapado. A profundidade vem do céu em gradiente vertical (as três faixas) e da faixa de terra no pé, que funciona como chão. O conteúdo da página não tem sombra nem fundo próprio; fica direto no céu, separado por linhas de 1px. Só o que flutua sobre a página (popover e prancheta) ganha sombra, sempre difusa e puxada para o marrom.
+As telas são planas; a fotografia fornece luz e matéria. Contornos e diferenças tonais distinguem os controles. Profundidade de interface se concentra em popover e prancheta modal.
 
 ### Shadow Vocabulary
-- **Popover** (`box-shadow: 0 18px 40px -12px rgba(60,30,20,0.35)`): painéis de explicação da barra do topo.
-- **Placa** (`box-shadow: 0 -20px 50px -20px rgba(42,23,18,0.5)`): a placa da prancheta sobre o véu.
-- **Clipe** (`box-shadow: 0 2px 4px rgba(42,23,18,0.35)`): o clipe preso no topo da placa, o único objeto "físico" pequeno do sistema.
+- **Popover:** difusa (0 18px 40px -12px rgba(60,30,20,0.35)).
+- **Prancheta:** separação do plano (0 -20px 50px -20px rgba(42,23,18,0.5)).
+- **Clipe:** sombra pequena (0 2px 4px rgba(42,23,18,0.35)).
 
-### Named Rules
-**The Flat Sky Rule.** Nada repousa sobre o céu com sombra. Sombra é só para o que flutua sobre a página (popover, prancheta); sem glow, sem brilho, sem sombra dura deslocada.
+**The Quiet Surface Rule.** Conteúdo de entrevista fica no plano da página; sombras pertencem às superfícies sobrepostas.
 
 ## Shapes
 
-Duas formas, e só duas, na página: a pílula (raio total) para tudo o que se aperta (botões, opções, botões de texto da barra, contador, o sol, os marcos, o botão redondo de 56px da abertura, avatares) e a linha reta de 1px para tudo o que organiza (divisórias de lista, linha de base de 2px dos campos). As superfícies que flutuam têm raios próprios: a placa da prancheta 24px (só do lado de dentro da tela: canto superior no celular, lado esquerdo no computador), a folha e o popover 16px, o clipe 8px. Teclas desenhadas usam 6px. A barra de rolagem é fina (8px), polegar em pílula da cor `line-strong`, sem setas.
+Ações e opções usam cantos discretos (3px), campos curtos (4px), respostas (6px). Pílulas permanecem nos pequenos controles de cabeçalho e contadores; não são mais a forma universal de ação. A finalidade usa indicador circular (22px), com centro marcado (10px). Divisórias e contornos têm (1px).
 
-Ícones são SVG de traço (1,6 a 2px, pontas redondas, 16px a 24px), em `currentColor`. A marca entra como máscara SVG e herda a cor do lugar (`brand`).
+Popover e folha usam raio (16px); estrutura da prancheta (24px) nos cantos voltados para a página; clipe (8px). Ícones são SVG de traço em `currentColor`, normalmente (16px).
+
+Logotipo e monograma originais estão em `web/public/brand/`, aplicados como máscaras SVG com proporções preservadas. A foto `presence.webp` foi extraída do PDF fornecido. Reutilizar os arquivos e sua proveniência; não redesenhar o wordmark com uma fonte nem imitar a fotografia.
 
 ## Components
 
 ### Buttons
-Firmes, redondos, de uma cor só.
-- **Shape:** pílula (`rounded.full`).
-- **Primary:** fundo `action`, texto `action-ink`, 15px semibold, 14px por 28px. Hover clareia (brilho 110%), clique escurece (95%).
-- **Primary "ainda falta":** quando a pergunta não está completa, o mesmo botão vira contorno de 1,5px em `action` com texto `action`, e continua clicável para mostrar o que falta. Hover ganha `terra-wash`.
-- **Ghost:** contorno de 1px em `line-strong`, texto `ink-2`, 14px por 20px. Hover passa o contorno para `action` e o texto para `ink`. Desabilitado a 35%.
-- **Ordem:** fantasma ("Voltar") à esquerda, principal à direita.
-- **Redondo da abertura:** círculo de 56px em `action` com seta SVG em `action-ink`.
+Retangulares e calmos: altura mínima (50px), padding (13px 25px), ou (13px 20px) no celular; texto médio (15px). Principal em `action`/`action-ink`, hover com mistura de (15%) de tinta. Fantasma com contorno `line-strong`, texto `ink-2`, hover tonal e borda de ação. A variante pendente mantém contorno de ação e continua acionável para apontar o que falta. Desabilitados reduzem opacidade. Voltar precede o avanço.
 
-### Chips (opções de passo)
-- **Style:** pílula, 10px por 16px, 15px, contorno 1px `line-strong` sobre branco a 35%, texto `ink-2`.
-- **State:** marcada vira fundo e contorno `action` com texto `action-ink`. Hover desmarcado puxa contorno para `action`. Papel de rádio dentro de um grupo nomeado; nenhuma vem marcada.
+### Chips
+Opções de passo: altura mínima (48px), padding (12px 18px), contorno fino e raio de botão. Marcadas usam `action`/`action-ink`; hover reforça borda. Mantêm semântica de rádio e grupo nomeado, sem seleção inicial. Não são tags decorativas.
 
 ### Cards / Containers
-- **Corner Style:** sem cartões na página. Listas (registro de cifra, fichas da abertura, itens da prancheta) são linhas com divisória de 1px e 10px a 20px de respiro vertical.
-- **Background:** o próprio céu.
-- **Shadow Strategy:** nenhuma na página (ver Elevation & Depth).
-- **Painel contido:** só a nota de "Próximo passo" (fundo `terra-wash`, raio 16px, 16px por 20px).
+Perguntas ficam direto sobre a tela. Finalidades, demonstrações, registros e a entrega usam linhas. A folha de respostas é superfície sobreposta, não padrão para encaixotar cada pergunta.
 
 ### Inputs / Fields
-- **Style:** sem caixa. Fundo transparente, só a linha de base de 2px em `line-strong`, 12px de respiro vertical, texto `ink` em 18px a 20px, placeholder `ink-3`. O campo cresce com o texto.
-- **Focus:** a linha de base vira `terra`. O anel de foco global é suprimido em campos porque a linha já marca o foco.
-- **Error:** linha de base e aviso em `warn`, aviso abaixo em 15px com espaço reservado (sem pulo de layout).
+Respostas: fundo próprio, contorno completo, altura mínima (110px), padding (18px 20px), ou (16px) no celular. Campos curtos: altura mínima (56px), padding (12px 16px). Foco muda a borda e mostra anel (2px), afastado (3px). Erro muda a borda para aviso e acompanha mensagem com espaço reservado. Foco geral usa anel (2px), afastado (4px).
 
 ### Navigation
-- **Barra do topo:** wordmark em `brand` à esquerda; à direita, botões de texto em pílula (14px, `ink-2`, ícone SVG de 16px). Hover: `terra-wash` e `ink`.
-- **Popover:** até 22rem de largura, raio 16px, papel, 15px, título em Bricolage semibold na cor da terra, sombra de popover. Fecha com Esc ou clique fora.
+Wordmark original e botões discretos com ícones. Os alvos do cabeçalho têm mínimo de (44px), e “Respostas” continua visível no celular. Em telas estreitas, aparência fica ao lado da marca e os controles de apoio ocupam a linha seguinte. Popovers seguem o tema, respeitam margens mobile e fecham com Esc ou clique fora. Aparência, respostas e explicações não competem com o enunciado. A privacidade distingue rascunho local e arquivo final; detalhes de algoritmos só aparecem sob demanda.
 
-### A Prancheta (assinatura)
-O lugar onde as respostas ficam guardadas.
-- **Botão:** na barra do topo, ícone de prancheta em SVG, rótulo "Prancheta" a partir de `sm` e um contador em pílula `action` (12px semibold, tabular, largura mínima de 24px). A cada resposta que chega, o contador dá um pulo (escala 1,35 → 1 em 450ms). É também o alvo do voo do selo.
-- **Placa:** `terra-deep`, 460px a partir de `sm` (entra pela direita) ou de largura total até 88% da altura no celular (sobe de baixo), 500ms na curva padrão, sobre o véu `scrim` (300ms). Um clipe de `line` com mola de `line-strong` prende a folha no topo.
-- **Folha:** `paper`, raio 16px, tinta `ink`. Cabeçalho com título, uma linha de apoio de 14px e um fechar redondo, separado por `paper-line`. Cada resposta completa é uma linha: número em Bricolage na cor da terra, a pergunta (até 2 linhas, 14px), "Editar" em 13px na cor da terra com sublinhado no hover, e a prévia da cifra em mono `cipher` (até 3 linhas). Depois de selar, a folha mostra o conteúdo real do arquivo em mono 12px.
-- **Comportamento:** diálogo modal; o foco vai para o fechar ao abrir e volta para o botão ao fechar; Esc fecha.
+### Finalidades e progresso
+Quatro linhas amplas com título serifado e rádio à direita, altura mínima (78px), padding vertical (20px), divisória inferior. Seleção reforça indicador e borda. Progresso por linha (2px), contagem textual e `role="progressbar"`, sem horizonte ou sol. Transição de largura (300ms), desativada com movimento reduzido. Na conclusão, o rodapé passa a fluxo normal para não cobrir instruções de entrega; durante as perguntas, permanece sticky.
 
-### O Selo (assinatura)
-Ao avançar uma pergunta completa, a resposta vira a própria prévia da cifra no lugar onde foi escrita, letra por letra, da esquerda para a direita (520ms, começando devagar e acelerando). Espaços e quebras de linha ficam, para o bloco manter a forma do texto; a parte cifrada fica em `cipher` e o resto em `ink`. Em seguida, o bloco voa e encolhe até o botão da prancheta (500ms, `cubic-bezier(0.65, 0, 0.35, 1)`), terminando a 15% de opacidade com 1,5px de desfoque, e o contador pula. A cifra mostrada é a prévia real da resposta, a mesma que a folha exibe. Com `prefers-reduced-motion`, o selo não acontece e a pergunta só avança.
+### Prancheta e selo
+Respostas guardadas continuam editáveis. Prancheta lateral no desktop (460px), inferior no celular até (88dvh), folha tonal e título “Suas respostas”. Revisão e edição lideram; a prévia cifrada real fica recolhida em um disclosure. O diálogo usa `showModal()` nativo para conter o foco e tornar o fundo inativo; fecha com Esc, botão ou clique fora, liberando o modal antes de devolver o foco. Editar tem alvo mínimo de (44px). O selo transforma o texto na prévia real antes de guardá-lo; não usa cifra inventada.
 
-### O Horizonte (assinatura)
-A faixa de terra roxa presa no pé da tela. Uma régua de 12px com um marco de 2px por pergunta (alto e a 90% quando respondida, baixo e a 35% quando não), o sol de 20px em `sun` com anel de 2px em `terra` sentado na pergunta atual, e uma linha abaixo com o contador em Bricolage tabular ("06 / 15") e "Faltam N perguntas". O sol anda em 1,4s com a curva padrão; ao terminar, desce atrás da linha e some. Junto com o céu, é o indicador de progresso; não existe outra barra de progresso.
+Curva comum `cubic-bezier(0.22, 1, 0.36, 1)`: entrada (300ms), saída (180ms), pequenos elementos (350ms), prancheta (500ms). Entradas CSS da recepção (250ms a 450ms). Selo: transformação (520ms), pausa (320ms), voo (750ms), curva própria `cubic-bezier(0.42, 0, 0.2, 1)`. Respeitar `prefers-reduced-motion`; animação não pode ser condição para concluir.
 
-### Movimento
-Curva de base `cubic-bezier(0.22, 1, 0.36, 1)`. Entrada de tela 450ms subindo 10px; saída 220ms subindo 6px; elementos pequenos 350ms; prancheta 500ms; céu 1,6s; sol 1,4s. A única curva diferente é a do voo do selo (`cubic-bezier(0.65, 0, 0.35, 1)`), porque ele sai e chega em vez de só pousar. Com `prefers-reduced-motion`, o céu, o sol e o selo não animam e a abertura é pulada.
+### Encerramento e presente
+Antes de selar, título serifado e convite para rever. Após sucesso, a conclusão reconhece a conversa pelo nome, mostra um registro discreto com monograma e contagem, e promove baixar/copiar a ações principais. Arquivo cifrado só abre por pedido explícito; nunca interrompe a conclusão automaticamente. O próximo passo explica que a pessoa ainda precisa enviar o arquivo à KOUTH. Nova tentativa aparece em caso de erro; regenerar não compete com a entrega pronta. Presente mantém revisão e edição antes de imprimir. A identidade não altera perguntas, ramificações, validação, cifragem ou finalidade dos arquivos; regras completas em PRODUCT.md.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** usar `action`/`action-ink` (não `terra` direto) em todo botão principal, opção marcada e contador que fica sobre o céu, para que funcionem de dia e no anoitecer.
-- **Do** separar conteúdo com linhas de 1px em `line` e deixar campos só com a linha de base de 2px.
-- **Do** manter os controles em pílula: botão principal 14px por 28px, fantasma 14px por 20px, opção 10px por 16px, todos em 15px.
-- **Do** tirar todo tom secundário da família marrom (`ink-2`, `ink-3`, `line`, `line-strong`).
-- **Do** mostrar o que já foi respondido na prancheta, como prévia cifrada, em vez de acumular na página.
-- **Do** desenhar ícones e teclas em SVG de traço com `currentColor`, nunca com caracteres de seta ou símbolos de fonte.
-- **Do** usar a curva `cubic-bezier(0.22, 1, 0.36, 1)` com entrada mais lenta que a saída, e respeitar `prefers-reduced-motion` em toda animação nova.
+- **Do** usar papéis semânticos de tinta, ação, campo e papel nos dois temas.
+- **Do** preservar texto vivo, campos com contorno completo e foco visível.
+- **Do** usar Noto Serif Display nos títulos e Figtree em respostas e controles.
+- **Do** reutilizar marca e fotografia originais com sua proveniência.
+- **Do** manter progresso discreto, contagem textual e navegação estável.
+- **Do** preservar os quatro caminhos, perguntas e revisão do presente conforme PRODUCT.md.
+- **Do** respeitar movimento reduzido.
 
 ### Don't:
-- **Don't** usar fundo branco chapado com botão azul, nem fundo escuro com neon de "cripto".
-- **Don't** usar cinza neutro em texto, linha ou contorno.
-- **Don't** usar o laranja do sol fora do marcador do horizonte e da seleção de texto.
-- **Don't** colocar conteúdo da página em cartões com sombra; sombra é só para o que flutua (popover, prancheta).
-- **Don't** usar glow, brilho ou degradê decorativo; o único degradê é o céu, e ele carrega estado.
-- **Don't** mostrar cifra inventada: toda cifra na tela é a prévia real da resposta ou o arquivo real.
-- **Don't** usar JetBrains Mono fora da cifra e do nome do arquivo.
-- **Don't** pôr sobretítulo ou rótulo em caixa alta acima de títulos; a escala do Bricolage faz a hierarquia.
+- **Don't** restaurar terra roxa, céu em gradiente ou sol de progresso por nomes legados do código.
+- **Don't** colocar perguntas ou controles dentro de imagens.
+- **Don't** declarar IvyPresto ou Quiet Sans como fontes carregadas.
+- **Don't** inventar textura CSS, depoimentos, estatísticas ou promessas de segurança.
+- **Don't** substituir o logotipo original por texto digitado.
+- **Don't** usar neon de cripto ou sombra em cada pergunta.
+- **Don't** mostrar respostas reais em exemplos ou cifra decorativa como dado real.

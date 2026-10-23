@@ -1,8 +1,8 @@
 /** Passo em texto livre: uma pergunta curta só. */
-export type TextStep = { kind: "text"; prompt: string };
+export type TextStep = { kind: "text"; prompt: string; placeholder?: string; next?: Step };
 
 /** Uma opção de botão. `next` é o passo que ela abre (o ramo da árvore). */
-export type ButtonOption = { label: string; next?: Step };
+export type ButtonOption = { label: string; next?: Step; disabled?: boolean };
 
 /** Passo em botões: escolha única, nada vem marcado. */
 export type ButtonStep = { kind: "button"; prompt: string; options: ButtonOption[] };
@@ -14,6 +14,11 @@ export type Question = {
   id: string;
   /** Pergunta principal — o que precisa ser respondido, em texto livre. */
   text: string;
+  /** Perguntas que começam diretamente pelo primeiro passo. */
+  noMain?: boolean;
+  /** Algumas perguntas aceitam uma palavra ou uma resposta curta explícita. */
+  minMainChars?: number;
+  acceptedShortAnswers?: string[];
   /** Texto de apoio do campo principal; só onde o roteiro pede. */
   placeholder?: string;
   /** Passos que aparecem um por vez depois da principal. */
@@ -31,6 +36,13 @@ export type QuestionDetail = { steps?: Record<string, string> };
 export const MIN_MAIN_CHARS = 10;
 /** Passo em texto responde coisas curtas ("minha mãe"); só não pode ficar vazio. */
 export const MIN_STEP_CHARS = 2;
+
+export function isMainAnswered(question: Question, value: string): boolean {
+  if (question.noMain) return true;
+  const answer = value.trim();
+  return answer.length >= (question.minMainChars ?? MIN_MAIN_CHARS)
+    || Boolean(answer && question.acceptedShortAnswers?.includes(answer.toLocaleLowerCase("pt-BR")));
+}
 
 // ---------- Atalhos ----------
 
@@ -238,7 +250,7 @@ export type ShownStep = { key: string; step: Step; value: string; answered: bool
 
 function isAnswered(step: Step, value: string): boolean {
   return step.kind === "button"
-    ? step.options.some((o) => o.label === value)
+    ? step.options.some((o) => o.label === value && !o.disabled)
     : value.trim().length >= MIN_STEP_CHARS;
 }
 
@@ -255,7 +267,7 @@ export function shownSteps(
 ): { shown: ShownStep[]; complete: boolean } {
   const values = detail?.steps ?? {};
   const shown: ShownStep[] = [];
-  let gated = main.trim().length < MIN_MAIN_CHARS;
+  let gated = !isMainAnswered(question, main);
   let complete = !gated;
 
   for (let i = 0; i < question.steps.length; i++) {
@@ -270,7 +282,11 @@ export function shownSteps(
         gated = true;
         complete = false;
       }
-      if (step.kind !== "button") break;
+      if (step.kind === "text") {
+        step = answered ? step.next : undefined;
+        key = `${key}>texto`;
+        continue;
+      }
       step = step.options.find((o) => o.label === value)?.next;
       key = `${key}>${value}`;
     }

@@ -1,20 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { Logo } from "./Logo";
 import { buildEncryptedFile } from "@/lib/crypto";
 import { DELIVERY_INSTRUCTIONS } from "@/lib/siteConfig";
 import type { QuestionDetail } from "@/lib/questions";
-import { ENTER_TRANSITION, EXIT_TRANSITION, SOFT_TRANSITION } from "@/lib/motion";
+import type { Question } from "@/lib/questions";
+import type { GiftInfo } from "@/lib/giftQuestions";
+import { ENTER_TRANSITION, EXIT_TRANSITION } from "@/lib/motion";
 import { BTN_GHOST, BTN_PRIMARY, DISPLAY } from "@/lib/ui";
-
-const LOG_LINES = [
-  "Coletando respostas…",
-  "Gerando chave AES-256…",
-  "Cifrando payload com AES-GCM…",
-  "Envelopando chave com RSA-4096…",
-  "Selando arquivo…",
-];
 
 const FILE_NAME = "mirage-respostas.txt";
 
@@ -48,6 +43,10 @@ export function FinalScreen({
   onBack,
   onDone,
   onGenerated,
+  onViewFile,
+  gift,
+  occasion,
+  becoming,
 }: {
   name: string;
   answered: number;
@@ -59,24 +58,26 @@ export function FinalScreen({
   onDone: () => void;
   /** O arquivo real, para a prancheta mostrar exatamente o que vai ser entregue. */
   onGenerated?: (content: string) => void;
+  onViewFile?: () => void;
+  gift?: { info: GiftInfo; questions: Question[] };
+  occasion?: { questions: Question[] };
+  becoming?: { questions: Question[] };
 }) {
   const [status, setStatus] = useState<Status>("idle");
-  const [visibleLines, setVisibleLines] = useState(0);
   const [encryptedContent, setEncryptedContent] = useState<string | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">("idle");
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (status === "done") headingRef.current?.focus();
+  }, [status]);
 
   async function handleGenerate() {
     setStatus("processing");
-    setVisibleLines(0);
     setCopyStatus("idle");
 
-    for (let i = 0; i < LOG_LINES.length; i++) {
-      await new Promise((r) => setTimeout(r, 260));
-      setVisibleLines((v) => v + 1);
-    }
-
     try {
-      const content = await buildEncryptedFile(name, answers, timings, details);
+      const content = await buildEncryptedFile(name, answers, timings, details, gift, occasion, becoming);
       setEncryptedContent(content);
       setStatus("done");
       onDone();
@@ -118,143 +119,72 @@ export function FinalScreen({
       transition={ENTER_TRANSITION}
       className="flex flex-col"
     >
-      <h1 className={`${DISPLAY} mb-4 max-w-[16ch] text-[40px] leading-[1.05] sm:text-6xl`}>
-        A miragem está pronta pra virar arquétipo
+      <h1 ref={headingRef} tabIndex={-1} style={{ outline: "none" }} className={`${DISPLAY} mb-5 max-w-[19ch] text-[40px] leading-[1.12] sm:text-6xl`}>
+        {status === "done" ? "Sua história, pronta para seguir." : becoming ? "Um novo capítulo começa aqui." : occasion ? "Uma ocasião, com a sua presença." : gift ? "Um presente começa com uma história." : "Sua história é o ponto de partida."}
       </h1>
-      <p className="mb-10 max-w-[52ch] text-lg leading-relaxed text-ink-2">
-        {name ? `${name}, você` : "Você"} respondeu {answered} de {total}{" "}
-        perguntas. Ao gerar, tudo é criptografado no seu navegador — depois
-        você escolhe se baixa como arquivo ou copia o texto cifrado. Nada é
-        enviado para nenhum servidor nesse processo.
-      </p>
-
-      <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-        <button
-          type="button"
-          onClick={onBack}
-          disabled={status === "processing"}
-          className={BTN_GHOST}
-        >
-          Voltar
-        </button>
-        <button
-          type="button"
-          onClick={handleGenerate}
-          disabled={status === "processing"}
-          className={BTN_PRIMARY}
-        >
-          {status === "done" ? "Gerar novamente" : "Gerar Criptografia"}
-        </button>
-      </div>
-
-      <AnimatePresence>
-        {status !== "idle" && (
-          <motion.ol
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={SOFT_TRANSITION}
-            aria-live="polite"
-            className="mt-8 flex max-w-lg flex-col overflow-hidden"
-          >
-            {LOG_LINES.slice(0, visibleLines).map((line, i) => (
-              <motion.li
-                key={i}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={SOFT_TRANSITION}
-                className="flex items-center gap-3 border-t border-line py-2.5 text-[15px] text-ink-2"
-              >
-                <CheckIcon />
-                {line.replace(/…$/, "")}
-              </motion.li>
-            ))}
-            {status === "done" && (
-              <motion.li
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={SOFT_TRANSITION}
-                className="flex items-center gap-3 border-t border-line py-2.5 text-[15px] font-semibold text-ink"
-              >
-                <CheckIcon />
-                Arquivo cifrado pronto.
-              </motion.li>
-            )}
-            {status === "error" && (
-              <motion.li
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={SOFT_TRANSITION}
-                className="border-t border-line py-2.5 text-[15px] font-semibold text-warn"
-              >
-                Algo deu errado. Tente novamente.
-              </motion.li>
-            )}
-          </motion.ol>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {status === "done" && encryptedContent && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={SOFT_TRANSITION}
-            className="mt-8 flex max-w-lg flex-col gap-3"
-          >
-            <h2 className="font-display text-xl font-semibold text-ink">Como prefere entregar?</h2>
-            <div className="flex flex-wrap items-center gap-3">
-              <button type="button" onClick={handleDownload} className={BTN_PRIMARY}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4" aria-hidden>
-                  <path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                Baixar arquivo
-              </button>
-              <button type="button" onClick={handleCopy} className={BTN_GHOST}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4" aria-hidden>
-                  <rect x="8" y="8" width="12" height="12" rx="2" />
-                  <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                {copyStatus === "copied" ? "Copiado!" : "Copiar texto"}
-              </button>
-            </div>
-            {copyStatus === "error" && (
-              <p className="text-[15px] text-warn">
-                Não deu pra copiar automaticamente — tente selecionar o texto manualmente.
-              </p>
-            )}
-            <p className="max-w-md text-[14px] leading-relaxed text-ink-2">
-              Baixar salva o arquivo <code className="font-mono text-[13px] text-ink">{FILE_NAME}</code>{" "}
-              no dispositivo. Copiar coloca o mesmo conteúdo cifrado na área de
-              transferência, pra colar direto onde for enviar (útil no celular
-              ou se preferir não baixar nada).
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {status === "done" && (
-          <motion.p
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...SOFT_TRANSITION, delay: 0.15 }}
-            className="mt-6 max-w-lg rounded-2xl bg-terra-wash px-5 py-4 text-[15px] leading-relaxed text-ink"
-          >
-            <strong className="font-semibold text-brand">Próximo passo:</strong>{" "}
-            {DELIVERY_INSTRUCTIONS}
-          </motion.p>
-        )}
-      </AnimatePresence>
+      {status === "done" && encryptedContent ? <>
+        <p className="mb-8 max-w-[48ch] text-lg leading-relaxed text-ink-2">
+          {name ? `${name}, obrigado` : "Obrigado"} por dedicar este tempo à sua história.
+          Suas respostas estão reunidas em um arquivo protegido, pronto para você entregar à KOUTH.
+        </p>
+        <div className="mb-7 flex max-w-lg items-center gap-5 border-y border-line py-6">
+          <Logo mark="spark" height={38} className="text-brand" />
+          <div className="min-w-0">
+            <h2 className="font-display text-2xl text-ink">{name ? `A conversa de ${name}` : "A sua conversa"}</h2>
+            <p role="status" className="mt-2 text-sm text-ink-2">{answered} respostas · Arquivo protegido</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="button" onClick={handleDownload} className={BTN_PRIMARY}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4" aria-hidden>
+              <path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Baixar arquivo
+          </button>
+          <button type="button" onClick={handleCopy} className={BTN_GHOST}>
+            {copyStatus === "copied" ? "Copiado!" : "Copiar texto"}
+          </button>
+        </div>
+        <p role="status" className="mt-3 min-h-5 text-sm text-ink-2">
+          {copyStatus === "copied" ? "O conteúdo protegido foi copiado. Você já pode colar onde for enviar."
+            : copyStatus === "error" ? "Não foi possível copiar. Baixe o arquivo ou abra o conteúdo abaixo para selecionar e copiar."
+            : "Baixar e copiar entregam as mesmas respostas protegidas."}
+        </p>
+        <div className="mt-7 max-w-[52ch] border-t border-line pt-6">
+          <h2 className="mb-2 font-display text-2xl text-ink">Agora, envie para a KOUTH.</h2>
+          <p className="text-base leading-relaxed text-ink-2">
+            {gift ? "Envie o arquivo a quem está conduzindo a criação do presente. Depois da análise, você poderá revisar o texto que o acompanha."
+              : occasion ? "Envie o arquivo a quem está conduzindo a criação para a sua ocasião."
+              : becoming ? "Envie o arquivo a quem está conduzindo a criação da sua fragrância."
+              : DELIVERY_INSTRUCTIONS}
+          </p>
+          <p className="mt-3 text-sm leading-relaxed text-ink-3">O envio é feito por você. As respostas ainda não foram enviadas à KOUTH.</p>
+        </div>
+        <div className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-2">
+          {onViewFile && <button type="button" onClick={onViewFile} className="min-h-11 underline decoration-line-strong underline-offset-4 hover:text-ink">Ver arquivo protegido</button>}
+          <button type="button" onClick={onBack} className="min-h-11 underline decoration-line-strong underline-offset-4 hover:text-ink">Revisar minhas respostas</button>
+        </div>
+        {gift && <a href="/presente/revisar" className="mt-4 w-fit py-3 text-sm text-brand underline underline-offset-4">Revisar o texto do presente</a>}
+      </> : <>
+        <p className="mb-8 max-w-[48ch] text-lg leading-relaxed text-ink-2">
+          {name ? `${name}, você` : "Você"} respondeu {answered} de {total} perguntas.
+          Ao selar, suas respostas serão protegidas neste aparelho. Depois, você poderá baixar o arquivo e enviá-lo à KOUTH.
+        </p>
+        <div className="mb-8 max-w-[48ch] border-y border-line py-5 text-base leading-relaxed text-ink-2">
+          Cada lembrança acrescenta algo à conversa. Se quiser reler alguma resposta, este é um bom momento.
+        </div>
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+          <button type="button" onClick={onBack} disabled={status === "processing"} className={BTN_GHOST}>Voltar</button>
+          <button type="button" onClick={handleGenerate} disabled={status === "processing"} className={BTN_PRIMARY}>
+            {status === "processing" ? "Protegendo suas respostas…" : status === "error" ? "Tentar novamente" : "Selar minhas respostas"}
+          </button>
+        </div>
+        <p role={status === "error" ? "alert" : "status"} aria-live="polite" className={`mt-5 max-w-[48ch] text-sm leading-relaxed ${status === "error" ? "text-warn" : "text-ink-2"}`}>
+          {status === "error" ? "Não foi possível proteger o arquivo. Suas respostas continuam neste navegador. Tente novamente."
+            : status === "processing" ? "Preparando seu arquivo neste aparelho…"
+            : "Só quem tem a chave privada consegue abrir o arquivo final."}
+        </p>
+      </>}
     </motion.div>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 shrink-0 text-brand" aria-hidden>
-      <path d="M5 12.5l4.5 4.5L19 7.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
   );
 }

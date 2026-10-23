@@ -1,0 +1,340 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-23T12:31:59.683347+00:00",
+  "title": "Design System: KOUTH",
+  "extensions": {
+    "colorMeta": {
+      "action": {
+        "role": "primary",
+        "displayName": "Saddle Leather",
+        "tonalRamp": [
+          "oklch(15% 0.058 54)",
+          "oklch(26% 0.058 54)",
+          "oklch(38% 0.058 54)",
+          "oklch(49% 0.058 54)",
+          "oklch(61% 0.058 54)",
+          "oklch(72% 0.058 54)",
+          "oklch(84% 0.058 54)",
+          "oklch(95% 0.058 54)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Smoked Oak",
+        "tonalRamp": [
+          "oklch(15% 0.023 71)",
+          "oklch(26% 0.023 71)",
+          "oklch(38% 0.023 71)",
+          "oklch(49% 0.023 71)",
+          "oklch(61% 0.023 71)",
+          "oklch(72% 0.023 71)",
+          "oklch(84% 0.023 71)",
+          "oklch(95% 0.023 71)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Papel",
+        "tonalRamp": [
+          "oklch(15% 0.013 82)",
+          "oklch(26% 0.013 82)",
+          "oklch(38% 0.013 82)",
+          "oklch(49% 0.013 82)",
+          "oklch(61% 0.013 82)",
+          "oklch(72% 0.013 82)",
+          "oklch(84% 0.013 82)",
+          "oklch(95% 0.013 82)"
+        ]
+      },
+      "field": {
+        "role": "neutral",
+        "displayName": "Papel de escrita",
+        "tonalRamp": [
+          "oklch(15% 0.006 78)",
+          "oklch(26% 0.006 78)",
+          "oklch(38% 0.006 78)",
+          "oklch(49% 0.006 78)",
+          "oklch(61% 0.006 78)",
+          "oklch(72% 0.006 78)",
+          "oklch(84% 0.006 78)",
+          "oklch(95% 0.006 78)"
+        ]
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "Fluted Glass",
+        "tonalRamp": [
+          "oklch(15% 0.03 54)",
+          "oklch(26% 0.03 54)",
+          "oklch(38% 0.03 54)",
+          "oklch(49% 0.03 54)",
+          "oklch(61% 0.03 54)",
+          "oklch(72% 0.03 54)",
+          "oklch(84% 0.03 54)",
+          "oklch(95% 0.03 54)"
+        ]
+      },
+      "warm-suede": {
+        "role": "secondary",
+        "displayName": "Warm Suede",
+        "tonalRamp": [
+          "oklch(15% 0.05 69)",
+          "oklch(26% 0.05 69)",
+          "oklch(38% 0.05 69)",
+          "oklch(49% 0.05 69)",
+          "oklch(61% 0.05 69)",
+          "oklch(72% 0.05 69)",
+          "oklch(84% 0.05 69)",
+          "oklch(95% 0.05 69)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Recepção",
+        "purpose": "Título leve; variantes responsivas no DESIGN.md."
+      },
+      "headline": {
+        "displayName": "Pergunta",
+        "purpose": "Enunciado vivo, preservado."
+      },
+      "body": {
+        "displayName": "Leitura",
+        "purpose": "Instruções e apoio."
+      },
+      "field": {
+        "displayName": "Escrita",
+        "purpose": "Respostas em Figtree."
+      },
+      "label": {
+        "displayName": "Controles",
+        "purpose": "Botões e escolhas."
+      },
+      "cipher": {
+        "displayName": "Cifra",
+        "purpose": "Somente dado cifrado e arquivo."
+      }
+    },
+    "shadows": [
+      {
+        "name": "popover",
+        "value": "0 18px 40px -12px rgba(60,30,20,0.35)",
+        "purpose": "Explicação sobreposta."
+      },
+      {
+        "name": "clipboard",
+        "value": "0 -20px 50px -20px rgba(42,23,18,0.5)",
+        "purpose": "Prancheta modal."
+      },
+      {
+        "name": "clip",
+        "value": "0 2px 4px rgba(42,23,18,0.35)",
+        "purpose": "Clipe da prancheta."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Curva compartilhada."
+      },
+      {
+        "name": "enter",
+        "value": "300ms",
+        "purpose": "Entrada de tela."
+      },
+      {
+        "name": "exit",
+        "value": "180ms",
+        "purpose": "Saída de tela."
+      },
+      {
+        "name": "soft",
+        "value": "350ms",
+        "purpose": "Pequenos elementos."
+      },
+      {
+        "name": "control",
+        "value": "180ms",
+        "purpose": "Estados de controles."
+      },
+      {
+        "name": "drawer",
+        "value": "500ms",
+        "purpose": "Prancheta."
+      },
+      {
+        "name": "scramble",
+        "value": "520ms",
+        "purpose": "Texto para prévia real."
+      },
+      {
+        "name": "seal-hold",
+        "value": "320ms",
+        "purpose": "Pausa da cifra."
+      },
+      {
+        "name": "seal-flight",
+        "value": "750ms",
+        "purpose": "Voo até respostas."
+      },
+      {
+        "name": "seal-ease",
+        "value": "cubic-bezier(0.42, 0, 0.2, 1)",
+        "purpose": "Curva do voo."
+      },
+      {
+        "name": "progress",
+        "value": "300ms",
+        "purpose": "Largura; sem transição com movimento reduzido."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "reception-wide",
+        "value": "1280px"
+      }
+    ],
+    "focus": {
+      "value": "2px solid var(--focus)",
+      "offset": "4px",
+      "fieldOffset": "3px"
+    },
+    "tonalRampPolicy": "Faixas de prévia sintetizadas em OKLCH; não são tokens adicionais da interface.",
+    "limitations": [
+      "Noto Serif Display é a adaptação web; IvyPresto não foi fornecida como fonte instalável.",
+      "Snippets reproduzem estados visuais em HTML/CSS, sem o comportamento React.",
+      "Capturas registram estados específicos, não aprovação irrestrita de toda a experiência."
+    ]
+  },
+  "components": [
+    {
+      "name": "Ação principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Controle compartilhado; variante pendente ainda permite apontar o preenchimento que falta.",
+      "html": "<button type=\"button\" class=\"ds-button-primary\">Próxima</button>",
+      "css": ".ds-button-primary{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:50px;padding:13px 25px;border:1px solid transparent;border-radius:3px;font-size:15px;font-weight:500;line-height:1.4;cursor:pointer;transition:background-color 180ms,border-color 180ms,color 180ms;font-family:var(--font-sans,Figtree,sans-serif);background:var(--action,#54331d);color:var(--action-ink,#fbf8f2);}.ds-button-primary:hover:not(:disabled){background:color-mix(in srgb,var(--action,#54331d),var(--ink,#31281e) 15%);}.ds-button-primary:focus-visible{outline:2px solid var(--focus,#78583c);outline-offset:4px;}.ds-button-primary:active:not(:disabled){filter:brightness(.97)}.ds-button-primary:disabled{opacity:.45;cursor:not-allowed}"
+    },
+    {
+      "name": "Ação pendente",
+      "kind": "button",
+      "refersTo": "button-waiting",
+      "description": "Controle compartilhado; variante pendente ainda permite apontar o preenchimento que falta.",
+      "html": "<button type=\"button\" class=\"ds-button-waiting\">Próxima</button>",
+      "css": ".ds-button-waiting{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:50px;padding:13px 25px;border:1px solid transparent;border-radius:3px;font-size:15px;font-weight:500;line-height:1.4;cursor:pointer;transition:background-color 180ms,border-color 180ms,color 180ms;font-family:var(--font-sans,Figtree,sans-serif);background:transparent;color:var(--action,#54331d);border-color:var(--action,#54331d);}.ds-button-waiting:hover:not(:disabled){background:var(--terra-wash,rgb(84 51 29 / .055));}.ds-button-waiting:focus-visible{outline:2px solid var(--focus,#78583c);outline-offset:4px;}.ds-button-waiting:active:not(:disabled){filter:brightness(.97)}.ds-button-waiting:disabled{opacity:.45;cursor:not-allowed}"
+    },
+    {
+      "name": "Ação secundária",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Controle compartilhado; variante pendente ainda permite apontar o preenchimento que falta.",
+      "html": "<button type=\"button\" class=\"ds-button-ghost\">Voltar</button>",
+      "css": ".ds-button-ghost{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:50px;padding:13px 25px;border:1px solid transparent;border-radius:3px;font-size:15px;font-weight:500;line-height:1.4;cursor:pointer;transition:background-color 180ms,border-color 180ms,color 180ms;font-family:var(--font-sans,Figtree,sans-serif);background:transparent;color:var(--ink-2,#594b3d);border-color:var(--line-strong,#a4917b);}.ds-button-ghost:hover:not(:disabled){background:var(--terra-wash,rgb(84 51 29 / .055));border-color:var(--action,#54331d);color:var(--ink,#31281e);}.ds-button-ghost:focus-visible{outline:2px solid var(--focus,#78583c);outline-offset:4px;}.ds-button-ghost:active:not(:disabled){filter:brightness(.97)}.ds-button-ghost:disabled{opacity:.45;cursor:not-allowed}"
+    },
+    {
+      "name": "Escolhas de passo",
+      "kind": "chip",
+      "refersTo": "choice",
+      "description": "Rádios retangulares; selecionado usa a ação.",
+      "html": "<div class=\"ds-choices\" role=\"radiogroup\" aria-label=\"Exemplo de escolha\"><button class=\"ds-choice\" type=\"button\" role=\"radio\" aria-checked=\"false\">Opção A</button><button class=\"ds-choice\" type=\"button\" role=\"radio\" aria-checked=\"true\">Opção B</button></div>",
+      "css": ".ds-choices{display:flex;flex-wrap:wrap;gap:8px}.ds-choice{min-height:48px;padding:12px 18px;border:1px solid var(--line-strong,#a4917b);border-radius:3px;background:var(--control,#f8f5ef);color:var(--ink-2,#594b3d);font-size:15px;line-height:1.4;cursor:pointer;transition:background-color 180ms,border-color 180ms;font-family:var(--font-sans,Figtree,sans-serif);}.ds-choice[aria-checked=\"true\"]{background:var(--action,#54331d);border-color:var(--action,#54331d);color:var(--action-ink,#fbf8f2)}.ds-choice:hover{border-color:var(--action,#54331d)}.ds-choice:focus-visible{outline:2px solid var(--focus,#78583c);outline-offset:4px;}.ds-choice:active{filter:brightness(.97)}"
+    },
+    {
+      "name": "Resposta longa",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Campo com caixa e foco explícito.",
+      "html": "<label class=\"ds-field-label\">Sua resposta<textarea class=\"ds-field\" rows=\"3\" placeholder=\"Escreva sua resposta aqui…\"></textarea></label>",
+      "css": ".ds-field-label{display:flex;flex-direction:column;gap:8px;color:var(--ink,#31281e);font-size:15px;font-family:var(--font-sans,Figtree,sans-serif);}.ds-field{display:block;min-height:110px;width:100%;max-width:100%;padding:18px 20px;border:1px solid var(--line-strong,#a4917b);border-radius:6px;background:var(--field,#fbf9f5);color:var(--ink,#31281e);font-size:20px;line-height:1.625;resize:vertical;transition:border-color 180ms;font-family:var(--font-sans,Figtree,sans-serif);}.ds-field::placeholder{font-size:16px;color:var(--ink-3,#71614f)}.ds-field:hover{border-color:var(--focus,#78583c)}.ds-field:focus{border-color:var(--focus,#78583c);outline:2px solid var(--focus,#78583c);outline-offset:3px}.ds-field[aria-invalid=\"true\"]{border-color:var(--warn,#914020)}@media(max-width:639px){.ds-field{font-size:18px;padding:16px}}"
+    },
+    {
+      "name": "Campo curto",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Entrada de nome ou texto curto.",
+      "html": "<label class=\"ds-input-label\">Nome<input class=\"ds-input\" type=\"text\" placeholder=\"Como podemos chamar você?\"></label>",
+      "css": ".ds-input-label{display:flex;flex-direction:column;gap:8px;color:var(--ink,#31281e);font-family:var(--font-sans,Figtree,sans-serif);}.ds-input{min-height:56px;padding:12px 16px;border:1px solid var(--line-strong,#a4917b);border-radius:4px;background:var(--field,#fbf9f5);color:var(--ink,#31281e);font-size:18px;font-family:var(--font-sans,Figtree,sans-serif);}.ds-input:hover{border-color:var(--focus,#78583c)}.ds-input:focus{border-color:var(--focus,#78583c);outline:2px solid var(--focus,#78583c);outline-offset:3px}.ds-input::placeholder{color:var(--ink-3,#71614f)}"
+    },
+    {
+      "name": "Navegação de apoio",
+      "kind": "nav",
+      "refersTo": "button-ghost",
+      "description": "Gatilho de explicação com SVG e nome acessível.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Sobre o questionário\"><button type=\"button\" class=\"ds-nav-button\" aria-expanded=\"false\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" aria-hidden=\"true\"><rect x=\"5\" y=\"11\" width=\"14\" height=\"9\" rx=\"2\"/><path d=\"M8 11V8a4 4 0 0 1 8 0v3\"/></svg>Cifrado neste aparelho</button></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:8px}.ds-nav-button{min-height:44px;min-width:44px;display:flex;align-items:center;gap:8px;white-space:nowrap;border:0;border-radius:9999px;padding:8px 12px;background:transparent;color:var(--ink-2,#594b3d);font-size:14px;cursor:pointer;transition:background-color 180ms,color 180ms;font-family:var(--font-sans,Figtree,sans-serif);}.ds-nav-button:hover{background:var(--terra-wash,rgb(84 51 29 / .055));color:var(--ink,#31281e)}.ds-nav-button:focus-visible{outline:2px solid var(--focus,#78583c);outline-offset:4px;}.ds-nav-button:active{background:var(--terra-wash,rgb(84 51 29 / .055))}"
+    },
+    {
+      "name": "Popover",
+      "kind": "card",
+      "refersTo": "popover",
+      "description": "Amostra visual aberta; comportamento React não é simulado.",
+      "html": "<aside class=\"ds-popover\" aria-label=\"Como isso é protegido\"><h2>Como isso é protegido</h2><p>Ao finalizar, suas respostas são criptografadas neste aparelho.</p><button type=\"button\" class=\"ds-popover-close\" aria-label=\"Fechar explicação\">Fechar</button></aside>",
+      "css": ".ds-popover{width:min(22rem,100%);padding:20px;border-radius:16px;background:var(--paper,#fbf9f5);color:var(--popover-ink,#31281e);box-shadow:0 18px 40px -12px rgba(60,30,20,.35);font-size:15px;line-height:1.625;font-family:var(--font-sans,Figtree,sans-serif);}.ds-popover h2{margin:0 0 8px;font-family:var(--font-display,\"Noto Serif Display\",Georgia,serif);font-size:16px;font-weight:500;color:var(--paper-brand,#54331d)}.ds-popover p{margin:0}.ds-popover-close{margin-top:12px;border:0;border-radius:9999px;padding:8px 12px;background:transparent;color:var(--paper-brand,#54331d);font-size:14px;cursor:pointer;font-family:var(--font-sans,Figtree,sans-serif);}.ds-popover-close:hover{background:var(--paper-hover,rgb(84 51 29 / .055))}.ds-popover-close:focus-visible{outline:2px solid var(--focus,#78583c);outline-offset:4px;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Primeiro a pessoa. Depois o perfume.",
+    "overview": "A KOUTH recebe, escuta e guarda com discrição. Papel claro, marrons de madeira e couro, serifas de contraste e espaço negativo traduzem a identidade, a exclusividade e o acolhimento da marca. A sofisticação está na contenção, na imagem original e na precisão dos controles; o ritmo respeita uma conversa longa.\n\nA autoridade visual é o brandbook KOUTH de 2026 e a estratégia fornecidos em REFDESIGN, com transcrições e contatos em `.impeccable/brand-reference/`. Esta documentação substitui a identidade anterior de terra roxa, céu em gradiente e sol de progresso. Os nomes legados `terra`, `sun`, `sky` e `spark` no código não autorizam restaurá-la. PRODUCT.md permanece a autoridade funcional.",
+    "keyCharacteristics": [
+      "Papel e madeira como relações de cor, com fotografia de matéria verdadeira.",
+      "Títulos serifados, respostas e controles em sans legível.",
+      "Campos visivelmente editáveis, ações reconhecíveis e progresso discreto.",
+      "Uma pergunta por vez, com respostas guardadas e editáveis.",
+      "Claro e escuro na mesma família quente."
+    ],
+    "rules": [
+      {
+        "name": "The Warm Inversion Rule",
+        "body": "No escuro e na tela final com `data-sky=\"night\"`, usar os papéis semânticos de ação, tinta, campo e papel juntos; não fixar uma cor clara dependente do tema.",
+        "section": "colors"
+      },
+      {
+        "name": "The Living Text Rule",
+        "body": "Perguntas, opções, respostas e instruções são texto vivo e selecionável; não colocá-las em imagens nem substituí-las por slogans.",
+        "section": "typography"
+      },
+      {
+        "name": "The Quiet Surface Rule",
+        "body": "Conteúdo de entrevista fica no plano da página; sombras pertencem às superfícies sobrepostas.",
+        "section": "elevation"
+      },
+      {
+        "name": "Person before export",
+        "body": "After sealing, the personal completion and download/copy lead. Encrypted content opens only on explicit request; native modal dialogs contain focus and restore it on close. Local draft and final encrypted file are described separately. Completion progress stays in document flow so it cannot cover delivery instructions.",
+        "section": "components"
+      },
+      {
+        "name": "Dark by default, quiet material",
+        "body": "New visits start dark before first paint. Explicit light preference is retained; clearing storage restores dark. Original brandbook paper sits behind content at soft-light opacity .16 dark/.08 light, without pointer events or motion. Writing fields and modal paper remain smooth.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "**Do** usar papéis semânticos de tinta, ação, campo e papel nos dois temas.",
+      "**Do** preservar texto vivo, campos com contorno completo e foco visível.",
+      "**Do** usar Noto Serif Display nos títulos e Figtree em respostas e controles.",
+      "**Do** reutilizar marca e fotografia originais com sua proveniência.",
+      "**Do** manter progresso discreto, contagem textual e navegação estável.",
+      "**Do** preservar os quatro caminhos, perguntas e revisão do presente conforme PRODUCT.md.",
+      "**Do** respeitar movimento reduzido."
+    ],
+    "donts": [
+      "**Don't** restaurar terra roxa, céu em gradiente ou sol de progresso por nomes legados do código.",
+      "**Don't** colocar perguntas ou controles dentro de imagens.",
+      "**Don't** declarar IvyPresto ou Quiet Sans como fontes carregadas.",
+      "**Don't** inventar textura CSS, depoimentos, estatísticas ou promessas de segurança.",
+      "**Don't** substituir o logotipo original por texto digitado.",
+      "**Don't** usar neon de cripto ou sombra em cada pergunta.",
+      "**Don't** mostrar respostas reais em exemplos ou cifra decorativa como dado real."
+    ]
+  }
+}

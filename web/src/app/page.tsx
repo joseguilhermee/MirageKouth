@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, MotionConfig } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Header } from "@/components/Header";
 import { ProgressBar } from "@/components/ProgressBar";
 import { WelcomeStep } from "@/components/WelcomeStep";
+import { PurposeStep, type Purpose } from "@/components/PurposeStep";
+import { GiftFlow } from "@/components/GiftFlow";
+import { OccasionFlow } from "@/components/OccasionFlow";
+import { BecomingFlow } from "@/components/BecomingFlow";
 import { InstructionsStep } from "@/components/InstructionsStep";
 import { QuestionCard } from "@/components/QuestionCard";
 import { FinalScreen } from "@/components/FinalScreen";
@@ -12,20 +16,23 @@ import { IntroSequence } from "@/components/IntroSequence";
 import { ResumePrompt } from "@/components/ResumePrompt";
 import { PranchetaButton, PranchetaDrawer, type PranchetaItem } from "@/components/Prancheta";
 import { SealFlight, type Flight } from "@/components/SealFlight";
+import { SkyShell } from "@/components/SkyShell";
 import { QUESTIONS, shownSteps, type QuestionDetail } from "@/lib/questions";
 import { generateSessionKey } from "@/lib/crypto";
-import { NIGHT, skyAt } from "@/lib/sky";
+import { captureFlight } from "@/lib/captureFlight";
 
 // v3: entrou um item novo no meio do roteiro (o portão do Sábio, depois do 14),
 // então todos os índices a partir dali deslocaram. Progresso salvo em v2
 // apontaria respostas para as perguntas erradas — por isso a chave muda.
 // v7: fusão com a versão de 28 — 20 itens, ordem nova (ver questions.ts).
-const STORAGE_KEY = "mirage-progress-v9";
-const STEP_WELCOME = -2;
+const STORAGE_KEY = "mirage-progress-v10";
+const STEP_WELCOME = -3;
+const STEP_PURPOSE = -2;
 const STEP_INSTRUCTIONS = -1;
 
 type SavedProgress = {
   name: string;
+  purpose?: Purpose | null;
   answers: Record<number, string>;
   step: number;
   /** Milissegundos gastos em cada pergunta; opcional pra aceitar progresso salvo antes do contador. */
@@ -41,34 +48,10 @@ function hasMeaningfulProgress(saved: SavedProgress | null): saved is SavedProgr
   return saved.name.trim().length > 0 || answered || (saved.step ?? STEP_WELCOME) > STEP_INSTRUCTIONS;
 }
 
-/** O céu da página: a tarde anda com as perguntas; a noite é só para selar. */
-function SkyShell({
-  progress,
-  night,
-  children,
-}: {
-  progress: number;
-  night?: boolean;
-  children: React.ReactNode;
-}) {
-  const sky = night ? NIGHT : skyAt(progress);
-  return (
-    // reducedMotion="user": toda animação do framer respeita a preferência do sistema.
-    <MotionConfig reducedMotion="user">
-      <div
-        data-sky={night ? "night" : "day"}
-        className="sky flex min-h-dvh flex-1 flex-col text-ink"
-        style={{ "--sky-top": sky.top, "--sky-mid": sky.mid, "--sky-low": sky.low } as React.CSSProperties}
-      >
-        {children}
-      </div>
-    </MotionConfig>
-  );
-}
-
 export default function Home() {
   const total = QUESTIONS.length;
   const [name, setName] = useState("");
+  const [purpose, setPurpose] = useState<Purpose | null>(null);
   const [step, setStep] = useState(STEP_WELCOME);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [timings, setTimings] = useState<Record<number, number>>({});
@@ -77,6 +60,8 @@ export default function Home() {
   const [hydrated, setHydrated] = useState(false);
   const [stage, setStage] = useState<Stage>("intro");
   const [savedProgress, setSavedProgress] = useState<SavedProgress | null>(null);
+  const [progressLoaded, setProgressLoaded] = useState(false);
+  const [introDone, setIntroDone] = useState(false);
 
   useEffect(() => {
     generateSessionKey().then(setSessionKey).catch(() => setSessionKey(null));
@@ -87,31 +72,41 @@ export default function Home() {
   // sempre toca, mesmo com progresso salvo, a pedido do usuário.
   useEffect(() => {
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
+      const current = window.localStorage.getItem(STORAGE_KEY);
+      const raw = current ?? window.localStorage.getItem("mirage-progress-v9");
       if (raw) {
+        const saved = JSON.parse(raw) as SavedProgress;
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setSavedProgress(JSON.parse(raw) as SavedProgress);
+        setSavedProgress(current ? saved : { ...saved, purpose: "para_mim", step: saved.step === -2 ? STEP_WELCOME : saved.step });
       }
     } catch {
       // localStorage indisponível ou dado corrompido: ignora, começa do zero.
     }
+    setProgressLoaded(true);
   }, []);
 
   // Chamado quando a abertura termina (ou é pulada). Se havia progresso de
   // verdade salvo, pergunta antes de aplicar; senão já libera o app com
   // estado vazio.
   function handleIntroDone() {
+    setIntroDone(true);
+  }
+
+  useEffect(() => {
+    if (!introDone || !progressLoaded) return;
     if (hasMeaningfulProgress(savedProgress)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStage("resume");
     } else {
       setHydrated(true);
       setStage("app");
     }
-  }
+  }, [introDone, progressLoaded, savedProgress]);
 
   function handleResume() {
     if (savedProgress) {
       setName(savedProgress.name ?? "");
+      setPurpose(savedProgress.purpose ?? null);
       setAnswers(savedProgress.answers ?? {});
       setTimings(savedProgress.timings ?? {});
       setDetails(savedProgress.details ?? {});
@@ -123,6 +118,9 @@ export default function Home() {
 
   function handleRestart() {
     clearSavedProgress();
+    try { window.localStorage.removeItem("mirage-presente-progress-v1"); } catch { /* segue sem persistência */ }
+    try { window.localStorage.removeItem("mirage-ocasiao-progress-v1"); } catch { /* segue sem persistência */ }
+    try { window.localStorage.removeItem("mirage-quem-progress-v1"); } catch { /* segue sem persistência */ }
     setHydrated(true);
     setStage("app");
   }
@@ -132,12 +130,12 @@ export default function Home() {
   useEffect(() => {
     if (!hydrated) return;
     try {
-      const payload: SavedProgress = { name, answers, step, timings, details };
+      const payload: SavedProgress = { name, purpose, answers, step, timings, details };
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch {
       // Se não der pra salvar (modo privado, quota etc.), segue sem persistir.
     }
-  }, [hydrated, name, answers, step, timings, details]);
+  }, [hydrated, name, purpose, answers, step, timings, details]);
 
   // Soma o tempo em que cada pergunta ficou na tela (só enquanto a aba está
   // visível). Voltar e reabrir uma pergunta acumula no mesmo item.
@@ -171,30 +169,16 @@ export default function Home() {
   const [flight, setFlight] = useState<Flight | null>(null);
   const [departingStep, setDepartingStep] = useState<number | null>(null);
   const [pulse, setPulse] = useState(0);
+  const [editRevision, setEditRevision] = useState(0);
   const pranchetaButtonRef = useRef<HTMLButtonElement>(null);
   const flightFrom = useRef(0);
 
   // Copia a geometria do campo para a resposta virar cifra exatamente onde
   // foi escrita. Sem animação (preferência do sistema), segue direto.
-  function startSeal(field: HTMLTextAreaElement, from: number) {
+  function startSeal(field: HTMLElement, from: number) {
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return false;
-    if (!field.value.trim()) return false;
-    // A principal primeiro; depois os passos em texto da mesma pergunta.
-    const others = [...(field.closest("main")?.querySelectorAll("textarea") ?? [])].filter(
-      (t) => t !== field && t.value.trim()
-    );
-    const fields = [field, ...others].map((t) => {
-      const r = t.getBoundingClientRect();
-      const cs = getComputedStyle(t);
-      return {
-        text: t.value,
-        rect: { left: r.left, top: r.top, width: r.width, height: r.height },
-        scrollTop: t.scrollTop,
-        font: cs.font,
-        lineHeight: cs.lineHeight,
-        padding: cs.padding,
-      };
-    });
+    const fields = captureFlight(field);
+    if (!fields.length) return false;
     flightFrom.current = from;
     setFlight({ id: Date.now(), fields });
     return true;
@@ -227,7 +211,7 @@ export default function Home() {
   if (stage === "intro") {
     return (
       <SkyShell progress={0}>
-        <IntroSequence questionCount={total} onDone={handleIntroDone} />
+        <IntroSequence onDone={handleIntroDone} />
       </SkyShell>
     );
   }
@@ -239,6 +223,7 @@ export default function Home() {
         <main className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col justify-center px-5 py-12 sm:px-10 lg:px-16">
           <ResumePrompt
             name={savedProgress.name}
+            purpose={savedProgress.purpose}
             answered={
               Object.values(savedProgress.answers ?? {}).filter((v) => v.trim().length > 0)
                 .length
@@ -250,6 +235,16 @@ export default function Home() {
         </main>
       </SkyShell>
     );
+  }
+
+  if (purpose === "presente" && step >= STEP_INSTRUCTIONS) {
+    return <GiftFlow donor={name} onBack={() => setStep(STEP_PURPOSE)} onCompleted={clearSavedProgress} />;
+  }
+  if (purpose === "ocasiao" && step >= STEP_INSTRUCTIONS) {
+    return <OccasionFlow name={name} onBack={() => setStep(STEP_PURPOSE)} onCompleted={clearSavedProgress} />;
+  }
+  if (purpose === "quem_quero_ser" && step >= STEP_INSTRUCTIONS) {
+    return <BecomingFlow name={name} onBack={() => setStep(STEP_PURPOSE)} onCompleted={clearSavedProgress} />;
   }
 
   const progress = step < 0 ? 0 : Math.min(step, total - 1) / Math.max(1, total - 1);
@@ -291,13 +286,15 @@ export default function Home() {
                 key="welcome"
                 value={name}
                 onChange={setName}
-                onNext={() => setStep(STEP_INSTRUCTIONS)}
+                onNext={() => setStep(STEP_PURPOSE)}
               />
+            ) : step === STEP_PURPOSE ? (
+              <PurposeStep key="purpose" value={purpose} onChange={setPurpose} onNext={() => setStep(STEP_INSTRUCTIONS)} onBack={() => setStep(STEP_WELCOME)} />
             ) : step === STEP_INSTRUCTIONS ? (
               <InstructionsStep
                 key="instructions"
                 onNext={() => setStep(0)}
-                onBack={() => setStep(STEP_WELCOME)}
+                onBack={() => setStep(STEP_PURPOSE)}
               />
             ) : isFinal ? (
               <FinalScreen
@@ -312,13 +309,12 @@ export default function Home() {
                 onDone={clearSavedProgress}
                 onGenerated={(content) => {
                   setFileContent(content);
-                  // Um instante para a lista de etapas aparecer antes da prancheta abrir.
-                  setTimeout(() => setPranchetaOpen(true), 500);
                 }}
+                onViewFile={() => setPranchetaOpen(true)}
               />
             ) : (
               <QuestionCard
-                key={step}
+                key={`${step}:${editRevision}`}
                 index={step}
                 total={total}
                 question={QUESTIONS[step]}
@@ -369,6 +365,9 @@ export default function Home() {
         sessionKey={sessionKey}
         fileContent={isFinal ? fileContent : null}
         onEdit={(i) => {
+          setFlight(null);
+          setDepartingStep(null);
+          setEditRevision(value => value + 1);
           setPranchetaOpen(false);
           setStep(i);
         }}

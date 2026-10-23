@@ -13,8 +13,8 @@ function kindOf(c: string): Kind {
 export const CIPHER_COLORS = {
   /** Sobre o céu (página): segue os tokens. */
   page: { digit: "text-cipher", letter: "text-terra", other: "text-ink-3" },
-  /** Sobre a folha da prancheta: cores fixas, papel claro de dia e de noite. */
-  paper: { digit: "text-[#2f5670]", letter: "text-[#7a2e1e]", other: "text-[#a98d7a]" },
+  /** Sobre a folha da prancheta: segue a preferência de aparência, inclusive na tela de selar. */
+  paper: { digit: "text-[var(--paper-cipher)]", letter: "text-[var(--paper-brand)]", other: "text-[var(--paper-cipher-muted)]" },
 } as const;
 
 export function CipherText({
@@ -46,7 +46,7 @@ export function CipherText({
 export function LockSeal({ label, tone = "paper" }: { label: string; tone?: "paper" | "page" }) {
   const cls =
     tone === "paper"
-      ? "bg-[#7a2e1e] text-[#fbf3ea]"
+      ? "bg-[var(--paper-brand)] text-[var(--paper-seal-ink)]"
       : "bg-action text-action-ink";
   return (
     <span

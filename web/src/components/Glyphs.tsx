@@ -3,7 +3,7 @@
 
 export function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="rounded-md border border-line-strong bg-white/40 px-1.5 py-0.5 font-sans text-[12px] font-medium text-ink-2">
+    <kbd className="rounded-md border border-line-strong bg-[var(--kbd)] px-1.5 py-0.5 font-sans text-[12px] font-medium text-ink-2">
       {children}
     </kbd>
   );

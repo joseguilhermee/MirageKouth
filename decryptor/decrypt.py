@@ -160,6 +160,10 @@ def interpreter_json(result: dict) -> dict:
     out = {
         "respondente": (result.get("name") or "").strip(),
         "versao": result.get("version") or ("15B" if fallback else ""),
+        "finalidade": result.get("finalidade") or "para_mim",
+        **({"presente": result["presente"]} if result.get("finalidade") == "presente" and result.get("presente") else {}),
+        **({"nome": (result.get("name") or "").strip(), "momento_do_dia": result.get("momento_do_dia", {})} if result.get("finalidade") == "ocasiao" else {}),
+        **({"nome": (result.get("name") or "").strip()} if result.get("finalidade") == "quem_quero_ser" else {}),
         "answers": answers,
     }
     timings = result.get("timings")
@@ -211,13 +215,24 @@ def main() -> None:
 
     name = result.get("name", "").strip()
     qa = result.get("qa", [])
-    answered = sum(1 for item in qa if item.get("answer", "").strip())
+    answered = sum(1 for item in qa if item.get("answer", "").strip() or item.get("passos"))
 
     quem = f" de {name}" if name else " (sem nome informado)"
     print(f"\n{len(qa)} perguntas decifradas com sucesso{quem} ({answered} respondidas):\n")
+    print(f"Finalidade: {result.get('finalidade') or 'para_mim'}")
+    if result.get("finalidade") == "presente":
+        print("Presente:")
+        for key, value in (result.get("presente") or {}).items():
+            print(f"  {key}: {value}")
+    if result.get("finalidade") == "ocasiao":
+        momento = (result.get("momento_do_dia") or {}).get("resposta", "")
+        print(f"Momento do dia: {momento} (reservado — não usado)")
+    print()
     for i, item in enumerate(qa, start=1):
         answer = item.get("answer", "").strip() or "(em branco)"
-        print(f"  {i:02d}. {item['question']}\n      -> {answer}")
+        print(f"  {i:02d}. {item.get('question') or item.get('id', '')}")
+        if item.get("answer", "").strip() or result.get("finalidade") not in ("presente", "ocasiao", "quem_quero_ser"):
+            print(f"      -> {answer}")
         for line in detail_lines(item):
             print(f"      - {line}")
         print()

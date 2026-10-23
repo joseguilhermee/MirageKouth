@@ -1,5 +1,8 @@
 .claude/
+.codex/
+.agents/
 .impeccable/
+REFDESIGN/
 decryptor/
 docs/
-Logos/
+/Logos/

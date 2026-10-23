@@ -53,11 +53,19 @@ def format_result(result: dict) -> str:
     name = result.get("name", "").strip()
     qa = result.get("qa", [])
     quem = f"de {name}" if name else "(sem nome informado)"
-    lines = [f"Respostas {quem}", "=" * 40, ""]
+    lines = [f"Respostas {quem}", "=" * 40, f"Finalidade: {result.get('finalidade') or 'para_mim'}"]
+    if result.get("finalidade") == "presente":
+        lines.append("Presente:")
+        lines.extend(f"  {key}: {value}" for key, value in (result.get("presente") or {}).items())
+    if result.get("finalidade") == "ocasiao":
+        momento = (result.get("momento_do_dia") or {}).get("resposta", "")
+        lines.append(f"Momento do dia: {momento} (reservado — não usado)")
+    lines.append("")
     for i, item in enumerate(qa, start=1):
         answer = item.get("answer", "").strip() or "(em branco)"
-        lines.append(f"{i:02d}. {item['question']}")
-        lines.append(f"    -> {answer}")
+        lines.append(f"{i:02d}. {item.get('question') or item.get('id', '')}")
+        if item.get("answer", "").strip() or result.get("finalidade") not in ("presente", "ocasiao", "quem_quero_ser"):
+            lines.append(f"    -> {answer}")
         lines.extend(f"    - {line}" for line in detail_lines(item))
         lines.append("")
     footer = format_timings(result)
@@ -76,23 +84,31 @@ def format_result_markdown(result: dict) -> str:
     """Mesmo conteudo de format_result, porem em Markdown pronto para .md."""
     name = result.get("name", "").strip()
     qa = result.get("qa", [])
-    answered = sum(1 for item in qa if item.get("answer", "").strip())
+    answered = sum(1 for item in qa if item.get("answer", "").strip() or item.get("passos"))
 
     lines = [f"# Respostas de {name}" if name else "# Respostas (sem nome informado)", ""]
     if name:
         lines.append(f"- **Respondente:** {name}")
+    lines.append(f"- **Finalidade:** {result.get('finalidade') or 'para_mim'}")
+    if result.get("finalidade") == "presente":
+        lines.append("- **Presente:**")
+        lines.extend(f"  - {key}: {value}" for key, value in (result.get("presente") or {}).items())
+    if result.get("finalidade") == "ocasiao":
+        momento = (result.get("momento_do_dia") or {}).get("resposta", "")
+        lines.append(f"- **Momento do dia:** {momento} (reservado — não usado)")
     lines.append(f"- **Perguntas:** {len(qa)}")
     lines.append(f"- **Respondidas:** {answered}")
     lines.append(f"- **Decifrado em:** {datetime.now():%d/%m/%Y às %H:%M}")
     lines.extend(["", "---", ""])
 
     for i, item in enumerate(qa, start=1):
-        question = " ".join(str(item.get("question", "")).split())
+        question = " ".join(str(item.get("question") or item.get("id", "")).split())
         answer = str(item.get("answer", "")).strip()
         lines.append(f"### {i:02d}. {question}")
         lines.append("")
-        lines.append(_markdown_answer(answer) if answer else "_(em branco)_")
-        lines.append("")
+        if answer or result.get("finalidade") not in ("presente", "ocasiao", "quem_quero_ser"):
+            lines.append(_markdown_answer(answer) if answer else "_(em branco)_")
+            lines.append("")
         details = detail_lines(item)
         if details:
             lines.extend(f"- {_markdown_answer(line)}" for line in details)

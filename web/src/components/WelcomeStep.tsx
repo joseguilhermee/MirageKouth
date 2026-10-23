@@ -28,8 +28,8 @@ export function WelcomeStep({
         Como podemos <span className="text-brand">te chamar</span>?
       </h1>
       <p className="mb-10 max-w-[46ch] text-lg leading-relaxed text-ink-2">
-        Seu nome vai junto no arquivo cifrado — só assim quem for ler as respostas depois
-        sabe de quem é cada arquétipo.
+        Vamos começar pelo seu nome. Ele identifica a sua conversa e acompanha
+        as respostas que você vai entregar à KOUTH.
       </p>
 
       <input
@@ -41,7 +41,7 @@ export function WelcomeStep({
           if (e.key === "Enter" && canStart) onNext();
         }}
         placeholder="Digite seu nome…"
-        className="w-full max-w-lg border-b-2 border-line-strong bg-transparent py-3 font-display text-2xl text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-terra sm:text-3xl"
+        className="kouth-input w-full max-w-lg text-xl placeholder:text-ink-3"
       />
 
       <div className="mt-10 flex items-center gap-4">

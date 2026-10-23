@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { previewHex } from "@/lib/previewCipher";
 import { CipherText, LockSeal } from "./CipherText";
@@ -44,9 +44,26 @@ export function SealFlight({
   onLanded: () => void;
 }) {
   const landedCount = useRef(0);
+  const finished = useRef(false);
+  const onLandedRef = useRef(onLanded);
+
+  useEffect(() => { onLandedRef.current = onLanded; }, [onLanded]);
+  const finish = useCallback(() => {
+    if (finished.current) return;
+    finished.current = true;
+    onLandedRef.current();
+  }, []);
+
+  // Visual completion must never be the only way to unlock the interview.
+  useEffect(() => {
+    finished.current = false;
+    const timeout = setTimeout(finish, 4000);
+    return () => { finished.current = true; clearTimeout(timeout); };
+  }, [finish]);
+
   function handleLanded() {
     landedCount.current += 1;
-    if (landedCount.current === flight.fields.length) onLanded();
+    if (landedCount.current === flight.fields.length) finish();
   }
 
   return (

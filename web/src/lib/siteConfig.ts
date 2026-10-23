@@ -5,4 +5,4 @@
 // `.txt` e não diz pra quem enviá-lo. Preencha com o contato real que vai
 // rodar `decryptor/decrypt.py` (WhatsApp, e-mail, Discord etc.).
 export const DELIVERY_INSTRUCTIONS =
-  "Envie o arquivo baixado (mirage-respostas.txt) para a pessoa responsável pelo MirageKouth — é ela quem tem a chave privada para decifrar e montar seu arquétipo.";
+  "Envie o arquivo baixado (mirage-respostas.txt) para a pessoa responsável pela KOUTH. Ela tem a chave privada para abrir suas respostas e dar continuidade à criação do seu perfume.";

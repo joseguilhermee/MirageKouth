@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SOFT_TRANSITION } from "@/lib/motion";
 import { Logo } from "./Logo";
+import { ThemeToggle } from "./ThemeToggle";
 
 /** Botão de texto na barra que abre uma explicação curta; fecha com Esc ou clique fora. */
 function InfoPopover({
@@ -44,13 +45,13 @@ function InfoPopover({
   }, [open]);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="sm:relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls={panelId}
-        className="flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-2 text-sm text-ink-2 sm:gap-2 sm:px-3 transition hover:bg-terra-wash hover:text-ink"
+        className="flex min-h-11 min-w-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-2 py-2 text-xs text-ink-2 sm:gap-2 sm:px-3 sm:text-sm transition hover:bg-terra-wash hover:text-ink"
       >
         {icon}
         {shortLabel ? (
@@ -72,9 +73,9 @@ function InfoPopover({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={SOFT_TRANSITION}
-            className="absolute right-0 top-full z-50 mt-2 w-[min(22rem,calc(100vw-2.5rem))] rounded-2xl bg-[#fbf6ef] p-5 text-[15px] leading-relaxed text-[#3b2a23] shadow-[0_18px_40px_-12px_rgba(60,30,20,0.35)]"
+            className="absolute right-5 left-5 top-full z-50 mt-2 rounded-2xl bg-[var(--paper)] p-5 text-[15px] leading-relaxed text-[var(--popover-ink)] shadow-[0_18px_40px_-12px_rgba(60,30,20,0.35)] sm:right-0 sm:left-auto sm:w-[22rem]"
           >
-            <p className="mb-2 font-display text-base font-semibold text-[#7a2e1e]">{title}</p>
+            <p className="mb-2 font-display text-base font-semibold text-[var(--paper-brand)]">{title}</p>
             {children}
           </motion.div>
         )}
@@ -98,14 +99,15 @@ const BookIcon = (
 
 export function Header({ extra }: { extra?: ReactNode }) {
   return (
-    <header className="relative z-40 mx-auto flex w-full max-w-[1200px] items-center justify-between gap-2 px-5 pt-5 sm:px-10 sm:pt-7 lg:px-16">
+    <header className="relative z-40 mx-auto flex w-full max-w-[1200px] flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-5 sm:px-10 sm:py-7 lg:px-16">
       <span className="flex text-brand sm:hidden">
-        <Logo mark="wordmark" height={10} />
+        <Logo mark="wordmark" height={21} />
       </span>
       <span className="hidden text-brand sm:flex">
-        <Logo mark="wordmark" height={13} />
+        <Logo mark="wordmark" height={26} />
       </span>
-      <nav className="flex items-center gap-0.5 sm:gap-2" aria-label="Sobre o questionário">
+      <div className="ml-auto"><ThemeToggle /></div>
+      <nav className="flex w-full items-center justify-between gap-0.5 sm:w-auto sm:justify-start sm:gap-2" aria-label="Sobre o questionário">
         {extra}
         <InfoPopover label="Base teórica" icon={BookIcon} title="Base teórica" compact>
           <p>
@@ -114,7 +116,7 @@ export function Header({ extra }: { extra?: ReactNode }) {
             <strong>12 arquétipos</strong> usado aqui (Herói, Sábio, Criador…) é de{" "}
             <strong>Carol Pearson</strong>, formalizado em <em>The Hero Within</em> (1986).
           </p>
-          <p className="mt-2 text-[#6b5448]">
+          <p className="mt-2 text-[var(--paper-muted)]">
             As perguntas seguem o modelo de entrevista de identidade narrativa de{" "}
             <strong>Dan McAdams</strong> — cenas-chave, viradas, capítulos de vida — em vez
             de um teste de múltipla escolha. Mesmo assim, é uma leitura interpretativa, não
@@ -128,15 +130,18 @@ export function Header({ extra }: { extra?: ReactNode }) {
           title="Como isso é protegido"
         >
           <p>
-            Suas respostas são criptografadas <strong>no seu navegador</strong> (RSA-4096 +
-            AES-256-GCM) antes mesmo de saírem da sua tela. Nada é enviado para nenhum
-            servidor.
+            Durante a conversa, o rascunho fica salvo <strong>neste navegador</strong>,
+            para você poder continuar depois. Ele ainda não é o arquivo criptografado.
           </p>
-          <p className="mt-2 text-[#6b5448]">
-            O resultado é um arquivo que só abre com uma chave privada guardada localmente
-            por quem monta os arquétipos — ninguém mais consegue ler suas respostas, nem no
-            caminho até chegar lá.
+          <p className="mt-2 text-[var(--paper-muted)]">
+            Ao finalizar, você gera um arquivo protegido no próprio aparelho.
+            Só quem tem a chave privada consegue abri-lo. Nada é enviado automaticamente:
+            você escolhe como entregar o arquivo à KOUTH.
           </p>
+          <details className="mt-3 text-sm text-[var(--paper-muted)]">
+            <summary className="cursor-pointer py-2 underline underline-offset-4">Detalhes da proteção</summary>
+            <p className="mt-2">O arquivo final usa RSA-OAEP-4096 e AES-256-GCM, com a criptografia executada no seu navegador.</p>
+          </details>
         </InfoPopover>
       </nav>
     </header>

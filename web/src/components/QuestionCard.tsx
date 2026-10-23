@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useAutoGrowTextarea } from "@/lib/useAutoGrowTextarea";
 import { ENTER_TRANSITION, EXIT_TRANSITION } from "@/lib/motion";
@@ -16,7 +16,7 @@ import {
 } from "@/lib/ui";
 import { Kbd } from "./Glyphs";
 import {
-  MIN_MAIN_CHARS,
+  isMainAnswered,
   setStepValue,
   shownSteps,
   type Question,
@@ -36,6 +36,7 @@ export function QuestionCard({
   onBack,
   onSeal,
   departing = false,
+  canBackFirst = false,
 }: {
   index: number;
   total: number;
@@ -51,22 +52,25 @@ export function QuestionCard({
    * animação de selar e chama onNext no fim dela; o texto some do campo para
    * não aparecer duas vezes.
    */
-  onSeal?: (field: HTMLTextAreaElement) => boolean;
+  onSeal?: (field: HTMLElement) => boolean;
   departing?: boolean;
+  canBackFirst?: boolean;
 }) {
   const isFirst = index === 0;
   const isLast = index === total - 1;
   const textareaRef = useAutoGrowTextarea(value);
+  const cardRef = useRef<HTMLDivElement>(null);
   const [triedToAdvance, setTriedToAdvance] = useState(false);
   // Só o passo aberto por um clique de botão ganha foco: o que aparece
   // enquanto a pessoa ainda digita a principal não pode roubar o cursor.
   const [focusAfterClick, setFocusAfterClick] = useState(false);
   const [sealing, setSealing] = useState(false);
+  const [sealingButton, setSealingButton] = useState(false);
 
   // Resposta em branco não é "sem dado": pelo §AUSÊNCIA do protocolo, itens
   // vazios derrubam a confiança do perfil inteiro. Por isso tudo o que aparece
   // é obrigatório; "nunca aconteceu" já conta como resposta.
-  const mainOk = value.trim().length >= MIN_MAIN_CHARS;
+  const mainOk = isMainAnswered(question, value);
   const { shown, complete } = shownSteps(question, value, detail);
   const firstOpen = shown.find((s) => !s.answered)?.key;
   // Derivado, não sincronizado por efeito: o aviso some sozinho assim que a
@@ -86,8 +90,11 @@ export function QuestionCard({
       return;
     }
     if (sealing) return;
-    const field = textareaRef.current;
+    const field = textareaRef.current
+      ?? cardRef.current?.querySelector<HTMLElement>("textarea")
+      ?? cardRef.current?.querySelector<HTMLElement>('button[role="radio"][aria-checked="true"]');
     if (field && onSeal?.(field)) {
+      setSealingButton(field instanceof HTMLButtonElement);
       setSealing(true);
       return;
     }
@@ -103,17 +110,17 @@ export function QuestionCard({
 
   return (
     <motion.div
-      key={index}
+      ref={cardRef}
+      aria-busy={sealing}
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: departing ? 0 : 1, y: departing ? -12 : 0 }}
       exit={{ opacity: 0, y: -12, transition: EXIT_TRANSITION }}
       transition={departing ? { duration: 0.55, ease: [0.4, 0, 0.2, 1] } : ENTER_TRANSITION}
       className={`flex flex-col ${sealing ? "[&_textarea]:text-transparent [&_textarea]:caret-transparent" : ""}`}
     >
-      <h1 className={`${DISPLAY} mb-6 max-w-[34ch] text-[28px] leading-[1.18] sm:text-[34px] lg:text-[40px] lg:leading-[1.14]`}>
+      {question.noMain ? null : <><h1 className={`${DISPLAY} mb-6 max-w-[34ch] text-[28px] leading-[1.18] sm:text-[34px] lg:text-[40px] lg:leading-[1.14]`}>
         {question.text}
       </h1>
-
       <textarea
         ref={textareaRef}
         rows={3}
@@ -124,14 +131,14 @@ export function QuestionCard({
         onKeyDown={onKeyDown}
         aria-invalid={blocked}
         aria-describedby={blocked ? `blocked-${index}` : undefined}
-        placeholder={question.placeholder}
+        placeholder={question.placeholder || "Escreva sua resposta aqui…"}
         readOnly={sealing}
         className={`${FIELD} ${blocked ? "border-warn" : "border-line-strong focus:border-terra"} ${
           sealing ? "text-transparent caret-transparent placeholder:text-transparent" : ""
         }`}
-      />
+      /></>}
 
-      <p
+      {!question.noMain && <p
         id={`blocked-${index}`}
         role="status"
         aria-live="polite"
@@ -142,7 +149,7 @@ export function QuestionCard({
         {blocked
           ? "Essa pergunta precisa de uma resposta antes de seguir. Se não se aplica a você, escreva isso mesmo — “nunca aconteceu” já conta."
           : " "}
-      </p>
+      </p>}
 
       {shown.length > 0 && (
         <div className="mt-5 flex flex-col gap-8">
@@ -152,6 +159,8 @@ export function QuestionCard({
               shown={s}
               invalid={stepBlocked && s.key === firstOpen}
               autoFocus={focusAfterClick && s.key === firstOpen}
+              hideSelected={sealingButton}
+              readOnly={sealing}
               onChange={(next, byClick) => setStep(s.key, next, byClick)}
               onKeyDown={onKeyDown}
             />
@@ -169,13 +178,14 @@ export function QuestionCard({
       )}
 
       <div className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
-        <button type="button" onClick={onBack} disabled={isFirst || sealing} className={BTN_GHOST}>
+        <button type="button" onClick={onBack} disabled={(isFirst && !canBackFirst) || sealing} className={BTN_GHOST}>
           Voltar
         </button>
         <button
           type="button"
           onClick={handleNext}
-          aria-disabled={!complete}
+          disabled={sealing}
+          aria-disabled={!complete || sealing}
           className={complete ? BTN_PRIMARY : BTN_PRIMARY_WAITING}
         >
           {isLast ? "Concluir" : "Próxima"}
@@ -193,12 +203,16 @@ function StepField({
   shown,
   invalid,
   autoFocus,
+  hideSelected,
+  readOnly,
   onChange,
   onKeyDown,
 }: {
   shown: ShownStep;
   invalid: boolean;
   autoFocus: boolean;
+  hideSelected: boolean;
+  readOnly: boolean;
   onChange: (value: string, byClick: boolean) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
 }) {
@@ -228,10 +242,13 @@ function StepField({
                   type="button"
                   role="radio"
                   aria-checked={isOn}
+                  disabled={option.disabled || readOnly}
                   onClick={() => onChange(option.label, true)}
-                  className={`${PILL} ${isOn ? PILL_ON : PILL_OFF}`}
+                  style={hideSelected && isOn ? { color: "transparent" } : undefined}
+                  className={`${PILL} ${option.disabled ? "cursor-not-allowed border-line bg-[var(--control-disabled)] text-ink-3 opacity-55" : isOn ? PILL_ON : PILL_OFF}`}
                 >
                   {option.label}
+                  {option.disabled && <span className="ml-2 text-xs">em breve</span>}
                 </button>
               );
             })}
@@ -246,6 +263,8 @@ function StepField({
             autoFocus={autoFocus}
             aria-invalid={invalid}
             value={value}
+            readOnly={readOnly}
+            placeholder={step.placeholder || "Escreva sua resposta aqui…"}
             onChange={(e) => onChange(e.target.value, false)}
             onKeyDown={onKeyDown}
             className={`${FIELD} ${invalid ? "border-warn" : "border-line-strong focus:border-terra"}`}

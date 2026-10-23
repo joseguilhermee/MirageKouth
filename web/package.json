@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:input": "node scripts/input-regression.mjs",
+    "test:flows": "node scripts/flow-regression.mjs",
+    "test:brand": "node scripts/brand-review.mjs",
+    "test:delivery": "node scripts/delivery-regression.mjs",
+    "test:appearance": "node scripts/theme-texture-review.mjs"
   },
   "dependencies": {
     "framer-motion": "^13.1.1",
@@ -21,6 +26,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.2",
+    "playwright": "1.64.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

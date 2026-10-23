@@ -1,17 +1,21 @@
-// O céu da travessia, em três faixas (alto, meio, horizonte): cada pergunta
-// respondida empurra a tarde um pouco mais para o anoitecer. Três paradas (tarde clara, hora dourada, fim de tarde) e
-// uma noite só para a hora de selar. Todas as paradas claras mantêm a tinta
-// escura com contraste de texto.
+// Material surfaces of the KOUTH journey. Names retained for existing consumers.
 
 type Stop = { at: number; top: string; mid: string; low: string };
 
 const DAY: Stop[] = [
-  { at: 0, top: "#d6e6ef", mid: "#e4ece9", low: "#eef0e6" },
-  { at: 0.5, top: "#dfe1ea", mid: "#eedfd6", low: "#f3d8c4" },
-  { at: 1, top: "#d9cad8", mid: "#e9cdc8", low: "#efc2ae" },
+  { at: 0, top: "#f2eee6", mid: "#f2eee6", low: "#f2eee6" },
+  { at: 0.5, top: "#f2eee6", mid: "#f2eee6", low: "#f2eee6" },
+  { at: 1, top: "#f2eee6", mid: "#f2eee6", low: "#f2eee6" },
 ];
 
-export const NIGHT = { top: "#2a1a22", mid: "#34202a", low: "#4a2b25" };
+export const NIGHT = { top: "#2e1f17", mid: "#2e1f17", low: "#2e1f17" };
+
+const DARK: Stop[] = [
+  { at: 0, top: "#2e1f17", mid: "#2e1f17", low: "#2e1f17" },
+  { at: 0.5, top: "#2e1f17", mid: "#2e1f17", low: "#2e1f17" },
+  { at: 1, top: "#2e1f17", mid: "#2e1f17", low: "#2e1f17" },
+];
+export const DARK_NIGHT = { top: "#2e1f17", mid: "#2e1f17", low: "#2e1f17" };
 
 function hexToRgb(hex: string): [number, number, number] {
   const n = parseInt(hex.slice(1), 16);
@@ -26,11 +30,12 @@ function mix(a: string, b: string, t: number): string {
 }
 
 /** Cores do céu para um progresso de 0 (primeira pergunta) a 1 (última). */
-export function skyAt(progress: number): { top: string; mid: string; low: string } {
+export function skyAt(progress: number, theme: "light" | "dark" = "light"): { top: string; mid: string; low: string } {
+  const stops = theme === "dark" ? DARK : DAY;
   const p = Math.min(1, Math.max(0, progress));
-  const i = p <= DAY[1].at ? 0 : 1;
-  const from = DAY[i];
-  const to = DAY[i + 1];
+  const i = p <= stops[1].at ? 0 : 1;
+  const from = stops[i];
+  const to = stops[i + 1];
   const t = (p - from.at) / (to.at - from.at);
   return {
     top: mix(from.top, to.top, t),
