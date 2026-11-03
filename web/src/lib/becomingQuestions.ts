@@ -41,7 +41,7 @@ export function becomingQuestions(): Question[] {
       steps: [text("Conte a última vez que você fez isso. Onde você estava? O que aconteceu? O que você sentiu na hora?")],
     },
     {
-      id: "Y06", text: "Imagine que amanhã você deixa isso de lado e passa a agir como essa nova pessoa. O que te preocupa?",
+      id: "Y06", text: "Se amanhã você começasse a agir como essa nova pessoa, o que te preocuparia?",
       steps: [
         text("E qual é a pior coisa que você imagina que poderia acontecer?"),
         { kind: "button", prompt: "Sabendo disso, você quer tentar mesmo assim?", options: [
