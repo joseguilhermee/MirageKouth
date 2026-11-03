@@ -82,7 +82,7 @@ try {
     const day = page.locator("main textarea");
     await day.pressSequentially("Passo o dia com calma e junto das pessoas que amo.");
     await page.getByRole("button", { name: "Próxima", exact: true }).click();
-    await page.getByRole("heading", { name: "E num dia em que tudo dá errado, como essa versão sua reage?", exact: true }).waitFor();
+    await page.getByRole("heading", { name: "E num dia em que tudo dá errado, o que essa nova versão de você faz?", exact: true }).waitFor();
     assert.equal(await choose().count(), 0, "The route switch belongs only to question one");
     await page.getByRole("button", { name: "Voltar", exact: true }).click();
     assert.match(await day.inputValue(), /Passo o dia/);
@@ -101,7 +101,7 @@ try {
     assert.deepEqual(errors, []);
     await context.close();
 
-    for (const [index, radioName, fieldName, presses] of [[7, "ainda não", "Conte a vez em que você chegou mais perto: o que você fez — e o que aconteceu depois?", 1], [9, "conheço", "Quem é, e o que exatamente essa pessoa faz que você ainda não faz?", 2], [10, "porque eu me sentiria mal se não mudasse", "Pra quem mais isso importa?", 2]]) {
+    for (const [index, radioName, fieldName, presses] of [[7, "ainda não", "Conte a vez em que você chegou mais perto disso. O que você fez e o que aconteceu depois?", 1], [9, "conheço", "Quem é essa pessoa? E o que ela faz que você ainda não faz?", 2], [10, "porque eu me sentiria mal se não mudasse", "Para quem mais isso importa?", 2]]) {
       const branchContext = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: motion });
       await branchContext.addInitScript(index => {
         localStorage.setItem("mirage-progress-v10", JSON.stringify({ name: "Pessoa Teste", purpose: "quem_quero_ser", step: -1, answers: {}, details: {} }));

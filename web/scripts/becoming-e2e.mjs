@@ -40,7 +40,7 @@ async function run(variant, index) {
     await next(page);
     await answerMain(page, "Eu escuto, respiro e decido o que fazer sem fugir");
 
-    const group = page.getByRole("group", { name: "Nessa vida nova, o que não pode faltar? Escolha até 3.", exact: true });
+    const group = page.getByRole("group", { name: "Nessa vida nova, o que não pode faltar? Escolha até 3 opções.", exact: true });
     assert.equal(await group.getByRole("checkbox").count(), 12);
     for (const label of picks) await group.getByRole("checkbox", { name: label, exact: true }).click();
     await group.getByRole("checkbox", { name: "tempo pra aprender e pensar", exact: true }).click({ force: true });
@@ -50,7 +50,7 @@ async function run(variant, index) {
       await page.reload();
       for (const name of ["Como responder", "E a privacidade?", "Vamos começar"]) await page.getByRole("button", { name, exact: true }).click();
       await page.getByRole("button", { name: "Voltar para onde estava" }).click();
-      await page.getByRole("group", { name: "Nessa vida nova, o que não pode faltar? Escolha até 3.", exact: true }).waitFor();
+      await page.getByRole("group", { name: "Nessa vida nova, o que não pode faltar? Escolha até 3 opções.", exact: true }).waitFor();
     }
     await next(page);
 

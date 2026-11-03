@@ -11,10 +11,9 @@ try {
   await page.getByRole("textbox", { name: "Seu nome" }).fill("Pessoa Teste");
   await page.getByRole("button", { name: "Começar", exact: true }).click();
   await page.getByRole("button", { name: "Para quem eu quero ser", exact: true }).click();
-  await page.getByRole("radio", { name: "1 ano", exact: true }).click();
   await page.locator("main textarea").pressSequentially("Passo o dia criando coisas e encontrando pessoas de quem gosto.");
   await page.getByRole("button", { name: "Próxima", exact: true }).click();
-  const second = page.getByRole("textbox", { name: "E num dia em que tudo dá errado, como essa versão sua reage?", exact: true });
+  const second = page.getByRole("textbox", { name: "E num dia em que tudo dá errado, o que essa nova versão de você faz?", exact: true });
   await second.waitFor();
   console.log("Y02 input state:", await second.evaluate(el => ({ readOnly: el.readOnly, disabled: el.disabled, value: el.value })));
   await page.waitForTimeout(700);
@@ -43,7 +42,10 @@ try {
   await page.waitForFunction(() => document.querySelector('[role="progressbar"]')?.getAttribute("aria-valuenow") === "2", null, { timeout: 8000 });
   assert.ok(await page.evaluate(() => window.__miragePausedFlights > 0), "Test must actually interrupt a flight animation");
   assert.ok(Date.now() - started >= 3500, "The safety timeout should recover the interrupted animation");
-  const third = page.getByRole("textbox", { name: "Alguém próximo vai perceber a diferença. O que essa pessoa vai te dizer?", exact: true });
+  await page.getByRole("checkbox", { name: "rir de verdade", exact: true }).click();
+  await page.getByRole("button", { name: "Próxima", exact: true }).click();
+  await page.waitForFunction(() => document.querySelector('[role="progressbar"]')?.getAttribute("aria-valuenow") === "3", null, { timeout: 8000 });
+  const third = page.getByRole("textbox", { name: "Alguém próximo vai notar que você mudou. O que essa pessoa vai te dizer?", exact: true });
   assert.equal(await third.evaluate(el => el.readOnly), false);
   await third.pressSequentially("Agora você escuta e age com mais calma.");
   console.log("Interrupted animation recovered automatically; Y03 remains editable OK");
@@ -57,7 +59,7 @@ try {
   assert.equal(await third.evaluate(el => el.readOnly), false, "Editing the outgoing question must unlock its fields");
   await third.fill("Texto revisado: agora você escuta com atenção e age com mais calma.");
   await page.waitForTimeout(4300);
-  assert.equal(await page.getByRole("progressbar").getAttribute("aria-valuenow"), "2", "A cancelled flight must never change the editing destination");
+  assert.equal(await page.getByRole("progressbar").getAttribute("aria-valuenow"), "3", "A cancelled flight must never change the editing destination");
   assert.match(await third.inputValue(), /Texto revisado/);
   await page.evaluate(() => window.__mirageRestoreAnimation());
   console.log("Clipboard editing cancels the active flight, unlocks the current question and prevents delayed navigation OK");
