@@ -7,7 +7,19 @@ export type ButtonOption = { label: string; next?: Step; disabled?: boolean };
 /** Passo em botões: escolha única, nada vem marcado. */
 export type ButtonStep = { kind: "button"; prompt: string; options: ButtonOption[] };
 
-export type Step = TextStep | ButtonStep;
+/**
+ * Passo em toque múltiplo: de 1 até `max` opções entre várias. A resposta é a
+ * lista dos rótulos marcados, um por linha (ver `parseChoices`).
+ */
+export type ChoicesStep = { kind: "choices"; prompt: string; options: string[]; max: number };
+
+export type Step = TextStep | ButtonStep | ChoicesStep;
+
+export const CHOICES_SEPARATOR = "\n";
+
+export function parseChoices(value: string): string[] {
+  return value ? value.split(CHOICES_SEPARATOR).filter(Boolean) : [];
+}
 
 export type Question = {
   /** Código do roteiro de origem (Q01…Q15); não segue a ordem de exibição. */
@@ -249,6 +261,10 @@ export const QUESTIONS: Question[] = [
 export type ShownStep = { key: string; step: Step; value: string; answered: boolean };
 
 function isAnswered(step: Step, value: string): boolean {
+  if (step.kind === "choices") {
+    const picked = parseChoices(value);
+    return picked.length >= 1 && picked.length <= step.max && picked.every((label) => step.options.includes(label));
+  }
   return step.kind === "button"
     ? step.options.some((o) => o.label === value && !o.disabled)
     : value.trim().length >= MIN_STEP_CHARS;
@@ -287,6 +303,7 @@ export function shownSteps(
         key = `${key}>texto`;
         continue;
       }
+      if (step.kind === "choices") break;
       step = step.options.find((o) => o.label === value)?.next;
       key = `${key}>${value}`;
     }
@@ -300,9 +317,9 @@ export function shownSteps(
  */
 export function buildSteps(question: Question, main: string, detail: QuestionDetail | undefined) {
   return shownSteps(question, main, detail).shown.map(({ step, value }) => ({
-    tipo: step.kind === "button" ? "botao" : "texto",
+    tipo: step.kind === "button" ? "botao" : step.kind === "choices" ? "escolhas" : "texto",
     pergunta: step.prompt,
-    resposta: value.trim(),
+    resposta: step.kind === "choices" ? parseChoices(value).join("; ") : value.trim(),
   }));
 }
 

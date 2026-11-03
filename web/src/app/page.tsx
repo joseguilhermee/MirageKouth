@@ -120,7 +120,7 @@ export default function Home() {
     clearSavedProgress();
     try { window.localStorage.removeItem("mirage-presente-progress-v1"); } catch { /* segue sem persistência */ }
     try { window.localStorage.removeItem("mirage-ocasiao-progress-v1"); } catch { /* segue sem persistência */ }
-    try { window.localStorage.removeItem("mirage-quem-progress-v1"); } catch { /* segue sem persistência */ }
+    try { window.localStorage.removeItem("mirage-quem-progress-v2"); window.localStorage.removeItem("mirage-quem-progress-v1"); } catch { /* segue sem persistência */ }
     setHydrated(true);
     setStage("app");
   }

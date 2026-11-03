@@ -8,7 +8,7 @@ const url = process.env.MIRAGE_E2E_URL || "http://localhost:3100";
 const dir = "../.impeccable/review/luxury";
 mkdirSync(dir, { recursive: true });
 const answers = {}, details = {};
-const questions = becomingQuestions("6 meses");
+const questions = becomingQuestions();
 for (const [index, question] of questions.entries()) {
   const main = question.noMain ? "" : "Relato fictício: eu escuto, reflito e escolho estar presente para quem amo.";
   let detail = {};
@@ -17,7 +17,7 @@ for (const [index, question] of questions.entries()) {
     if (state.complete) break;
     const pending = state.shown.find(step => !step.answered);
     assert.ok(pending);
-    detail = setStepValue(detail, pending.key, pending.step.kind === "button" ? pending.step.options[0].label : "Relato fictício de um momento importante.");
+    detail = setStepValue(detail, pending.key, pending.step.kind === "choices" ? pending.step.options.slice(0, pending.step.max).join("\n") : pending.step.kind === "button" ? pending.step.options[0].label : "Relato fictício de um momento importante.");
   }
   answers[index] = main;
   details[index] = detail;
@@ -28,7 +28,7 @@ try {
     const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: "reduce", permissions: ["clipboard-read", "clipboard-write"], acceptDownloads: true });
     await context.addInitScript(({ answers, details }) => {
       localStorage.setItem("mirage-progress-v10", JSON.stringify({ name: "Pessoa Teste", purpose: "quem_quero_ser", step: -1, answers: {}, details: {} }));
-      localStorage.setItem("mirage-quem-progress-v1", JSON.stringify({ step: 14, answers, details }));
+      localStorage.setItem("mirage-quem-progress-v2", JSON.stringify({ step: 12, answers, details }));
     }, { answers, details });
     const page = await context.newPage();
     const errors = [];
@@ -69,7 +69,7 @@ try {
     });
     await page.getByRole("button", { name: "Selar minhas respostas", exact: true }).click();
     await page.getByRole("button", { name: "Tentar novamente", exact: true }).waitFor();
-    assert.ok(await page.evaluate(() => localStorage.getItem("mirage-quem-progress-v1")), "Failure must preserve the draft");
+    assert.ok(await page.evaluate(() => localStorage.getItem("mirage-quem-progress-v2")), "Failure must preserve the draft");
     await capture("delivery-error");
     await page.getByRole("button", { name: "Tentar novamente", exact: true }).click();
     const download = page.getByRole("button", { name: "Baixar arquivo", exact: true });

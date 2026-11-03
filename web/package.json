@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test:input": "node scripts/input-regression.mjs",
     "test:flows": "node scripts/flow-regression.mjs",
+    "test:export": "node scripts/export-regression.mjs",
     "test:brand": "node scripts/brand-review.mjs",
     "test:delivery": "node scripts/delivery-regression.mjs",
     "test:appearance": "node scripts/theme-texture-review.mjs",

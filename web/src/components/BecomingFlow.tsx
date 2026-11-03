@@ -5,7 +5,7 @@ import { SpecialInterview } from "./SpecialInterview";
 import { becomingQuestions } from "@/lib/becomingQuestions";
 import type { QuestionDetail } from "@/lib/questions";
 
-const STORAGE_KEY = "mirage-quem-progress-v1";
+const STORAGE_KEY = "mirage-quem-progress-v2";
 type BecomingState = {
   step: number;
   answers: Record<number, string>;
@@ -33,8 +33,7 @@ export function BecomingFlow({ name, onBack, onCompleted }: { name: string; onBa
   }, [ready, state]);
 
   if (!ready) return null;
-  const horizon = state.details[0]?.steps?.["0"] || "";
-  const questions = becomingQuestions(horizon);
+  const questions = becomingQuestions();
 
   return <SpecialInterview name={name} label="Para quem eu quero ser" questions={questions}
     step={state.step} answers={state.answers} details={state.details} becoming={{ questions }}

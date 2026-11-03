@@ -15,7 +15,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const temp = mkdtempSync(path.join(tmpdir(), "mirage-flow-review-"));
 const browser = await chromium.launch({ channel: "msedge", headless: true });
 const cases = [
-  ["quem_quero_ser", "Para quem eu quero ser", "mirage-quem-progress-v1"],
+  ["quem_quero_ser", "Para quem eu quero ser", "mirage-quem-progress-v2"],
   ["ocasiao", "Para uma ocasião especial", "mirage-ocasiao-progress-v1"],
   ["presente", "Para presente", "mirage-presente-progress-v1"],
   ["para_mim", "Para mim", "mirage-progress-v10"],
@@ -51,7 +51,7 @@ async function run([mode, purpose, storageKey], width) {
   page.on("pageerror", error => errors.push(error.message));
   page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
   const answers = {}, details = {};
-  const questionsFor = () => mode === "quem_quero_ser" ? becomingQuestions(details[0]?.steps?.["0"] || "")
+  const questionsFor = () => mode === "quem_quero_ser" ? becomingQuestions()
     : mode === "ocasiao" ? OCCASION_QUESTIONS : mode === "presente" ? giftQuestions(gift) : QUESTIONS;
   try {
     await page.goto(url);
@@ -82,7 +82,7 @@ async function run([mode, purpose, storageKey], width) {
         await progress(page, 0);
       }
       if (!question.noMain) await type(page, question.text, main);
-      if (question.id === "Y05" || question.id === "Y08" || question.id === "Y11" || question.id === "Y10") {
+      if (mode === "quem_quero_ser" && ["Y08", "Y10", "Y11"].includes(question.id)) {
         const stepIndex = question.steps.findIndex(step => step.kind === "button");
         const button = question.steps[stepIndex];
         for (const option of button.options) {
@@ -104,6 +104,14 @@ async function run([mode, purpose, storageKey], width) {
         if (pending.step.kind === "text") {
           await type(page, pending.step.prompt, textFor(`${question.id}-${pending.key}`));
           detail = setStepValue(detail, pending.key, textFor(`${question.id}-${pending.key}`));
+        } else if (pending.step.kind === "choices") {
+          const group = page.getByRole("group", { name: pending.step.prompt, exact: true });
+          const picks = pending.step.options.slice(0, pending.step.max);
+          for (const label of picks) await group.getByRole("checkbox", { name: label, exact: true }).click();
+          const extra = pending.step.options[pending.step.max];
+          await group.getByRole("checkbox", { name: extra, exact: true }).click({ force: true });
+          assert.equal(await group.getByRole("checkbox", { checked: true }).count(), pending.step.max, "No more than max choices");
+          detail = setStepValue(detail, pending.key, picks.join("\n"));
         } else {
           const options = pending.step.options.filter(option => !option.disabled);
           const option = options[(index + (width > 640 ? 1 : 0)) % options.length];
@@ -150,18 +158,30 @@ async function run([mode, purpose, storageKey], width) {
     const filename = path.join(temp, `${mode}-${width}.txt`);
     const decoded = path.join(temp, `${mode}-${width}.json`);
     await (await downloadEvent).saveAs(filename);
-    const decodedOutput = execFileSync("py", ["-3", path.join(root, "decryptor/decrypt.py"), filename, "--out", decoded], { encoding: "utf8", stdio: "pipe" });
+    execFileSync("py", ["-3", path.join(root, "decryptor/decrypt.py"), filename, "--out", decoded], { encoding: "utf8", stdio: "pipe" });
     const result = JSON.parse(readFileSync(decoded, "utf8"));
     assert.equal(result.finalidade, mode);
-    assert.equal(result.answers.length, mode === "ocasiao" ? questions.length - 1 : questions.length);
+    assert.deepEqual(result.answers.map(answer => answer.id), questions.filter(question => question.id !== "O03").map(question => question.id));
     for (const answer of result.answers) {
       const index = questions.findIndex(question => question.id === answer.id);
       assert.equal(answer.text, answers[index]);
       assert.deepEqual(answer.passos ?? [], buildSteps(questions[index], answers[index], details[index]));
     }
-    if (mode === "quem_quero_ser") assert.ok(decodedOutput.includes(`daqui a ${details[0].steps["0"]}?`), "The decrypted question must include the selected horizon");
+    const formatters = `import json, sys\nfrom pathlib import Path\nsys.path.insert(0, sys.argv[1])\nfrom decrypt import decrypt_file, load_private_key, DEFAULT_PRIVATE_KEY\nfrom decrypt_gui import export_result\nr = decrypt_file(Path(sys.argv[2]), load_private_key(DEFAULT_PRIVATE_KEY))\nprint(json.dumps({ext: export_result(r, ext) for ext in ['.txt', '.md']}, ensure_ascii=False))`;
+    const formatted = JSON.parse(execFileSync("py", ["-3", "-c", formatters, path.join(root, "decryptor"), filename], { encoding: "utf8" }));
+    assert.deepEqual([...formatted[".md"].matchAll(/^### \d{2}\. (.+)$/gm)].map(match => match[1]), questions.filter(question => question.id !== "O03").map(question => question.text || question.steps[0].prompt));
+    for (const content of Object.values(formatted)) {
+      const text = content.replaceAll("  \n", "\n");
+      assert.equal(text.includes("(em branco)"), false);
+      for (const answer of result.answers) {
+        const question = questions.find(question => question.id === answer.id);
+        for (const value of [question.text, answer.text, ...answer.passos.flatMap(step => [step.pergunta, step.resposta])].filter(Boolean)) {
+          assert.ok(text.includes(value), `${mode} ${answer.id}: missing exported content ${value}`);
+        }
+      }
+    }
     assert.deepEqual(errors, []);
-    console.log(`${mode} ${width}px COMPLETE: all ${questions.length} questions editable, back/reload, branches, encryption/decryption OK`);
+    console.log(`${mode} ${width}px COMPLETE: all ${questions.length} questions editable, back/reload, branches, encryption/decryption, JSON/TXT/Markdown OK`);
   } catch (error) {
     await page.screenshot({ path: `../.impeccable/flow-failed-${mode}-${width}.png`, fullPage: true }).catch(() => {});
     throw new Error(`${mode} ${width}px: ${error.message}`, { cause: error });

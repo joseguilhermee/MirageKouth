@@ -79,22 +79,7 @@ try {
     assert.ok(await branch.evaluate(el => document.activeElement === el));
     await choose().click();
     await page.getByRole("button", { name: "Para quem eu quero ser", exact: true }).click();
-    await page.getByRole("radio", { name: "1 ano", exact: true }).click();
-    if (motion === "no-preference") {
-      await page.waitForTimeout(150);
-      await page.mouse.wheel(0, 80);
-      await page.waitForTimeout(300);
-      const stopped = await page.evaluate(() => scrollY);
-      await page.waitForTimeout(700);
-      assert.ok(Math.abs(await page.evaluate(() => scrollY) - stopped) < 3, "Manual scrolling must interrupt centering");
-      await page.getByRole("radio", { name: "1 ano", exact: true }).click();
-    }
     const day = page.locator("main textarea");
-    await centered(page, day, "horizon-branch", width);
-    if (width < 640) {
-      await page.setViewportSize({ width, height: 600 });
-      await centered(page, day, "horizon-resized", width);
-    }
     await day.pressSequentially("Passo o dia com calma e junto das pessoas que amo.");
     await page.getByRole("button", { name: "Próxima", exact: true }).click();
     await page.getByRole("heading", { name: "E num dia em que tudo dá errado, como essa versão sua reage?", exact: true }).waitFor();
@@ -116,17 +101,17 @@ try {
     assert.deepEqual(errors, []);
     await context.close();
 
-    for (const [index, radioName, fieldName] of [[4, "em parte", "Pra quem mais essa mudança importa?"], [7, "uma vez", "O que te fez voltar ao jeito antigo?"], [10, "ainda não", "Qual foi a vez em que você chegou mais perto?"]]) {
+    for (const [index, radioName, fieldName, presses] of [[7, "ainda não", "Conte a vez em que você chegou mais perto: o que você fez — e o que aconteceu depois?", 1], [9, "conheço", "Quem é, e o que exatamente essa pessoa faz que você ainda não faz?", 2], [10, "porque eu me sentiria mal se não mudasse", "Pra quem mais isso importa?", 2]]) {
       const branchContext = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: motion });
       await branchContext.addInitScript(index => {
         localStorage.setItem("mirage-progress-v10", JSON.stringify({ name: "Pessoa Teste", purpose: "quem_quero_ser", step: -1, answers: {}, details: {} }));
-        localStorage.setItem("mirage-quem-progress-v1", JSON.stringify({ step: index, answers: {}, details: {} }));
+        localStorage.setItem("mirage-quem-progress-v2", JSON.stringify({ step: index, answers: {}, details: {} }));
       }, index);
       const branchPage = await branchContext.newPage();
       await enter(branchPage);
       const first = branchPage.getByRole("radio").first();
       await first.focus();
-      await first.press("ArrowRight");
+      for (let press = 0; press < presses; press++) await branchPage.keyboard.press("ArrowRight");
       const selected = branchPage.getByRole("radio", { name: radioName, exact: true });
       assert.equal(await selected.getAttribute("aria-checked"), "true");
       assert.ok(await selected.evaluate(el => document.activeElement === el), "Arrow browsing must keep focus in the choice group");

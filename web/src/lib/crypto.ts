@@ -113,7 +113,8 @@ export async function buildEncryptedFile(
   const questions = becoming?.questions ?? occasion?.questions ?? gift?.questions ?? QUESTIONS;
   const qa = questions.map((question, i) => ({
     id: question.id,
-    question: question.text,
+    // Alguns itens começam com um botão: o primeiro passo é seu enunciado.
+    question: question.text.trim() || question.steps[0]?.prompt || question.id,
     answer: answers[i] ?? "",
     passos: buildSteps(question, answers[i] ?? "", details[i]),
   })).filter((item) => item.id !== "O03");

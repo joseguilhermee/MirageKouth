@@ -17,7 +17,9 @@ import {
 } from "@/lib/ui";
 import { Kbd } from "./Glyphs";
 import {
+  CHOICES_SEPARATOR,
   isMainAnswered,
+  parseChoices,
   setStepValue,
   shownSteps,
   type Question,
@@ -84,7 +86,7 @@ export function QuestionCard({
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
-    const control = textareaRef.current ?? cardRef.current?.querySelector<HTMLElement>('button[role="radio"]');
+    const control = textareaRef.current ?? cardRef.current?.querySelector<HTMLElement>('button[role="radio"], button[role="checkbox"]');
     control?.focus({ preventScroll: true });
   }, [textareaRef]);
 
@@ -118,7 +120,7 @@ export function QuestionCard({
     if (sealing) return;
     const field = textareaRef.current
       ?? cardRef.current?.querySelector<HTMLElement>("textarea")
-      ?? cardRef.current?.querySelector<HTMLElement>('button[role="radio"][aria-checked="true"]');
+      ?? cardRef.current?.querySelector<HTMLElement>('button[role="radio"][aria-checked="true"], button[role="checkbox"][aria-checked="true"]');
     if (field && onSeal?.(field)) {
       setSealingButton(field instanceof HTMLButtonElement);
       setSealing(true);
@@ -251,9 +253,10 @@ function StepField({
   const blockRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!focusRevision || !blockRef.current) return;
-    const control = ref.current ?? blockRef.current.querySelector<HTMLElement>('button[role="radio"]:not(:disabled)');
+    const control = ref.current ?? blockRef.current.querySelector<HTMLElement>('button[role="radio"]:not(:disabled), button[role="checkbox"]:not(:disabled)');
     if (control) return focusContext(blockRef.current, control);
   }, [focusRevision, ref]);
+  const [shuffled] = useState(() => step.kind === "choices" ? shuffle(step.options) : []);
   const promptClass = `font-display text-xl sm:text-[22px] font-medium leading-snug transition-colors ${
     invalid ? "text-warn" : "text-ink"
   }`;
@@ -264,12 +267,42 @@ function StepField({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={ENTER_TRANSITION}
-      role={step.kind === "button" ? "radiogroup" : undefined}
-      aria-label={step.kind === "button" ? step.prompt : undefined}
-      aria-required={step.kind === "button" ? true : undefined}
+      role={step.kind === "button" ? "radiogroup" : step.kind === "choices" ? "group" : undefined}
+      aria-label={step.kind === "text" ? undefined : step.prompt}
+      aria-required={step.kind === "text" ? undefined : true}
       aria-invalid={invalid || undefined}
     >
-      {step.kind === "button" ? (
+      {step.kind === "choices" ? (
+        <>
+          <p className={`${promptClass} mb-1`}>{step.prompt}</p>
+          <p className="mb-3 text-[15px] text-ink-3" aria-live="polite">{parseChoices(value).length} de {step.max} escolhidas</p>
+          <div className="flex flex-wrap gap-2">
+            {shuffled.map((label) => {
+              const picked = parseChoices(value);
+              const isOn = picked.includes(label);
+              const full = !isOn && picked.length >= step.max;
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  role="checkbox"
+                  aria-checked={isOn}
+                  disabled={readOnly}
+                  aria-disabled={full || undefined}
+                  onClick={() => {
+                    if (full) return;
+                    onChange((isOn ? picked.filter(item => item !== label) : [...picked, label]).join(CHOICES_SEPARATOR), true);
+                  }}
+                  onKeyDown={onKeyDown}
+                  className={`${PILL} ${isOn ? PILL_ON : full ? "border-line bg-[var(--control)] text-ink-3 opacity-60" : PILL_OFF}`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      ) : step.kind === "button" ? (
         <>
           <p className={`${promptClass} mb-3`}>{step.prompt}</p>
           <div className="flex flex-wrap gap-2">
@@ -324,4 +357,14 @@ function StepField({
       )}
     </motion.div>
   );
+}
+
+/** Embaralha uma vez por tela, para nenhuma opção ganhar vantagem pela posição. */
+function shuffle<T>(items: T[]): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
 }
