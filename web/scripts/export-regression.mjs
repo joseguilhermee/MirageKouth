@@ -19,7 +19,7 @@ globalThis.window = { crypto: globalThis.crypto };
 const { buildEncryptedFile } = await import("../src/lib/crypto.ts");
 const { QUESTIONS, QUESTIONS_VERSION } = await import("../src/lib/questions.ts");
 const { becomingQuestions, BECOMING_VERSION } = await import("../src/lib/becomingQuestions.ts");
-const { OCCASION_QUESTIONS, OCCASION_VERSION, MOMENTO_DO_DIA } = await import("../src/lib/occasionQuestions.ts");
+const { occasionQuestions, OCCASION_VERSION, MOMENTO_DO_DIA } = await import("../src/lib/occasionQuestions.ts");
 const { giftQuestions, GIFT_VERSION } = await import("../src/lib/giftQuestions.ts");
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const temp = mkdtempSync(path.join(tmpdir(), "mirage-export-"));
@@ -30,7 +30,11 @@ const gift = { nome: "João", pronome: "ele", tempo: "a vida toda", assinatura: 
 const routes = [
   { mode: "para_mim", version: QUESTIONS_VERSION, questions: () => QUESTIONS },
   { mode: "quem_quero_ser", version: BECOMING_VERSION, questions: () => becomingQuestions() },
-  { mode: "ocasiao", version: OCCASION_VERSION, questions: () => OCCASION_QUESTIONS },
+  // Palavra fora do léxico: O04 vai direto ao cartão dos 12.
+  { mode: "ocasiao", version: OCCASION_VERSION, mains: { O04: "xyzzy" }, questions: () => occasionQuestions("xyzzy") },
+  // Palavra do léxico: afinação (e "nenhum desses" → cartão); botões alternativos em O09 e O10.
+  { mode: "ocasiao", variant: "afinada", version: OCCASION_VERSION,
+    mains: { O04: "calmo", O09: "não vai ter ninguém perto", O10: "nunca senti" }, questions: () => occasionQuestions("calmo") },
   ...["amigo", "familia", "amor"].map(relacao => ({
     mode: "presente", version: GIFT_VERSION, info: { ...gift, relacao },
     questions: () => giftQuestions({ ...gift, relacao }),
@@ -55,8 +59,8 @@ function pathsForStep(step, key, marker) {
     }));
   });
 }
-function pathsForQuestion(question, marker) {
-  return question.steps.reduce((paths, step, index) => paths.flatMap(prefix =>
+function pathsForQuestion(question, marker, main = "") {
+  return (question.stepsFor?.(main) ?? question.steps).reduce((paths, step, index) => paths.flatMap(prefix =>
     pathsForStep(step, String(index), marker).map(suffix => ({
       values: { ...prefix.values, ...suffix.values }, passos: [...prefix.passos, ...suffix.passos],
     }))), [{ values: {}, passos: [] }]);
@@ -105,16 +109,17 @@ print(f"{len(fixtures)} arquivos cifrados: todos os caminhos preservados em JSON
 try {
   const fixtures = [];
   for (const route of routes) {
-    const routeName = `${route.mode}${route.info ? `-${route.info.relacao}` : ""}`;
+    const routeName = `${route.mode}${route.info ? `-${route.info.relacao}` : ""}${route.variant ? `-${route.variant}` : ""}`;
+    const mainFor = question => route.mains?.[question.id] ?? `${routeName}/${question.id}: resposta principal completa.\nCom acentos e duas linhas.`;
     const base = route.questions();
-    const allPaths = base.map(q => pathsForQuestion(q, `${routeName}/${q.id}`));
+    const allPaths = base.map(q => pathsForQuestion(q, `${routeName}/${q.id}`, q.noMain ? "" : mainFor(q)));
     const count = Math.max(...allPaths.map(paths => paths.length));
     for (let variant = 0; variant < count; variant++) {
       const questions = route.questions();
       const answers = {}, details = {}, qa = [];
       for (const [index, question] of questions.entries()) {
         const chosen = allPaths[index][variant % allPaths[index].length];
-        answers[index] = question.noMain ? "" : `${routeName}/${question.id}: resposta principal completa.\nCom acentos e duas linhas.`;
+        answers[index] = question.noMain ? "" : mainFor(question);
         details[index] = { steps: chosen.values };
         if (question.id !== "O03") qa.push({ id: question.id, question: question.noMain ? question.steps[0].prompt : question.text, answer: answers[index], passos: chosen.passos });
       }

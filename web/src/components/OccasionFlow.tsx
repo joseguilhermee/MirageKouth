@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SpecialInterview } from "./SpecialInterview";
-import { OCCASION_QUESTIONS } from "@/lib/occasionQuestions";
+import { occasionQuestions, WORD_INDEX } from "@/lib/occasionQuestions";
 import type { QuestionDetail } from "@/lib/questions";
 
 const STORAGE_KEY = "mirage-ocasiao-progress-v1";
@@ -31,11 +31,13 @@ export function OccasionFlow({ name, onBack, onCompleted }: { name: string; onBa
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* segue sem persistência */ }
   }, [ready, state]);
 
+  const word = state.answers[WORD_INDEX] ?? "";
+  const questions = useMemo(() => occasionQuestions(word), [word]);
   if (!ready) return null;
-  return <SpecialInterview name={name} label="Ocasião especial" questions={OCCASION_QUESTIONS}
+  return <SpecialInterview name={name} label="Ocasião especial" questions={questions}
     step={state.step} answers={state.answers} details={state.details}
     detailAt={index => index === 2 ? MOMENT_DETAIL : state.details[index] ?? {}}
-    occasion={{ questions: OCCASION_QUESTIONS }}
+    occasion={{ questions }}
     onAnswer={(index, value) => setState(prev => ({ ...prev, answers: { ...prev.answers, [index]: value } }))}
     onDetail={(index, detail) => setState(prev => ({ ...prev, details: { ...prev.details, [index]: detail } }))}
     onStep={step => setState(prev => ({ ...prev, step }))}

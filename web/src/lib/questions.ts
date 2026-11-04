@@ -5,13 +5,27 @@ export type TextStep = { kind: "text"; prompt: string; placeholder?: string; nex
 export type ButtonOption = { label: string; next?: Step; disabled?: boolean };
 
 /** Passo em botões: escolha única, nada vem marcado. */
-export type ButtonStep = { kind: "button"; prompt: string; options: ButtonOption[] };
+export type ButtonStep = {
+  kind: "button";
+  prompt: string;
+  options: ButtonOption[];
+  /** Embaralha a ordem na tela; `keepLast` mantém a última opção sempre no fim. */
+  shuffle?: boolean;
+  keepLast?: boolean;
+};
 
 /**
  * Passo em toque múltiplo: de 1 até `max` opções entre várias. A resposta é a
  * lista dos rótulos marcados, um por linha (ver `parseChoices`).
  */
-export type ChoicesStep = { kind: "choices"; prompt: string; options: string[]; max: number };
+export type ChoicesStep = {
+  kind: "choices";
+  prompt: string;
+  options: string[];
+  max: number;
+  /** Opção que desmarca as outras (e é desmarcada por elas); fica sempre no fim. */
+  exclusive?: string;
+};
 
 export type Step = TextStep | ButtonStep | ChoicesStep;
 
@@ -35,6 +49,10 @@ export type Question = {
   placeholder?: string;
   /** Passos que aparecem um por vez depois da principal. */
   steps: Step[];
+  /** Passos que dependem do que foi escrito na principal; se existir, vale no lugar de `steps`. */
+  stepsFor?: (main: string) => Step[];
+  /** Botão que responde no lugar do texto: tocar nele preenche a principal com este rótulo. */
+  alternative?: string;
 };
 
 /**
@@ -263,7 +281,8 @@ export type ShownStep = { key: string; step: Step; value: string; answered: bool
 function isAnswered(step: Step, value: string): boolean {
   if (step.kind === "choices") {
     const picked = parseChoices(value);
-    return picked.length >= 1 && picked.length <= step.max && picked.every((label) => step.options.includes(label));
+    const exclusiveAlone = !step.exclusive || !picked.includes(step.exclusive) || picked.length === 1;
+    return picked.length >= 1 && picked.length <= step.max && exclusiveAlone && picked.every((label) => step.options.includes(label));
   }
   return step.kind === "button"
     ? step.options.some((o) => o.label === value && !o.disabled)
@@ -286,9 +305,10 @@ export function shownSteps(
   let gated = !isMainAnswered(question, main);
   let complete = !gated;
 
-  for (let i = 0; i < question.steps.length; i++) {
+  const steps = question.stepsFor?.(main) ?? question.steps;
+  for (let i = 0; i < steps.length; i++) {
     let key = String(i);
-    let step: Step | undefined = question.steps[i];
+    let step: Step | undefined = steps[i];
     while (step) {
       const value = values[key] ?? "";
       if (gated && !value) return { shown, complete: false };

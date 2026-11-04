@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { QUESTIONS, shownSteps, setStepValue, buildSteps } from "../src/lib/questions.ts";
 import { becomingQuestions } from "../src/lib/becomingQuestions.ts";
-import { OCCASION_QUESTIONS } from "../src/lib/occasionQuestions.ts";
+import { occasionQuestions } from "../src/lib/occasionQuestions.ts";
 import { giftQuestions } from "../src/lib/giftQuestions.ts";
 
 const url = process.env.MIRAGE_E2E_URL || "http://localhost:3100";
@@ -21,7 +21,7 @@ const cases = [
   ["para_mim", "Para mim", "mirage-progress-v10"],
 ];
 const gift = { relacao: "amigo", nome: "Ju", pronome: "ela", tempo: "menos de 2 anos", assinatura: "Pessoa Teste" };
-const textFor = id => `História de teste ${id}: eu respirei, escutei a pessoa e escolhi agir com calma.\nFoi uma escolha importante para nós.`;
+const textFor = id => id === "O04" ? "livre" : `História de teste ${id}: eu respirei, escutei a pessoa e escolhi agir com calma.\nFoi uma escolha importante para nós.`;
 
 async function finishIntro(page) {
   for (const name of ["Como responder", "E a privacidade?", "Vamos começar"]) await page.getByRole("button", { name, exact: true }).click();
@@ -52,7 +52,7 @@ async function run([mode, purpose, storageKey], width) {
   page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
   const answers = {}, details = {};
   const questionsFor = () => mode === "quem_quero_ser" ? becomingQuestions()
-    : mode === "ocasiao" ? OCCASION_QUESTIONS : mode === "presente" ? giftQuestions(gift) : QUESTIONS;
+    : mode === "ocasiao" ? occasionQuestions(textFor("O04")) : mode === "presente" ? giftQuestions(gift) : QUESTIONS;
   try {
     await page.goto(url);
     if (width > 640) await page.getByRole("switch", { name: "Tema escuro" }).click();

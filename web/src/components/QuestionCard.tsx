@@ -164,7 +164,15 @@ export function QuestionCard({
         className={`${FIELD} ${blocked ? "border-warn" : "border-line-strong focus:border-terra"} ${
           sealing ? "text-transparent caret-transparent placeholder:text-transparent" : ""
         }`}
-      /></div>}
+      />
+      {question.alternative && (() => {
+        const alternative = question.alternative;
+        const isOn = value.trim() === alternative;
+        return <button type="button" aria-pressed={isOn} disabled={sealing}
+          onClick={() => onChange(isOn ? "" : alternative)}
+          className={`${PILL} mt-3 ${isOn ? PILL_ON : PILL_OFF}`}>{alternative}</button>;
+      })()}
+      </div>}
 
       {!question.noMain && <p
         id={`blocked-${index}`}
@@ -183,7 +191,7 @@ export function QuestionCard({
         <div className="mt-5 flex flex-col gap-8">
           {shown.map((s) => (
             <StepField
-              key={s.key}
+              key={`${s.key}:${s.step.prompt}`}
               shown={s}
               invalid={stepBlocked && s.key === firstOpen}
               focusRevision={focusRequest?.key === s.key ? focusRequest.revision : 0}
@@ -256,7 +264,21 @@ function StepField({
     const control = ref.current ?? blockRef.current.querySelector<HTMLElement>('button[role="radio"]:not(:disabled), button[role="checkbox"]:not(:disabled)');
     if (control) return focusContext(blockRef.current, control);
   }, [focusRevision, ref]);
-  const [shuffled] = useState(() => step.kind === "choices" ? shuffle(step.options) : []);
+  const [ordered] = useState<string[]>(() => {
+    if (step.kind === "choices") {
+      const rest = shuffle(step.options.filter(label => label !== step.exclusive));
+      return step.exclusive && step.options.includes(step.exclusive) ? [...rest, step.exclusive] : rest;
+    }
+    if (step.kind === "button" && step.shuffle) {
+      const labels = step.options.map(option => option.label);
+      const last = step.keepLast ? labels.pop() : undefined;
+      return last === undefined ? shuffle(labels) : [...shuffle(labels), last];
+    }
+    return step.kind === "button" ? step.options.map(option => option.label) : [];
+  });
+  const buttonOptions = step.kind === "button"
+    ? ordered.flatMap(label => step.options.filter(option => option.label === label))
+    : [];
   const promptClass = `font-display text-xl sm:text-[22px] font-medium leading-snug transition-colors ${
     invalid ? "text-warn" : "text-ink"
   }`;
@@ -277,10 +299,11 @@ function StepField({
           <p className={`${promptClass} mb-1`}>{step.prompt}</p>
           <p className="mb-3 text-[15px] text-ink-3" aria-live="polite">{parseChoices(value).length} de {step.max} escolhidas</p>
           <div className="flex flex-wrap gap-2">
-            {shuffled.map((label) => {
+            {ordered.map((label) => {
               const picked = parseChoices(value);
               const isOn = picked.includes(label);
-              const full = !isOn && picked.length >= step.max;
+              const isExclusive = label === step.exclusive;
+              const full = !isOn && !isExclusive && picked.length >= step.max;
               return (
                 <button
                   key={label}
@@ -291,7 +314,10 @@ function StepField({
                   aria-disabled={full || undefined}
                   onClick={() => {
                     if (full) return;
-                    onChange((isOn ? picked.filter(item => item !== label) : [...picked, label]).join(CHOICES_SEPARATOR), true);
+                    const next = isOn ? picked.filter(item => item !== label)
+                      : isExclusive ? [label]
+                      : [...picked.filter(item => item !== step.exclusive), label];
+                    onChange(next.join(CHOICES_SEPARATOR), true);
                   }}
                   onKeyDown={onKeyDown}
                   className={`${PILL} ${isOn ? PILL_ON : full ? "border-line bg-[var(--control)] text-ink-3 opacity-60" : PILL_OFF}`}
@@ -306,7 +332,7 @@ function StepField({
         <>
           <p className={`${promptClass} mb-3`}>{step.prompt}</p>
           <div className="flex flex-wrap gap-2">
-            {step.options.map((option) => {
+            {buttonOptions.map((option) => {
               const isOn = value === option.label;
               return (
                 <button
@@ -314,7 +340,7 @@ function StepField({
                   type="button"
                   role="radio"
                   aria-checked={isOn}
-                  tabIndex={option.label === (step.options.some(item => item.label === value && !item.disabled) ? value : step.options.find(item => !item.disabled)?.label) ? 0 : -1}
+                  tabIndex={option.label === (buttonOptions.some(item => item.label === value && !item.disabled) ? value : buttonOptions.find(item => !item.disabled)?.label) ? 0 : -1}
                   disabled={option.disabled || readOnly}
                   onClick={() => onChange(option.label, true)}
                   onKeyDown={event => {
